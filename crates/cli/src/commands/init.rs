@@ -4,7 +4,10 @@ use config::{
     overwrite::Overwrite,
     swelog_config::SwelogConfig,
 };
-use highlight::stdout::highlight_cyan;
+use highlight::stdout::{
+    highlight_cyan,
+    path_link,
+};
 use miette::Result;
 
 use crate::environment::Environment;
@@ -28,7 +31,7 @@ impl InitArgs {
 
         println!(
             "Created swelog config at {}",
-            highlight_cyan(environment.config_file_path.display())
+            highlight_cyan(path_link(&environment.config_file_path))
         );
 
         Ok(())

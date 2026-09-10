@@ -10,6 +10,7 @@ use config::{
     swelog_config::SwelogConfig,
     swelog_file_existence::ensure_swelog_directory_exists,
 };
+use highlight::stderr::path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -49,7 +50,7 @@ pub fn write_daily_log_from_config(
     let daily_log_content = build_daily_log_content(&work_file_content, log_date);
 
     fs::write(&daily_log_file, daily_log_content).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write daily log file at {}", daily_log_file.display())
+        format!("failed to write daily log file at {}", path_link(&daily_log_file))
     })?;
 
     let undo_snapshot = UndoSnapshot { created_file: Some(daily_log_file), work_file_content };

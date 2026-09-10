@@ -4,8 +4,11 @@ use config::{
     context_file::get_context_file_content,
     setup::swelog_paths::SwelogPaths,
 };
-use daily_log::file::get_daily_log_file_name;
-use highlight::stdout::highlight_cyan;
+use daily_log::file::get_daily_log_file_path;
+use highlight::stdout::{
+    highlight_cyan,
+    path_link,
+};
 use llm::summarization_settings::SummarizationSettings;
 use miette::Result;
 use summary::day::summarize_daily_work_from_config;
@@ -61,11 +64,11 @@ impl DailySummaryArgs {
         )
         .await?;
 
-        let daily_log_file_name = get_daily_log_file_name(&log_date);
+        let daily_log_file = get_daily_log_file_path(&swelog_paths, &log_date);
 
         println!(
             "Successfully summarized your daily work into {}",
-            highlight_cyan(daily_log_file_name)
+            highlight_cyan(path_link(&daily_log_file))
         );
 
         Ok(())

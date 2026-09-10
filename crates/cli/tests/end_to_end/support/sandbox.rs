@@ -16,7 +16,8 @@ use credentials::{
     credential::Credential,
     store::CredentialStore,
 };
-use daily_log::file::get_daily_log_file_name;
+use daily_log::file::get_daily_log_file_path;
+use summary::week::get_weekly_log_file_path;
 use tempfile::{
     TempDir,
     tempdir,
@@ -121,11 +122,11 @@ impl SwelogSandbox {
     }
 
     pub fn daily_log_file(&self, date: &str) -> PathBuf {
-        self.swelog_paths().daily_log_directory.join(get_daily_log_file_name(&parse_date(date)))
+        get_daily_log_file_path(&self.swelog_paths(), &parse_date(date))
     }
 
     pub fn weekly_log_file(&self, monday_date: &str) -> PathBuf {
-        self.swelog_paths().weekly_log_directory.join(format!("Week of {monday_date}.md"))
+        get_weekly_log_file_path(&self.swelog_paths(), &parse_date(monday_date))
     }
 
     pub fn read_work_file(&self) -> String {

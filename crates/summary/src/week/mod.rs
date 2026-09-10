@@ -1,6 +1,9 @@
 mod errors;
 
-use std::fs;
+use std::{
+    fs,
+    path::PathBuf,
+};
 
 use chrono::{
     Duration,
@@ -18,7 +21,7 @@ use config::{
         ensure_swelog_file_exists,
     },
 };
-use daily_log::file::get_daily_log_file_name;
+use daily_log::file::get_daily_log_file_path;
 use dates::formatting::format_date;
 use errors::{
     NoDailyLogsFound,
@@ -26,6 +29,7 @@ use errors::{
     WeeklyLogAlreadyExists,
     WorkFileNotDefault,
 };
+use highlight::stderr::path_link;
 use llm::{
     language_model::LanguageModel,
     prompts::get_weekly_log_prompt,
@@ -51,9 +55,7 @@ pub async fn summarize_weekly_work_from_config(
 
     ensure_swelog_directory_exists(&swelog_paths.weekly_log_directory)?;
 
-    let weekly_log_file_name = get_weekly_log_file_name(monday_date);
-
-    let weekly_log_file = swelog_paths.weekly_log_directory.join(weekly_log_file_name);
+    let weekly_log_file = get_weekly_log_file_path(&swelog_paths, monday_date);
 
     if weekly_log_file.exists() && overwrite == Overwrite::No {
         let weekly_log_already_exists_error = WeeklyLogAlreadyExists { weekly_log_file };
@@ -63,7 +65,7 @@ pub async fn summarize_weekly_work_from_config(
 
     let work_file_content =
         fs::read_to_string(&swelog_paths.work_file).into_diagnostic().wrap_err_with(|| {
-            format!("failed to read work file at {}", swelog_paths.work_file.display())
+            format!("failed to read work file at {}", path_link(&swelog_paths.work_file))
         })?;
 
     if !is_default_work_file_content(&work_file_content) {
@@ -85,17 +87,23 @@ pub async fn summarize_weekly_work_from_config(
     let generated_weekly_log_content = language_model.generate_response(&prompt).await?;
 
     fs::write(&weekly_log_file, generated_weekly_log_content).into_diagnostic().wrap_err_with(
-        || format!("failed to write weekly log file at {}", weekly_log_file.display()),
+        || format!("failed to write weekly log file at {}", path_link(&weekly_log_file)),
     )?;
 
     Ok(())
 }
 
-#[must_use]
-pub fn get_weekly_log_file_name(monday_date: &NaiveDate) -> String {
-    let monday_date_string = format_date(monday_date);
+fn get_weekly_log_file_name(monday_date: NaiveDate) -> String {
+    let monday_date_string = format_date(&monday_date);
 
     format!("Week of {monday_date_string}.md")
+}
+
+#[must_use]
+pub fn get_weekly_log_file_path(swelog_paths: &SwelogPaths, monday_date: &NaiveDate) -> PathBuf {
+    let weekly_log_file_name = get_weekly_log_file_name(*monday_date);
+
+    swelog_paths.weekly_log_directory.join(weekly_log_file_name)
 }
 
 fn collect_weekday_daily_logs(
@@ -109,9 +117,7 @@ fn collect_weekday_daily_logs(
             .checked_add_signed(Duration::days(day_offset))
             .ok_or(WeekdayDateOutOfRange { monday_date })?;
 
-        let daily_log_file_name = get_daily_log_file_name(&daily_log_date);
-
-        let daily_log_file = swelog_paths.daily_log_directory.join(daily_log_file_name);
+        let daily_log_file = get_daily_log_file_path(swelog_paths, &daily_log_date);
 
         if !daily_log_file.exists() {
             continue;
@@ -119,7 +125,7 @@ fn collect_weekday_daily_logs(
 
         let daily_log_content =
             fs::read_to_string(&daily_log_file).into_diagnostic().wrap_err_with(|| {
-                format!("failed to read daily log file at {}", daily_log_file.display())
+                format!("failed to read daily log file at {}", path_link(&daily_log_file))
             })?;
 
         daily_logs.push(daily_log_content);

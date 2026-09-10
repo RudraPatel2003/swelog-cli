@@ -1,10 +1,16 @@
 use clap::Args;
-use config::config_file::read_config_file;
+use config::{
+    config_file::read_config_file,
+    setup::swelog_paths::SwelogPaths,
+};
 use daily_log::{
-    file::get_daily_log_file_name,
+    file::get_daily_log_file_path,
     write::write_daily_log_from_config,
 };
-use highlight::stdout::highlight_cyan;
+use highlight::stdout::{
+    highlight_cyan,
+    path_link,
+};
 use miette::Result;
 
 use crate::{
@@ -32,9 +38,11 @@ impl LogArgs {
             self.daily_log_args.keep_work_file(),
         )?;
 
-        let daily_log_file_name = get_daily_log_file_name(&log_date);
+        let swelog_paths = SwelogPaths::new(&swelog_config);
 
-        println!("Logged your work into {}", highlight_cyan(daily_log_file_name));
+        let daily_log_file = get_daily_log_file_path(&swelog_paths, &log_date);
+
+        println!("Logged your work into {}", highlight_cyan(path_link(&daily_log_file)));
 
         Ok(())
     }

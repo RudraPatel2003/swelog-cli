@@ -19,6 +19,7 @@ workspace = true
 chrono = { workspace = true }
 config = { path = "../config" }
 dates = { path = "../dates" }
+highlight = { path = "../highlight" }
 miette = { workspace = true }
 thiserror = { workspace = true }
 undo = { path = "../undo" }

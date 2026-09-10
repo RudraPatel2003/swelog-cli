@@ -17,6 +17,7 @@ workspace = true
 
 [dependencies]
 config = { path = "../config" }
+highlight = { path = "../highlight" }
 miette = { workspace = true }
 pulldown-cmark = { workspace = true }
 thiserror = { workspace = true }

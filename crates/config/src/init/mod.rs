@@ -6,6 +6,7 @@ use std::{
     },
 };
 
+use highlight::stderr::path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -37,7 +38,7 @@ pub fn write_default_config(
         .wrap_err("failed to serialize config")?;
 
     fs::write(config_file_path, format!("{serialized_config}\n")).into_diagnostic().wrap_err_with(
-        || format!("failed to write config file at {}", config_file_path.display()),
+        || format!("failed to write config file at {}", path_link(config_file_path)),
     )?;
 
     Ok(())
@@ -49,7 +50,7 @@ fn create_config_directory(config_file_path: &Path) -> Result<()> {
     };
 
     fs::create_dir_all(config_directory).into_diagnostic().wrap_err_with(|| {
-        format!("failed to create config directory at {}", config_directory.display())
+        format!("failed to create config directory at {}", path_link(config_directory))
     })?;
 
     Ok(())

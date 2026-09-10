@@ -1,11 +1,12 @@
 use std::path::PathBuf;
 
 use chrono::NaiveDate;
+use highlight::stderr::path_link;
 use miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Debug, Diagnostic, Error)]
-#[error("weekly log already exists at {weekly_log_file}")]
+#[error("weekly log already exists at {}", path_link(.weekly_log_file))]
 #[diagnostic(
     code(swelog::summary::weekly_log_already_exists),
     help("use `swelog summarize week --force` to overwrite the existing weekly log file")

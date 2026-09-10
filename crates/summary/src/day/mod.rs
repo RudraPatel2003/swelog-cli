@@ -18,6 +18,7 @@ use daily_log::{
         read_work_file_notes,
     },
 };
+use highlight::stderr::path_link;
 use llm::{
     language_model::LanguageModel,
     prompts::get_daily_log_prompt,
@@ -58,7 +59,7 @@ pub async fn summarize_daily_work_from_config(
         build_summarized_daily_log_content(&generated_daily_log_content, &work_file_content);
 
     fs::write(&daily_log_file, daily_log_content).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write daily log file at {}", daily_log_file.display())
+        format!("failed to write daily log file at {}", path_link(&daily_log_file))
     })?;
 
     let undo_snapshot = UndoSnapshot { created_file: Some(daily_log_file), work_file_content };

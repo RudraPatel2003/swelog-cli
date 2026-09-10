@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use highlight::stderr::path_link;
 use miette::Diagnostic;
 use thiserror::Error;
 
@@ -42,7 +43,7 @@ pub struct KeyringUnavailable {
 }
 
 #[derive(Debug, Diagnostic, Error)]
-#[error("Failed to access the credential file at {credential_file}")]
+#[error("Failed to access the credential file at {}", path_link(.credential_file))]
 #[diagnostic(
     code(swelog::credentials::credential_file_unavailable),
     help("check that the file is readable JSON and try again: {message}")

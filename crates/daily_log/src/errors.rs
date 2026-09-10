@@ -1,10 +1,11 @@
 use std::path::PathBuf;
 
+use highlight::stderr::path_link;
 use miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Debug, Diagnostic, Error)]
-#[error("daily log already exists at {daily_log_file}")]
+#[error("daily log already exists at {}", path_link(.daily_log_file))]
 #[diagnostic(
     code(swelog::daily_log::daily_log_already_exists),
     help("re-run with `--force` to overwrite the existing daily log file")

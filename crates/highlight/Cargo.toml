@@ -17,3 +17,5 @@ workspace = true
 
 [dependencies]
 owo-colors = { workspace = true }
+supports-hyperlinks = { workspace = true }
+url = { workspace = true }

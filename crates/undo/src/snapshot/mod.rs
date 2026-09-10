@@ -7,6 +7,7 @@ use std::{
     process,
 };
 
+use highlight::stderr::path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -43,7 +44,7 @@ pub fn read_undo_snapshot(undo_snapshot_file: &Path) -> Result<UndoSnapshot> {
 
     let undo_snapshot_contents =
         fs::read_to_string(undo_snapshot_file).into_diagnostic().wrap_err_with(|| {
-            format!("failed to read the undo snapshot at {}", undo_snapshot_file.display())
+            format!("failed to read the undo snapshot at {}", path_link(undo_snapshot_file))
         })?;
 
     let undo_snapshot = serde_json::from_str(&undo_snapshot_contents)
@@ -56,7 +57,7 @@ pub fn read_undo_snapshot(undo_snapshot_file: &Path) -> Result<UndoSnapshot> {
 pub fn write_undo_snapshot(undo_snapshot_file: &Path, undo_snapshot: &UndoSnapshot) -> Result<()> {
     if let Some(parent) = undo_snapshot_file.parent() {
         fs::create_dir_all(parent).into_diagnostic().wrap_err_with(|| {
-            format!("failed to create the swelog cache directory at {}", parent.display())
+            format!("failed to create the swelog cache directory at {}", path_link(parent))
         })?;
     }
 
@@ -67,11 +68,11 @@ pub fn write_undo_snapshot(undo_snapshot_file: &Path, undo_snapshot: &UndoSnapsh
     let temporary_file_path = undo_snapshot_file.with_extension(format!("{}.tmp", process::id()));
 
     fs::write(&temporary_file_path, json).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write the undo snapshot at {}", temporary_file_path.display())
+        format!("failed to write the undo snapshot at {}", path_link(&temporary_file_path))
     })?;
 
     fs::rename(&temporary_file_path, undo_snapshot_file).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write the undo snapshot at {}", undo_snapshot_file.display())
+        format!("failed to write the undo snapshot at {}", path_link(undo_snapshot_file))
     })?;
 
     Ok(())
@@ -83,7 +84,7 @@ pub fn remove_undo_snapshot(undo_snapshot_file: &Path) -> Result<()> {
     }
 
     fs::remove_file(undo_snapshot_file).into_diagnostic().wrap_err_with(|| {
-        format!("failed to remove the undo snapshot at {}", undo_snapshot_file.display())
+        format!("failed to remove the undo snapshot at {}", path_link(undo_snapshot_file))
     })
 }
 
