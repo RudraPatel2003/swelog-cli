@@ -1,13 +1,20 @@
-use std::fmt::Display;
+use std::{
+    fmt::Display,
+    path::Path,
+};
 
 use owo_colors::Stream;
+use supports_hyperlinks::Stream as HyperlinkStream;
 
-use crate::style::{
-    cyan,
-    dimmed,
-    green,
-    highlight_with_style,
-    yellow,
+use crate::{
+    link::format_path_link,
+    style::{
+        cyan,
+        dimmed,
+        green,
+        highlight_with_style,
+        yellow,
+    },
 };
 
 pub fn highlight_cyan(text: impl Display) -> String {
@@ -24,4 +31,11 @@ pub fn highlight_green(text: impl Display) -> String {
 
 pub fn highlight_dimmed(text: impl Display) -> String {
     highlight_with_style(text, Stream::Stdout, dimmed())
+}
+
+#[must_use]
+pub fn path_link(path: &Path) -> String {
+    let formatted_path_link = format_path_link(path, HyperlinkStream::Stdout);
+
+    highlight_cyan(formatted_path_link)
 }

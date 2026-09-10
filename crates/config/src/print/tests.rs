@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::path::{
+    Path,
+    PathBuf,
+};
 
 use super::*;
 
@@ -23,7 +26,9 @@ fn format_config_groups_fields_under_section_headings() {
 
     assert!(output.contains("Integrations\n"));
 
-    assert!(output.contains("Obsidian vault path  /home/user/vault\n"));
+    let vault_path_link = path_link(Path::new("/home/user/vault"));
+
+    assert!(output.contains(&format!("Obsidian vault path  {vault_path_link}\n")));
 
     assert!(output.contains("Provider             Ollama\n"));
 

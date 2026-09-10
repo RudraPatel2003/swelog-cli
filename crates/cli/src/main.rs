@@ -1,6 +1,7 @@
 mod cli;
 mod commands;
 mod environment;
+mod error_report;
 mod shared;
 
 use clap::Parser;
@@ -11,6 +12,7 @@ use environment::{
     resolve_environment,
     update_check::UpdateCheck,
 };
+use error_report::configure_miette_error_handling;
 use miette::Result;
 use updates::check::{
     PendingUpdateNotice,
@@ -20,6 +22,8 @@ use updates::check::{
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    configure_miette_error_handling()?;
+
     let cli = Cli::parse();
 
     let environment = resolve_environment(cli.global_args)?;

@@ -6,6 +6,7 @@ use std::{
     path::Path,
 };
 
+use highlight::stderr::path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -32,7 +33,10 @@ pub fn setup_swelog_files_from_config(
     }
 
     fs::create_dir_all(&swelog_paths.swelog_directory).into_diagnostic().wrap_err_with(|| {
-        format!("failed to create swelog directory at {}", swelog_paths.swelog_directory.display())
+        format!(
+            "failed to create swelog directory at {}",
+            path_link(&swelog_paths.swelog_directory)
+        )
     })?;
 
     create_or_reset_work_file(swelog_config, cache_directory)?;
@@ -41,7 +45,7 @@ pub fn setup_swelog_files_from_config(
         || {
             format!(
                 "failed to create daily log directory at {}",
-                swelog_paths.daily_log_directory.display()
+                path_link(&swelog_paths.daily_log_directory)
             )
         },
     )?;
@@ -50,7 +54,7 @@ pub fn setup_swelog_files_from_config(
         || {
             format!(
                 "failed to create weekly log directory at {}",
-                swelog_paths.weekly_log_directory.display()
+                path_link(&swelog_paths.weekly_log_directory)
             )
         },
     )?;

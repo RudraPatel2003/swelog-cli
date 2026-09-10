@@ -6,6 +6,7 @@ use std::{
     },
 };
 
+use highlight::stderr::path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -44,7 +45,7 @@ pub fn read_config_file(config_file_path: &Path) -> Result<SwelogConfig> {
 
     let config_file_contents =
         fs::read_to_string(config_file_path).into_diagnostic().wrap_err_with(|| {
-            format!("failed to read config file at {}", config_file_path.display())
+            format!("failed to read config file at {}", path_link(config_file_path))
         })?;
 
     let config: SwelogConfig = serde_json::from_str(&config_file_contents)

@@ -15,7 +15,7 @@ use config::{
 };
 use daily_log::{
     errors::DailyLogAlreadyExists,
-    file::get_daily_log_file_name,
+    file::get_daily_log_file_path,
 };
 use llm::language_model::LanguageModel;
 use miette::Result;
@@ -81,9 +81,7 @@ impl TestContext {
     fn daily_log_file(&self) -> PathBuf {
         let log_date = test_log_date();
 
-        let daily_log_file_name = get_daily_log_file_name(&log_date);
-
-        self.daily_log_directory().join(daily_log_file_name)
+        get_daily_log_file_path(&self.swelog_paths(), &log_date)
     }
 
     fn cache_directory(&self) -> PathBuf {

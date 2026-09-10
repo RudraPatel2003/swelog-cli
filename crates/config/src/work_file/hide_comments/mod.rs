@@ -6,6 +6,7 @@ use std::{
     },
 };
 
+use highlight::stderr::path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -23,12 +24,12 @@ pub fn set_hide_comments_flag(cache_directory: &Path) -> Result<()> {
 
     if let Some(parent) = flag_file_path.parent() {
         fs::create_dir_all(parent).into_diagnostic().wrap_err_with(|| {
-            format!("failed to create the swelog cache directory at {}", parent.display())
+            format!("failed to create the swelog cache directory at {}", path_link(parent))
         })?;
     }
 
     fs::write(&flag_file_path, "").into_diagnostic().wrap_err_with(|| {
-        format!("failed to write the hide comments flag at {}", flag_file_path.display())
+        format!("failed to write the hide comments flag at {}", path_link(&flag_file_path))
     })
 }
 

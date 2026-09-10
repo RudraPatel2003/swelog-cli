@@ -69,7 +69,10 @@ fn summarize_day_writes_the_generated_summary_with_the_original_notes() {
         .assert()
         .success()
         .stdout(contains("Summarizing day with provider Anthropic and model claude-sonnet-4-5..."))
-        .stdout(contains("Successfully summarized your daily work into 07-04-2026.md"));
+        .stdout(contains(format!(
+            "Successfully summarized your daily work into {}",
+            sandbox.daily_log_file(ACTIVITY_DATE).display()
+        )));
 
     messages.assert();
 
@@ -145,7 +148,10 @@ fn summarize_week_writes_the_generated_weekly_log() {
         .assert()
         .success()
         .stdout(contains("Summarizing week with provider Anthropic and model claude-sonnet-4-5..."))
-        .stdout(contains("Successfully summarized your weekly work into Week of 06-29-2026.md"));
+        .stdout(contains(format!(
+            "Successfully summarized your weekly work into {}",
+            sandbox.weekly_log_file(MONDAY_DATE).display()
+        )));
 
     messages.assert();
 

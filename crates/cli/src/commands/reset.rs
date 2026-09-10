@@ -7,7 +7,7 @@ use config::{
         read_work_file,
     },
 };
-use highlight::stdout::highlight_cyan;
+use highlight::stdout::path_link;
 use miette::Result;
 use undo::snapshot::{
     UndoSnapshot,
@@ -38,7 +38,7 @@ impl ResetArgs {
 
         create_or_reset_work_file(&swelog_config, &environment.cache_directory)?;
 
-        println!("Reset work file at {}", highlight_cyan(swelog_paths.work_file.display()));
+        println!("Reset work file at {}", path_link(&swelog_paths.work_file));
 
         Ok(())
     }

@@ -1,6 +1,6 @@
 [package]
 name = "linear"
-version = "0.23.0"
+version = "0.24.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }

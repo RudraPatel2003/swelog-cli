@@ -34,12 +34,9 @@ fn get_sandbox_with_written_work_file() -> SwelogSandbox {
 fn log_writes_the_work_file_into_a_dated_daily_log_and_resets_the_work_file() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox
-        .swelog()
-        .args(["log", "--date", ACTIVITY_DATE])
-        .assert()
-        .success()
-        .stdout(contains("Logged your work into 07-04-2026.md"));
+    sandbox.swelog().args(["log", "--date", ACTIVITY_DATE]).assert().success().stdout(contains(
+        format!("Logged your work into {}", sandbox.daily_log_file(ACTIVITY_DATE).display()),
+    ));
 
     assert_eq!(sandbox.read_daily_log(ACTIVITY_DATE), EXPECTED_DAILY_LOG_CONTENT);
 

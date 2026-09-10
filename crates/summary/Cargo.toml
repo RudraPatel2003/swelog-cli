@@ -1,6 +1,6 @@
 [package]
 name = "summary"
-version = "0.23.0"
+version = "0.24.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -21,6 +21,7 @@ chrono = { workspace = true }
 config = { path = "../config" }
 daily_log = { path = "../daily_log" }
 dates = { path = "../dates" }
+highlight = { path = "../highlight" }
 miette = { workspace = true }
 llm = { path = "../llm" }
 thiserror = { workspace = true }

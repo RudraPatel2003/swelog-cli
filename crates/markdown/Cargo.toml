@@ -1,6 +1,6 @@
 [package]
 name = "markdown"
-version = "0.23.0"
+version = "0.24.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -17,6 +17,7 @@ workspace = true
 
 [dependencies]
 config = { path = "../config" }
+highlight = { path = "../highlight" }
 miette = { workspace = true }
 pulldown-cmark = { workspace = true }
 thiserror = { workspace = true }

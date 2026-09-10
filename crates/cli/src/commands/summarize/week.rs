@@ -10,11 +10,11 @@ use dates::{
     date_format::DATE_VALUE_NAME,
     parsing::parse_monday_date,
 };
-use highlight::stdout::highlight_cyan;
+use highlight::stdout::path_link;
 use llm::summarization_settings::SummarizationSettings;
 use miette::Result;
 use summary::week::{
-    get_weekly_log_file_name,
+    get_weekly_log_file_path,
     summarize_weekly_work_from_config,
 };
 
@@ -81,12 +81,9 @@ impl WeeklySummaryArgs {
         )
         .await?;
 
-        let weekly_log_file_name = get_weekly_log_file_name(&monday_date);
+        let weekly_log_file = get_weekly_log_file_path(&swelog_paths, &monday_date);
 
-        println!(
-            "Successfully summarized your weekly work into {}",
-            highlight_cyan(weekly_log_file_name)
-        );
+        println!("Successfully summarized your weekly work into {}", path_link(&weekly_log_file));
 
         Ok(())
     }

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use highlight::stdout::highlight_cyan;
+use highlight::stdout::path_link;
 
 use crate::swelog_config::{
     LanguageModelProvider,
@@ -24,7 +24,7 @@ struct ConfigRow {
 pub fn print_config(config_file_path: &Path, config: &SwelogConfig) {
     let formatted_config = format_config(config);
 
-    println!("Displaying config at {}:", highlight_cyan(config_file_path.display()));
+    println!("Displaying config at {}:", path_link(config_file_path));
 
     println!();
 
@@ -44,7 +44,7 @@ fn collect_config_sections(config: &SwelogConfig) -> Vec<ConfigSection> {
             rows: vec![
                 ConfigRow {
                     label: "Obsidian vault path",
-                    value: config.obsidian_vault_path.display().to_string(),
+                    value: path_link(&config.obsidian_vault_path),
                 },
                 ConfigRow { label: "Swelog folder name", value: config.swelog_folder_name.clone() },
             ],

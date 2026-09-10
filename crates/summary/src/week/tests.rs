@@ -67,15 +67,11 @@ impl TestContext {
     }
 
     fn daily_log_file(&self, log_date: NaiveDate) -> PathBuf {
-        let daily_log_file_name = get_daily_log_file_name(&log_date);
-
-        self.daily_log_directory().join(daily_log_file_name)
+        get_daily_log_file_path(&self.swelog_paths(), &log_date)
     }
 
     fn weekly_log_file(&self) -> PathBuf {
-        let weekly_log_file_name = get_weekly_log_file_name(&test_monday_date());
-
-        self.weekly_log_directory().join(weekly_log_file_name)
+        get_weekly_log_file_path(&self.swelog_paths(), &test_monday_date())
     }
 
     fn write_swelog_files(&self) {

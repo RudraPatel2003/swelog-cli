@@ -8,6 +8,7 @@ use config::{
     swelog_config::SwelogConfig,
     swelog_file_existence::ensure_swelog_file_exists,
 };
+use highlight::stderr::path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -54,13 +55,13 @@ fn update_work_file_from_config(
 
     let work_file_content =
         fs::read_to_string(&swelog_paths.work_file).into_diagnostic().wrap_err_with(|| {
-            format!("failed to read work file at {}", swelog_paths.work_file.display())
+            format!("failed to read work file at {}", path_link(&swelog_paths.work_file))
         })?;
 
     let updated_work_file_content = update_work_file(&work_file_content);
 
     fs::write(&swelog_paths.work_file, updated_work_file_content).into_diagnostic().wrap_err_with(
-        || format!("failed to write work file at {}", swelog_paths.work_file.display()),
+        || format!("failed to write work file at {}", path_link(&swelog_paths.work_file)),
     )?;
 
     Ok(())
