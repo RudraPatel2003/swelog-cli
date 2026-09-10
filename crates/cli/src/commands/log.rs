@@ -7,10 +7,7 @@ use daily_log::{
     file::get_daily_log_file_path,
     write::write_daily_log_from_config,
 };
-use highlight::stdout::{
-    highlight_cyan,
-    path_link,
-};
+use highlight::stdout::path_link;
 use miette::Result;
 
 use crate::{
@@ -42,7 +39,7 @@ impl LogArgs {
 
         let daily_log_file = get_daily_log_file_path(&swelog_paths, &log_date);
 
-        println!("Logged your work into {}", highlight_cyan(path_link(&daily_log_file)));
+        println!("Logged your work into {}", path_link(&daily_log_file));
 
         Ok(())
     }

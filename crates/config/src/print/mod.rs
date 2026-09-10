@@ -1,9 +1,6 @@
 use std::path::Path;
 
-use highlight::stdout::{
-    highlight_cyan,
-    path_link,
-};
+use highlight::stdout::path_link;
 
 use crate::swelog_config::{
     LanguageModelProvider,
@@ -27,7 +24,7 @@ struct ConfigRow {
 pub fn print_config(config_file_path: &Path, config: &SwelogConfig) {
     let formatted_config = format_config(config);
 
-    println!("Displaying config at {}:", highlight_cyan(path_link(config_file_path)));
+    println!("Displaying config at {}:", path_link(config_file_path));
 
     println!();
 

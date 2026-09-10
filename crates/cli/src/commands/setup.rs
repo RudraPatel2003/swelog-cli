@@ -4,10 +4,7 @@ use config::{
     overwrite::Overwrite,
     setup::setup_swelog_files_from_config,
 };
-use highlight::stdout::{
-    highlight_cyan,
-    path_link,
-};
+use highlight::stdout::path_link;
 use miette::Result;
 
 use crate::environment::Environment;
@@ -31,7 +28,7 @@ impl SetupArgs {
 
         println!(
             "Created swelog files in your Obsidian vault at {}",
-            highlight_cyan(path_link(&swelog_config.obsidian_vault_path))
+            path_link(&swelog_config.obsidian_vault_path)
         );
 
         Ok(())

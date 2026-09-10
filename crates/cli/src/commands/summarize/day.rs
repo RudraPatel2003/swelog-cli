@@ -5,10 +5,7 @@ use config::{
     setup::swelog_paths::SwelogPaths,
 };
 use daily_log::file::get_daily_log_file_path;
-use highlight::stdout::{
-    highlight_cyan,
-    path_link,
-};
+use highlight::stdout::path_link;
 use llm::summarization_settings::SummarizationSettings;
 use miette::Result;
 use summary::day::summarize_daily_work_from_config;
@@ -66,10 +63,7 @@ impl DailySummaryArgs {
 
         let daily_log_file = get_daily_log_file_path(&swelog_paths, &log_date);
 
-        println!(
-            "Successfully summarized your daily work into {}",
-            highlight_cyan(path_link(&daily_log_file))
-        );
+        println!("Successfully summarized your daily work into {}", path_link(&daily_log_file));
 
         Ok(())
     }

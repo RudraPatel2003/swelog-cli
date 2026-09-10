@@ -35,5 +35,7 @@ pub fn highlight_dimmed(text: impl Display) -> String {
 
 #[must_use]
 pub fn path_link(path: &Path) -> String {
-    format_path_link(path, HyperlinkStream::Stdout)
+    let formatted_path_link = format_path_link(path, HyperlinkStream::Stdout);
+
+    highlight_cyan(formatted_path_link)
 }
