@@ -373,7 +373,7 @@ checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 
 [[package]]
 name = "base_url"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "miette",
  "thiserror 2.0.20",
@@ -548,7 +548,7 @@ checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
 name = "cli"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "assert_cmd",
  "base_url",
@@ -622,7 +622,7 @@ dependencies = [
 
 [[package]]
 name = "config"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "dirs",
  "highlight",
@@ -670,7 +670,7 @@ dependencies = [
 
 [[package]]
 name = "credentials"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "clap",
  "highlight",
@@ -700,7 +700,7 @@ dependencies = [
 
 [[package]]
 name = "daily_log"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "chrono",
  "config",
@@ -714,7 +714,7 @@ dependencies = [
 
 [[package]]
 name = "dates"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "chrono",
  "miette",
@@ -1092,7 +1092,7 @@ checksum = "e629b9b98ef3dd8afe6ca2bd0f89306cec16d43d907889945bc5d6687f2f13c7"
 
 [[package]]
 name = "github"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "base_url",
  "chrono",
@@ -1105,7 +1105,7 @@ dependencies = [
 
 [[package]]
 name = "google_calendar"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "base_url",
  "chrono",
@@ -1201,7 +1201,7 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "highlight"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "owo-colors",
  "supports-hyperlinks",
@@ -1688,7 +1688,7 @@ dependencies = [
 
 [[package]]
 name = "linear"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1720,7 +1720,7 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "llm"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "async-trait",
  "base_url",
@@ -1759,7 +1759,7 @@ checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
 
 [[package]]
 name = "markdown"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "config",
  "highlight",
@@ -1943,7 +1943,7 @@ dependencies = [
 
 [[package]]
 name = "oauth"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "miette",
  "tokio",
@@ -3082,7 +3082,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "summary"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3282,7 +3282,7 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "chrono",
 ]
@@ -3516,7 +3516,7 @@ dependencies = [
 
 [[package]]
 name = "undo"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "config",
  "highlight",
@@ -3571,7 +3571,7 @@ checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
 name = "updates"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "base_url",
  "chrono",
@@ -4201,7 +4201,7 @@ checksum = "1ffae5123b2d3fc086436f8834ae3ab053a283cfac8fe0a0b8eaae044768a4c4"
 
 [[package]]
 name = "xtask"
-version = "0.23.0"
+version = "0.24.0"
 dependencies = [
  "miette",
  "semver",

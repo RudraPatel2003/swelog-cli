@@ -1,6 +1,6 @@
 {
   "name": "swelog-cli",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "A Rust CLI to track your daily accomplishments in Obsidian",
   "license": "MIT",
   "homepage": "https://github.com/RudraPatel2003/swelog-cli",
