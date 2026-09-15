@@ -31,6 +31,7 @@ use errors::{
 };
 use highlight::stderr::path_link;
 use llm::{
+    code_fence::strip_markdown_code_fence,
     language_model::LanguageModel,
     prompts::get_weekly_log_prompt,
 };
@@ -84,7 +85,9 @@ pub async fn summarize_weekly_work_from_config(
 
     let prompt = get_weekly_log_prompt(&daily_logs, context_file_content, monday_date);
 
-    let generated_weekly_log_content = language_model.generate_response(&prompt).await?;
+    let language_model_response = language_model.generate_response(&prompt).await?;
+
+    let generated_weekly_log_content = strip_markdown_code_fence(&language_model_response);
 
     fs::write(&weekly_log_file, generated_weekly_log_content).into_diagnostic().wrap_err_with(
         || format!("failed to write weekly log file at {}", path_link(&weekly_log_file)),
