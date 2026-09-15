@@ -35,6 +35,8 @@ const FRIDAY_DAILY_LOG_CONTENT: &str = "# Daily Log - 06-05-2026\n\nPlanned rele
 
 const EXISTING_WEEKLY_LOG_CONTENT: &str = "existing weekly log";
 
+const FENCED_WEEKLY_LOG_CONTENT: &str = "# Weekly Log\n\n- Reviewed auth PR";
+
 struct TestContext {
     temporary_directory: TempDir,
     config: SwelogConfig,
@@ -46,6 +48,15 @@ struct FakeLanguageModel;
 impl LanguageModel for FakeLanguageModel {
     async fn generate_response(&self, prompt: &str) -> Result<String> {
         Ok(format!("generated from prompt:\n{prompt}"))
+    }
+}
+
+struct FencedLanguageModel;
+
+#[async_trait]
+impl LanguageModel for FencedLanguageModel {
+    async fn generate_response(&self, _prompt: &str) -> Result<String> {
+        Ok(format!("```md\n{FENCED_WEEKLY_LOG_CONTENT}\n```"))
     }
 }
 
@@ -439,6 +450,34 @@ async fn summarize_weekly_work_fails_when_work_file_is_not_default() {
     error.downcast_ref::<WorkFileNotDefault>().expect("error should be WorkFileNotDefault");
 
     assert!(!test_context.weekly_log_file().exists());
+
+    drop(test_context.temporary_directory);
+}
+
+#[tokio::test]
+async fn summarize_weekly_work_strips_a_markdown_code_fence_from_the_generated_weekly_log() {
+    let test_context = get_test_context();
+
+    let monday_date = test_monday_date();
+
+    test_context.write_swelog_files();
+
+    test_context.write_daily_log(monday_date, MONDAY_DAILY_LOG_CONTENT);
+
+    summarize_weekly_work_from_config(
+        &test_context.config,
+        &FencedLanguageModel,
+        &monday_date,
+        Some(CONTEXT_FILE_CONTENT),
+        Overwrite::No,
+    )
+    .await
+    .expect("weekly log should be written");
+
+    let weekly_log_content =
+        fs::read_to_string(test_context.weekly_log_file()).expect("weekly log should be readable");
+
+    assert_eq!(weekly_log_content, FENCED_WEEKLY_LOG_CONTENT);
 
     drop(test_context.temporary_directory);
 }

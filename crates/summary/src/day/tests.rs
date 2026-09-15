@@ -51,6 +51,8 @@ const DEMOTED_WORK_FILE_CONTENT: &str = r"### Today's Work
 
 const EXISTING_DAILY_LOG_CONTENT: &str = "existing daily log";
 
+const FENCED_DAILY_LOG_CONTENT: &str = "# Daily Log\n\n- Reviewed auth PR";
+
 struct TestContext {
     temporary_directory: TempDir,
     config: SwelogConfig,
@@ -62,6 +64,15 @@ struct FakeLanguageModel;
 impl LanguageModel for FakeLanguageModel {
     async fn generate_response(&self, prompt: &str) -> Result<String> {
         Ok(format!("generated from prompt:\n{prompt}"))
+    }
+}
+
+struct FencedLanguageModel;
+
+#[async_trait]
+impl LanguageModel for FencedLanguageModel {
+    async fn generate_response(&self, _prompt: &str) -> Result<String> {
+        Ok(format!("```md\n{FENCED_DAILY_LOG_CONTENT}\n```"))
     }
 }
 
@@ -422,6 +433,36 @@ async fn summarize_daily_work_saves_an_undo_snapshot_of_the_original_work_file()
     assert_eq!(undo_snapshot.created_file, Some(test_context.daily_log_file()));
 
     assert_eq!(undo_snapshot.work_file_content, WORK_FILE_CONTENT);
+
+    drop(test_context.temporary_directory);
+}
+
+#[tokio::test]
+async fn summarize_daily_work_strips_a_markdown_code_fence_from_the_generated_daily_log() {
+    let test_context = get_test_context();
+
+    let log_date = test_log_date();
+
+    test_context.write_swelog_files();
+
+    summarize_daily_work_from_config(
+        &test_context.config,
+        &test_context.cache_directory(),
+        &FencedLanguageModel,
+        &log_date,
+        Some(CONTEXT_FILE_CONTENT),
+        Overwrite::No,
+        KeepWorkFile::No,
+    )
+    .await
+    .expect("daily log should be written");
+
+    let daily_log_content =
+        fs::read_to_string(test_context.daily_log_file()).expect("daily log should be readable");
+
+    assert!(daily_log_content.starts_with(FENCED_DAILY_LOG_CONTENT));
+
+    assert!(!daily_log_content.contains("```"));
 
     drop(test_context.temporary_directory);
 }

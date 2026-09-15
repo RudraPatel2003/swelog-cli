@@ -1,4 +1,5 @@
 pub mod anthropic_language_model;
+pub mod code_fence;
 pub mod errors;
 pub mod language_model;
 pub mod language_model_endpoints;
