@@ -29,6 +29,9 @@ pub const TODAY: &str = "07-05-2026";
 
 pub const ACTIVITY_DATE: &str = "07-04-2026";
 
+/// The most recent Friday before [`TODAY`], which is a Sunday.
+pub const LAST_FRIDAY: &str = "07-03-2026";
+
 pub const GITHUB_TOKEN: &str = "ghp_end_to_end";
 
 pub const DEFAULT_WORK_FILE_CONTENT: &str = "# Today's Work

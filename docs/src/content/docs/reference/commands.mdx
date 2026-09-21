@@ -78,6 +78,7 @@ swelog summarize [OPTIONS] [COMMAND]
 | --------------------- | --------------------------------------------------------------------------- |
 | `--date <MM-DD-YYYY>` | Date to write the daily log for in the format MM-DD-YYYY. Defaults to today |
 | `--yesterday`         | Write the daily log for yesterday instead of today                          |
+| `--last-friday`       | Write the daily log for last Friday instead of today                        |
 | `--force`             | Overwrite existing daily log file                                           |
 | `--keep`              | Keep the current contents of the configured work file                       |
 | `-h`, `--help`        | Print help                                                                  |
@@ -94,6 +95,7 @@ swelog summarize day [OPTIONS]
 | --------------------- | --------------------------------------------------------------------------- |
 | `--date <MM-DD-YYYY>` | Date to write the daily log for in the format MM-DD-YYYY. Defaults to today |
 | `--yesterday`         | Write the daily log for yesterday instead of today                          |
+| `--last-friday`       | Write the daily log for last Friday instead of today                        |
 | `--force`             | Overwrite existing daily log file                                           |
 | `--keep`              | Keep the current contents of the configured work file                       |
 | `-h`, `--help`        | Print help                                                                  |
@@ -125,6 +127,7 @@ swelog log [OPTIONS]
 | --------------------- | --------------------------------------------------------------------------- |
 | `--date <MM-DD-YYYY>` | Date to write the daily log for in the format MM-DD-YYYY. Defaults to today |
 | `--yesterday`         | Write the daily log for yesterday instead of today                          |
+| `--last-friday`       | Write the daily log for last Friday instead of today                        |
 | `--force`             | Overwrite existing daily log file                                           |
 | `--keep`              | Keep the current contents of the configured work file                       |
 | `-h`, `--help`        | Print help                                                                  |
@@ -186,6 +189,7 @@ swelog fetch all [OPTIONS]
 | --------------------- | --------------------------------------------------- |
 | `--date <MM-DD-YYYY>` | Date to fetch activity for in the format MM-DD-YYYY |
 | `--yesterday`         | Fetch activity for yesterday instead of today       |
+| `--last-friday`       | Fetch activity for last Friday instead of today     |
 | `-h`, `--help`        | Print help                                          |
 
 ### `swelog fetch github`
@@ -200,6 +204,7 @@ swelog fetch github [OPTIONS]
 | --------------------- | ---------------------------------------------------------- |
 | `--date <MM-DD-YYYY>` | Date to fetch GitHub activity for in the format MM-DD-YYYY |
 | `--yesterday`         | Fetch GitHub activity for yesterday instead of today       |
+| `--last-friday`       | Fetch GitHub activity for last Friday instead of today     |
 | `-h`, `--help`        | Print help                                                 |
 
 ### `swelog fetch linear`
@@ -214,6 +219,7 @@ swelog fetch linear [OPTIONS]
 | --------------------- | ---------------------------------------------------------- |
 | `--date <MM-DD-YYYY>` | Date to fetch Linear activity for in the format MM-DD-YYYY |
 | `--yesterday`         | Fetch the Linear issues you worked on yesterday            |
+| `--last-friday`       | Fetch the Linear issues you worked on last Friday          |
 | `-h`, `--help`        | Print help                                                 |
 
 ### `swelog fetch google-calendar`
@@ -228,6 +234,7 @@ swelog fetch google-calendar [OPTIONS]
 | --------------------- | ------------------------------------------------------------------- |
 | `--date <MM-DD-YYYY>` | Date to fetch Google Calendar meetings for in the format MM-DD-YYYY |
 | `--yesterday`         | Fetch the meetings you had yesterday                                |
+| `--last-friday`       | Fetch the meetings you had last Friday                              |
 | `-h`, `--help`        | Print help                                                          |
 
 ### `swelog fetch status`

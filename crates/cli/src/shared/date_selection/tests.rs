@@ -75,6 +75,71 @@ fn yesterday_resolves_to_a_leap_day() {
 }
 
 #[test]
+fn last_friday_from_a_monday_is_the_friday_before_the_weekend() {
+    // Monday 09-21-2026, the morning you log the work you did before the weekend.
+    let today = get_mock_date(2026, 9, 21);
+
+    let expected_last_friday = get_mock_date(2026, 9, 18);
+
+    let selected_date =
+        resolve_selected_date(DateSelection::LastFriday, today).expect("date should be resolved");
+
+    assert_eq!(selected_date, Some(expected_last_friday));
+}
+
+#[test]
+fn last_friday_from_a_friday_is_the_previous_friday() {
+    // Friday 09-18-2026. Today is a Friday, so last Friday is a full week back.
+    let today = get_mock_date(2026, 9, 18);
+
+    let expected_last_friday = get_mock_date(2026, 9, 11);
+
+    let selected_date =
+        resolve_selected_date(DateSelection::LastFriday, today).expect("date should be resolved");
+
+    assert_eq!(selected_date, Some(expected_last_friday));
+}
+
+#[test]
+fn last_friday_from_a_saturday_is_the_day_before() {
+    // Saturday 09-19-2026.
+    let today = get_mock_date(2026, 9, 19);
+
+    let expected_last_friday = get_mock_date(2026, 9, 18);
+
+    let selected_date =
+        resolve_selected_date(DateSelection::LastFriday, today).expect("date should be resolved");
+
+    assert_eq!(selected_date, Some(expected_last_friday));
+}
+
+#[test]
+fn last_friday_from_a_sunday_is_the_friday_that_started_the_weekend() {
+    // Sunday 09-20-2026.
+    let today = get_mock_date(2026, 9, 20);
+
+    let expected_last_friday = get_mock_date(2026, 9, 18);
+
+    let selected_date =
+        resolve_selected_date(DateSelection::LastFriday, today).expect("date should be resolved");
+
+    assert_eq!(selected_date, Some(expected_last_friday));
+}
+
+#[test]
+fn last_friday_crosses_a_year_boundary() {
+    // Friday 01-01-2027.
+    let today = get_mock_date(2027, 1, 1);
+
+    let expected_last_friday = get_mock_date(2026, 12, 25);
+
+    let selected_date =
+        resolve_selected_date(DateSelection::LastFriday, today).expect("date should be resolved");
+
+    assert_eq!(selected_date, Some(expected_last_friday));
+}
+
+#[test]
 fn monday_date_is_the_supplied_monday_when_one_is_given() {
     let supplied_monday = get_mock_date(2026, 8, 17);
 
@@ -151,15 +216,37 @@ fn last_week_from_a_monday_is_the_week_that_just_finished() {
     assert_eq!(monday_date, expected_monday);
 }
 
+fn get_date_flags(
+    date: Option<NaiveDate>,
+    use_yesterday: bool,
+    use_last_friday: bool,
+) -> DateFlags {
+    DateFlags { date, use_yesterday, use_last_friday }
+}
+
 #[test]
 fn date_flags_map_to_the_day_they_stand_for() {
     let date = get_mock_date(2026, 8, 17);
 
-    assert_eq!(DateSelection::from_date_flags(None, false), DateSelection::Unspecified);
+    assert_eq!(
+        DateSelection::from_date_flags(get_date_flags(None, false, false)),
+        DateSelection::Unspecified
+    );
 
-    assert_eq!(DateSelection::from_date_flags(None, true), DateSelection::Yesterday);
+    assert_eq!(
+        DateSelection::from_date_flags(get_date_flags(None, true, false)),
+        DateSelection::Yesterday
+    );
 
-    assert_eq!(DateSelection::from_date_flags(Some(date), false), DateSelection::On(date));
+    assert_eq!(
+        DateSelection::from_date_flags(get_date_flags(None, false, true)),
+        DateSelection::LastFriday
+    );
+
+    assert_eq!(
+        DateSelection::from_date_flags(get_date_flags(Some(date), false, false)),
+        DateSelection::On(date)
+    );
 }
 
 #[test]

@@ -5,6 +5,7 @@ use crate::support::sandbox::{
     ACTIVITY_DATE,
     DEFAULT_WORK_FILE_CONTENT,
     DEFAULT_WORK_FILE_CONTENT_WITHOUT_COMMENTS,
+    LAST_FRIDAY,
     SwelogSandbox,
     TODAY,
     WRITTEN_WORK_FILE_CONTENT,
@@ -56,6 +57,34 @@ fn log_defaults_to_today_and_yesterday_is_relative_to_it() {
     assert!(sandbox.daily_log_file(TODAY).is_file());
 
     assert!(sandbox.daily_log_file(ACTIVITY_DATE).is_file());
+}
+
+#[test]
+fn log_writes_the_daily_log_for_last_friday() {
+    let sandbox = get_sandbox_with_written_work_file();
+
+    sandbox.swelog().args(["log", "--keep", "--last-friday"]).assert().success();
+
+    assert!(sandbox.daily_log_file(LAST_FRIDAY).is_file());
+}
+
+#[test]
+fn log_rejects_last_friday_alongside_another_date_flag() {
+    let sandbox = get_sandbox_with_written_work_file();
+
+    sandbox
+        .swelog()
+        .args(["log", "--last-friday", "--yesterday"])
+        .assert()
+        .failure()
+        .stderr(contains("cannot be used with"));
+
+    sandbox
+        .swelog()
+        .args(["log", "--last-friday", "--date", ACTIVITY_DATE])
+        .assert()
+        .failure()
+        .stderr(contains("cannot be used with"));
 }
 
 #[test]
