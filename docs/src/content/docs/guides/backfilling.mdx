@@ -1,13 +1,13 @@
 ---
 title: Backfilling a Missed Day
 description:
-  Reconstruct a day you missed using the --date, --yesterday, --week-of, and
+  Reconstruct a day you missed using the --date, --yesterday, --last-friday, --week-of, and
   --last-week flags.
 ---
 
-Reconstruct a day you missed using the `--date`, `--yesterday`, `--week-of`, and `--last-week` flags.
+Reconstruct a day you missed using the `--date`, `--yesterday`, `--last-friday`, `--week-of`, and `--last-week` flags.
 
-## Backfilling yesterday
+## Backfilling a day
 
 ```sh
 # reset your work file to its default content
@@ -28,17 +28,17 @@ swelog log --yesterday
 swelog summarize --yesterday
 ```
 
-For any other day, use `--date` as below.
+For any other day, use `--last-friday` or `--date MM-DD-YYYY` as below.
 
 ### Backfill flags
 
-| Command                        | Backfill flag       | Shortcut      |
-| ------------------------------ | ------------------- | ------------- |
-| `swelog log`                   | `--date MM-DD-YYYY` | `--yesterday` |
-| `swelog fetch github`          | `--date MM-DD-YYYY` | `--yesterday` |
-| `swelog fetch google-calendar` | `--date MM-DD-YYYY` | `--yesterday` |
-| `swelog fetch linear`          | `--date MM-DD-YYYY` | `--yesterday` |
-| `swelog summarize day`         | `--date MM-DD-YYYY` | `--yesterday` |
+| Command                        | Backfill flag       | Shortcuts                      |
+| ------------------------------ | ------------------- | ------------------------------ |
+| `swelog log`                   | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
+| `swelog fetch github`          | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
+| `swelog fetch google-calendar` | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
+| `swelog fetch linear`          | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
+| `swelog summarize day`         | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
 
 ## Backfilling a week
 

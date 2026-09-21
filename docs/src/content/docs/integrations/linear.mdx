@@ -43,6 +43,12 @@ ones you completed or canceled
 swelog fetch linear --yesterday
 ```
 
+For last Friday, use `--last-friday` instead of working out the date:
+
+```sh
+swelog fetch linear --last-friday
+```
+
 ## Output
 
 The generated section groups issues by status:
@@ -59,7 +65,7 @@ The generated section groups issues by status:
 - [ENG-456](https://linear.app/...) Document the Linear integration
 ```
 
-## Limitations of the `--date` flag
+## Limitations of backfilling
 
 The Linear MCP server does not expose issue history, so swelog can only match on
 the timestamps Linear stores on the issue itself, which are `updatedAt`, `completedAt`,

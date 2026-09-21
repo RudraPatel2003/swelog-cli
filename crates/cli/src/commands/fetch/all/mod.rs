@@ -39,18 +39,26 @@ use crate::{
         },
     },
     environment::Environment,
-    shared::date_selection::DateSelection,
+    shared::date_selection::{
+        DateFlags,
+        DateSelection,
+    },
 };
 
 #[derive(Debug, Args)]
+#[group(multiple = false)]
 pub struct AllArgs {
     /// Date to fetch activity for in the format MM-DD-YYYY.
     #[arg(long, value_name = DATE_VALUE_NAME, value_parser = parse_date)]
     date: Option<NaiveDate>,
 
     /// Fetch activity for yesterday instead of today.
-    #[arg(long = "yesterday", conflicts_with = "date")]
+    #[arg(long = "yesterday")]
     use_yesterday: bool,
+
+    /// Fetch activity for last Friday instead of today.
+    #[arg(long = "last-friday")]
+    use_last_friday: bool,
 }
 
 impl AllArgs {
@@ -70,7 +78,11 @@ impl AllArgs {
 
         println!();
 
-        let date_selection = DateSelection::from_date_flags(self.date, self.use_yesterday);
+        let date_selection = DateSelection::from_date_flags(DateFlags {
+            date: self.date,
+            use_yesterday: self.use_yesterday,
+            use_last_friday: self.use_last_friday,
+        });
 
         let failed_fetch_sources =
             run_fetch_sources(&included_fetch_sources, environment, &swelog_config, date_selection)
