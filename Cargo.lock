@@ -1096,6 +1096,7 @@ version = "0.26.0"
 dependencies = [
  "base_url",
  "chrono",
+ "futures",
  "miette",
  "reqwest 0.13.5",
  "serde",

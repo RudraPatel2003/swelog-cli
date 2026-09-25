@@ -164,14 +164,14 @@ Add data from external sources to your work file.
 swelog fetch <COMMAND>
 ```
 
-| Command           | Description                                                         |
-| ----------------- | ------------------------------------------------------------------- |
-| `all`             | Run every fetch command you have configured a credential for        |
-| `github`          | Fetch the PRs you opened and merged on a date in GitHub             |
-| `linear`          | Fetch the Linear issues assigned to your configured Linear username |
-| `google-calendar` | Fetch the meetings on your Google Calendar for a date               |
-| `status`          | Show which fetch commands `swelog fetch all` will run               |
-| `help`            | Print this message or the help of the given subcommand(s)           |
+| Command           | Description                                                                |
+| ----------------- | -------------------------------------------------------------------------- |
+| `all`             | Run every fetch command you have configured a credential for               |
+| `github`          | Fetch the PRs you opened, merged, closed, and reviewed on a date in GitHub |
+| `linear`          | Fetch the Linear issues assigned to your configured Linear username        |
+| `google-calendar` | Fetch the meetings on your Google Calendar for a date                      |
+| `status`          | Show which fetch commands `swelog fetch all` will run                      |
+| `help`            | Print this message or the help of the given subcommand(s)                  |
 
 | Flag           | Description |
 | -------------- | ----------- |
@@ -194,7 +194,7 @@ swelog fetch all [OPTIONS]
 
 ### `swelog fetch github`
 
-Fetch the PRs you opened and merged on a date in GitHub.
+Fetch the PRs you opened, merged, closed, and reviewed on a date in GitHub.
 
 ```sh
 swelog fetch github [OPTIONS]

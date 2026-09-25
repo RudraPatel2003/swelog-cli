@@ -15,6 +15,15 @@ fn get_mock_issue(repository_url: &str, number: u64) -> Issue {
     }
 }
 
+const fn get_empty_github_activity() -> GitHubActivity {
+    GitHubActivity {
+        opened: Vec::new(),
+        merged: Vec::new(),
+        closed: Vec::new(),
+        reviewed: Vec::new(),
+    }
+}
+
 const OPENED_AND_MERGED_SECTIONS: &str = r#"### Opened
 - "PR 123" ([#123](https://github.com/swelog-cli/swelog-cli/pull/123)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
 
@@ -23,17 +32,56 @@ const OPENED_AND_MERGED_SECTIONS: &str = r#"### Opened
 
 #[test]
 fn format_github_activity_lists_opened_and_merged_sections() {
-    let opened_pr = get_mock_issue(SWELOG_REPOSITORY_URL, 123);
+    let github_activity = GitHubActivity {
+        opened: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 123)],
+        merged: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 789)],
+        ..get_empty_github_activity()
+    };
 
-    let opened_prs = vec![opened_pr];
-
-    let merged_pr = get_mock_issue(SWELOG_REPOSITORY_URL, 789);
-
-    let merged_prs = vec![merged_pr];
-
-    let markdown = format_github_activity(&opened_prs, &merged_prs);
+    let markdown = format_github_activity(&github_activity);
 
     assert_eq!(markdown, OPENED_AND_MERGED_SECTIONS);
+}
+
+const ALL_SECTIONS: &str = r#"### Opened
+- "PR 123" ([#123](https://github.com/swelog-cli/swelog-cli/pull/123)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
+
+### Merged
+- "PR 789" ([#789](https://github.com/swelog-cli/swelog-cli/pull/789)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
+
+### Closed
+- "PR 321" ([#321](https://github.com/swelog-cli/swelog-cli/pull/321)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
+
+### Reviewed
+- "PR 654" ([#654](https://github.com/swelog-cli/swelog-cli/pull/654)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)"#;
+
+#[test]
+fn format_github_activity_lists_opened_merged_closed_and_reviewed_sections_in_order() {
+    let github_activity = GitHubActivity {
+        opened: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 123)],
+        merged: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 789)],
+        closed: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 321)],
+        reviewed: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 654)],
+    };
+
+    let markdown = format_github_activity(&github_activity);
+
+    assert_eq!(markdown, ALL_SECTIONS);
+}
+
+const REVIEWED_SECTION_ONLY: &str = r#"### Reviewed
+- "PR 654" ([#654](https://github.com/swelog-cli/swelog-cli/pull/654)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)"#;
+
+#[test]
+fn format_github_activity_lists_reviewed_pull_requests_without_authored_ones() {
+    let github_activity = GitHubActivity {
+        reviewed: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 654)],
+        ..get_empty_github_activity()
+    };
+
+    let markdown = format_github_activity(&github_activity);
+
+    assert_eq!(markdown, REVIEWED_SECTION_ONLY);
 }
 
 const OPENED_SECTION_ONLY: &str = r#"### Opened
@@ -41,11 +89,12 @@ const OPENED_SECTION_ONLY: &str = r#"### Opened
 
 #[test]
 fn format_github_activity_omits_a_section_with_no_pull_requests() {
-    let opened_pr = get_mock_issue(SWELOG_REPOSITORY_URL, 123);
+    let github_activity = GitHubActivity {
+        opened: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 123)],
+        ..get_empty_github_activity()
+    };
 
-    let opened_prs = vec![opened_pr];
-
-    let markdown = format_github_activity(&opened_prs, &[]);
+    let markdown = format_github_activity(&github_activity);
 
     assert_eq!(markdown, OPENED_SECTION_ONLY);
 }
@@ -60,16 +109,19 @@ fn format_github_activity_lists_multiple_pull_requests_in_a_section() {
 
     let second_opened_pr = get_mock_issue(SWELOG_REPOSITORY_URL, 456);
 
-    let opened_prs = vec![first_opened_pr, second_opened_pr];
+    let github_activity = GitHubActivity {
+        opened: vec![first_opened_pr, second_opened_pr],
+        ..get_empty_github_activity()
+    };
 
-    let markdown = format_github_activity(&opened_prs, &[]);
+    let markdown = format_github_activity(&github_activity);
 
     assert_eq!(markdown, OPENED_SECTION_WITH_MULTIPLE_PULL_REQUESTS);
 }
 
 #[test]
 fn format_github_activity_is_empty_when_there_is_no_activity() {
-    let markdown = format_github_activity(&[], &[]);
+    let markdown = format_github_activity(&get_empty_github_activity());
 
     assert_eq!(markdown, "");
 }
@@ -79,9 +131,12 @@ const PULL_REQUEST_IN_ANOTHER_REPOSITORY: &str = r#"### Opened
 
 #[test]
 fn format_github_activity_links_the_repository_the_pull_request_belongs_to() {
-    let opened_pr = get_mock_issue("https://api.github.com/repos/getsentry/sentry", 37);
+    let github_activity = GitHubActivity {
+        opened: vec![get_mock_issue("https://api.github.com/repos/getsentry/sentry", 37)],
+        ..get_empty_github_activity()
+    };
 
-    let markdown = format_github_activity(&[opened_pr], &[]);
+    let markdown = format_github_activity(&github_activity);
 
     assert_eq!(markdown, PULL_REQUEST_IN_ANOTHER_REPOSITORY);
 }

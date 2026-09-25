@@ -18,6 +18,7 @@ workspace = true
 [dependencies]
 base_url = { path = "../base_url" }
 chrono = { workspace = true }
+futures = { workspace = true }
 reqwest = { workspace = true }
 miette = { workspace = true }
 serde = { workspace = true }
