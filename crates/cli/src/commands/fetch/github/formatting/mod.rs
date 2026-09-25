@@ -3,16 +3,21 @@ use github::{
     repository_name::get_repository_name_from_repository_url,
 };
 
-pub fn format_github_activity(opened_prs: &[Issue], merged_prs: &[Issue]) -> String {
-    let mut sections = Vec::new();
+use crate::commands::fetch::github::activity::GitHubActivity;
 
-    if !opened_prs.is_empty() {
-        sections.push(format_pull_request_section("Opened", opened_prs));
-    }
+pub fn format_github_activity(github_activity: &GitHubActivity) -> String {
+    let pull_requests_by_action = [
+        ("Opened", &github_activity.opened),
+        ("Merged", &github_activity.merged),
+        ("Closed", &github_activity.closed),
+        ("Reviewed", &github_activity.reviewed),
+    ];
 
-    if !merged_prs.is_empty() {
-        sections.push(format_pull_request_section("Merged", merged_prs));
-    }
+    let sections: Vec<String> = pull_requests_by_action
+        .into_iter()
+        .filter(|(_, pull_requests)| !pull_requests.is_empty())
+        .map(|(action, pull_requests)| format_pull_request_section(action, pull_requests))
+        .collect();
 
     sections.join("\n\n")
 }

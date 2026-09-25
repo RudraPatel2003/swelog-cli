@@ -1,9 +1,9 @@
 ---
 title: GitHub
-description: Record the pull requests you opened and merged into your work file.
+description: Record the pull requests you opened, merged, closed, and reviewed into your work file.
 ---
 
-Record the pull requests you opened and merged into your work file.
+Record the pull requests you opened, merged, closed, and reviewed into your work file.
 
 ## Usage
 
@@ -35,6 +35,17 @@ For last Friday, use `--last-friday` instead of working out the date:
 swelog fetch github --last-friday
 ```
 
+## What gets recorded
+
+- **Opened**: pull requests you created on the date.
+- **Merged**: pull requests you authored that were merged on the date.
+- **Closed**: pull requests you authored that were closed without merging on the
+  date.
+- **Reviewed**: other people's pull requests where you submitted a review on the
+  date. Pending reviews and reviews of your own pull requests are not included.
+
+Reviews are matched by the UTC time they were submitted.
+
 ## Output
 
 The command creates or updates the `## GitHub` section before `## Log`.
@@ -49,4 +60,12 @@ The command creates or updates the `## GitHub` section before `## Log`.
 ### Merged
 
 - "Test PR 2" ([#456](https://github.com/swelog-cli/swelog-cli/pull/456)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
+
+### Closed
+
+- "Test PR 3" ([#789](https://github.com/swelog-cli/swelog-cli/pull/789)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
+
+### Reviewed
+
+- "Teammate's PR" ([#321](https://github.com/swelog-cli/swelog-cli/pull/321)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
 ```

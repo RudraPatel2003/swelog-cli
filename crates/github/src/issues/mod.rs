@@ -37,7 +37,17 @@ impl GitHubClient {
         self.search_issues(&search_query).await
     }
 
-    async fn search_issues(&self, search_query: &str) -> Result<Vec<Issue>> {
+    pub async fn get_closed_prs(
+        &self,
+        github_username: &str,
+        activity_date: &NaiveDate,
+    ) -> Result<Vec<Issue>> {
+        let search_query = get_closed_prs_search_query(github_username, *activity_date);
+
+        self.search_issues(&search_query).await
+    }
+
+    pub(crate) async fn search_issues(&self, search_query: &str) -> Result<Vec<Issue>> {
         let query_parameters = get_search_query_parameters(search_query);
 
         let response_text =
@@ -47,8 +57,8 @@ impl GitHubClient {
     }
 }
 
-const fn get_search_query_parameters(search_query: &str) -> [(&'static str, &str); 3] {
-    [("q", search_query), ("sort", "updated"), ("order", "desc")]
+const fn get_search_query_parameters(search_query: &str) -> [(&'static str, &str); 4] {
+    [("q", search_query), ("sort", "updated"), ("order", "desc"), ("per_page", "100")]
 }
 
 fn get_merged_prs_search_query(github_username: &str, activity_date: NaiveDate) -> String {
@@ -57,6 +67,10 @@ fn get_merged_prs_search_query(github_username: &str, activity_date: NaiveDate) 
 
 fn get_opened_prs_search_query(github_username: &str, activity_date: NaiveDate) -> String {
     format!("author:{github_username} is:pr created:{activity_date}")
+}
+
+fn get_closed_prs_search_query(github_username: &str, activity_date: NaiveDate) -> String {
+    format!("author:{github_username} is:pr is:unmerged closed:{activity_date}")
 }
 
 fn parse_search_issues_response_text(response_text: &str) -> Result<Vec<Issue>> {

@@ -1,6 +1,7 @@
 use chrono::NaiveDate;
 
 use super::{
+    get_closed_prs_search_query,
     get_merged_prs_search_query,
     get_opened_prs_search_query,
     parse_search_issues_response_text,
@@ -30,6 +31,15 @@ fn merged_prs_search_query_filters_to_activity_date() {
     let search_query = get_merged_prs_search_query("octocat", activity_date);
 
     assert_eq!(search_query, "author:octocat is:pr merged:2026-07-04");
+}
+
+#[test]
+fn closed_prs_search_query_filters_to_unmerged_pull_requests_closed_on_activity_date() {
+    let activity_date = test_activity_date();
+
+    let search_query = get_closed_prs_search_query("octocat", activity_date);
+
+    assert_eq!(search_query, "author:octocat is:pr is:unmerged closed:2026-07-04");
 }
 
 #[test]

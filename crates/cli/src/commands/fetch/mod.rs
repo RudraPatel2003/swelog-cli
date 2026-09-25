@@ -30,7 +30,7 @@ enum FetchCommands {
     /// Run every fetch command you have configured a credential for
     All(AllArgs),
 
-    /// Fetch the PRs you opened and merged on a date in GitHub
+    /// Fetch the PRs you opened, merged, closed, and reviewed on a date in GitHub
     Github(GithubArgs),
 
     /// Fetch the Linear issues assigned to your configured Linear username

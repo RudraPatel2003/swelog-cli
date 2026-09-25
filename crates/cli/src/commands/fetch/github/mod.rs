@@ -1,3 +1,4 @@
+mod activity;
 mod formatting;
 
 use chrono::NaiveDate;
@@ -7,12 +8,17 @@ use dates::{
     date_format::DATE_VALUE_NAME,
     parsing::parse_date,
 };
-use github::issues::Issue;
 use miette::Result;
 
 use crate::{
     commands::fetch::{
-        github::formatting::format_github_activity,
+        github::{
+            activity::{
+                GitHubActivity,
+                get_github_activity,
+            },
+            formatting::format_github_activity,
+        },
         outcome::{
             FetchOutcome,
             WorkFileChange,
@@ -82,31 +88,28 @@ pub async fn collect_github_activity(
     let activity_date =
         resolve_selected_date(date_selection, environment.today)?.unwrap_or(environment.today);
 
-    let get_opened_prs_future = github_client.get_opened_prs(&github_username, &activity_date);
+    let github_activity =
+        get_github_activity(&github_client, &github_username, &activity_date).await?;
 
-    let get_merged_prs_future = github_client.get_merged_prs(&github_username, &activity_date);
-
-    let (opened_prs, merged_prs) = tokio::try_join!(get_opened_prs_future, get_merged_prs_future)?;
-
-    let github_fetch_outcome = get_github_fetch_outcome(&opened_prs, &merged_prs);
+    let github_fetch_outcome = get_github_fetch_outcome(&github_activity);
 
     Ok(github_fetch_outcome)
 }
 
-fn get_github_fetch_outcome(opened_prs: &[Issue], merged_prs: &[Issue]) -> FetchOutcome {
-    if opened_prs.is_empty() && merged_prs.is_empty() {
+fn get_github_fetch_outcome(github_activity: &GitHubActivity) -> FetchOutcome {
+    if github_activity.is_empty() {
         return FetchOutcome {
             work_file_change: WorkFileChange::RemoveSection { section_title: GITHUB_SECTION_TITLE },
             summary: "No GitHub activity found.".to_string(),
         };
     }
 
-    let pull_request_count = opened_prs.len().saturating_add(merged_prs.len());
+    let pull_request_count = github_activity.count_pull_requests();
 
     FetchOutcome {
         work_file_change: WorkFileChange::UpsertSection {
             section_title: GITHUB_SECTION_TITLE,
-            content: format_github_activity(opened_prs, merged_prs),
+            content: format_github_activity(github_activity),
         },
         summary: format!("Recorded {pull_request_count} GitHub PRs in your work file."),
     }

@@ -42,7 +42,7 @@ fn fetch_all_runs_only_the_sources_with_a_credential() {
         .assert()
         .success()
         .stdout(contains("Running the fetch commands you have configured: GitHub."))
-        .stdout(contains("Recorded 2 GitHub PRs in your work file."));
+        .stdout(contains("Recorded 4 GitHub PRs in your work file."));
 
     github_mocks.user.assert();
 
@@ -81,7 +81,7 @@ fn fetch_all_runs_every_configured_source_and_records_each_section() {
         .assert()
         .success()
         .stdout(contains("Running the fetch commands you have configured: GitHub, Linear."))
-        .stdout(contains("Recorded 2 GitHub PRs in your work file."))
+        .stdout(contains("Recorded 4 GitHub PRs in your work file."))
         .stdout(contains("Added 2 Linear issues from 07-04-2026 to your work file."));
 
     github_mocks.user.assert();

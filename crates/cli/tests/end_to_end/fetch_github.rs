@@ -12,6 +12,7 @@ use crate::support::{
         ACTIVITY_DATE,
         DEFAULT_WORK_FILE_CONTENT_WITHOUT_COMMENTS,
         GITHUB_TOKEN,
+        LAST_FRIDAY,
         SwelogSandbox,
         WRITTEN_WORK_FILE_CONTENT,
     },
@@ -29,6 +30,12 @@ const WORK_FILE_WITH_GITHUB_SECTION: &str = r#"# Today's Work
 ### Merged
 - "Fix work file formatting" ([#43](https://github.com/example/swelog/pull/43)) in [example/swelog](https://github.com/example/swelog)
 
+### Closed
+- "Try a separate formatting crate" ([#44](https://github.com/example/swelog/pull/44)) in [example/swelog](https://github.com/example/swelog)
+
+### Reviewed
+- "Add Linear integration" ([#50](https://github.com/example/swelog/pull/50)) in [example/swelog](https://github.com/example/swelog)
+
 ## Log
 - Reviewed the auth PR
 - Paired on the release flow
@@ -45,6 +52,12 @@ const DAILY_LOG_WITH_GITHUB_SECTION: &str = r#"# Daily Log - 07-04-2026
 
 ### Merged
 - "Fix work file formatting" ([#43](https://github.com/example/swelog/pull/43)) in [example/swelog](https://github.com/example/swelog)
+
+### Closed
+- "Try a separate formatting crate" ([#44](https://github.com/example/swelog/pull/44)) in [example/swelog](https://github.com/example/swelog)
+
+### Reviewed
+- "Add Linear integration" ([#50](https://github.com/example/swelog/pull/50)) in [example/swelog](https://github.com/example/swelog)
 
 ## Log
 - Reviewed the auth PR
@@ -77,13 +90,31 @@ fn fetch_github_records_the_days_pull_requests_above_the_log_section() {
         .assert()
         .success()
         .stdout(contains("Fetching GitHub PRs..."))
-        .stdout(contains("Recorded 2 GitHub PRs in your work file."));
+        .stdout(contains("Recorded 4 GitHub PRs in your work file."));
 
-    github_mocks.user.assert();
+    github_mocks.assert_every_endpoint_was_called();
 
-    github_mocks.opened_prs.assert();
+    assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_GITHUB_SECTION);
+}
 
-    github_mocks.merged_prs.assert();
+#[test]
+fn fetch_github_records_last_fridays_pull_requests() {
+    let sandbox = get_sandbox_with_written_work_file();
+
+    let github = MockServer::start();
+
+    let github_mocks = mock_github_with_activity_on(&github, LAST_FRIDAY);
+
+    sandbox
+        .swelog()
+        .env("GITHUB_TOKEN", GITHUB_TOKEN)
+        .env("SWELOG_GITHUB_API_URL", github.base_url())
+        .args(["fetch", "github", "--last-friday"])
+        .assert()
+        .success()
+        .stdout(contains("Recorded 4 GitHub PRs in your work file."));
+
+    github_mocks.assert_every_endpoint_was_called();
 
     assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_GITHUB_SECTION);
 }
