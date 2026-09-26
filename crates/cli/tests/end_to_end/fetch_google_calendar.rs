@@ -24,13 +24,16 @@ use crate::support::{
 const WORK_FILE_WITH_GOOGLE_CALENDAR_SECTION: &str = "# Today's Work
 
 ## Priorities
+
 - Ship end-to-end tests
 
 ## Google Calendar
+
 - 9:00 AM - 9:15 AM | Standup
 - ~~2:00 PM - 2:30 PM | Optional sync~~
 
 ## Log
+
 - Reviewed the auth PR
 - Paired on the release flow
 ";

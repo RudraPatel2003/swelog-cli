@@ -22,7 +22,7 @@ struct Heading {
 
 #[must_use]
 pub fn format_section(section_title: &str, content: &str) -> String {
-    format!("## {section_title}\n{}", content.trim_matches('\n'))
+    format!("## {section_title}\n\n{}", content.trim_matches('\n'))
 }
 
 /// Returns the byte range covering the `## {section_title}` heading and

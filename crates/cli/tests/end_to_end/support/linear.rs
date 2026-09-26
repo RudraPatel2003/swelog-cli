@@ -19,17 +19,23 @@ const INITIALIZE_REQUEST_ID: u64 = 0;
 const LIST_ISSUES_REQUEST_ID: u64 = 1;
 
 pub const LINEAR_SECTION_FOR_THE_DAY: &str = "## Linear
+
 ### In Progress
+
 - [SWE-42](https://linear.app/example/issue/SWE-42) Ship end-to-end tests
 
 ### Done
+
 - [SWE-41](https://linear.app/example/issue/SWE-41) Fix work file formatting";
 
 pub const LINEAR_SECTION_FOR_ACTIVE_ISSUES: &str = "## Linear
+
 ### In Progress
+
 - [SWE-42](https://linear.app/example/issue/SWE-42) Ship end-to-end tests
 
 ### Todo
+
 - [SWE-40](https://linear.app/example/issue/SWE-40) Document the config flag";
 
 pub struct LinearMocks<'server> {

@@ -1,5 +1,9 @@
-use config::swelog_config::SwelogConfig;
+use config::{
+    setup::swelog_paths::SwelogPaths,
+    swelog_config::SwelogConfig,
+};
 use markdown::work_file::{
+    format_work_file,
     remove_work_file_section_from_config,
     upsert_work_file_section_from_config,
 };
@@ -23,6 +27,10 @@ pub fn record_fetch_outcome(
     fetch_outcome: FetchOutcome,
 ) -> Result<()> {
     apply_work_file_change(swelog_config, fetch_outcome.work_file_change)?;
+
+    let swelog_paths = SwelogPaths::new(swelog_config);
+
+    format_work_file(&swelog_paths.work_file)?;
 
     println!("{}", fetch_outcome.summary);
 

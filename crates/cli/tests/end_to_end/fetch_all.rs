@@ -96,7 +96,7 @@ fn fetch_all_runs_every_configured_source_and_records_each_section() {
 
     assert!(
         work_file_content
-            .ends_with("## Log\n- Reviewed the auth PR\n- Paired on the release flow\n")
+            .ends_with("## Log\n\n- Reviewed the auth PR\n- Paired on the release flow\n")
     );
 }
 

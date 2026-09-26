@@ -35,23 +35,31 @@ const CONTEXT_FILE_CONTENT: &str = "backend engineer on platform team";
 const WORK_FILE_CONTENT: &str = r"# Today's Work
 
 ## Focus
+
 - Debug API timeout
 
 ## Log
+
 - Reviewed auth PR
 ";
 
 const DEMOTED_WORK_FILE_CONTENT: &str = r"### Today's Work
 
 #### Focus
+
 - Debug API timeout
 
 #### Log
+
 - Reviewed auth PR";
 
 const EXISTING_DAILY_LOG_CONTENT: &str = "existing daily log";
 
 const FENCED_DAILY_LOG_CONTENT: &str = "# Daily Log\n\n- Reviewed auth PR";
+
+const UNFORMATTED_DAILY_LOG_CONTENT: &str = "# Daily Log\n* Reviewed auth PR";
+
+const FORMATTED_DAILY_LOG_CONTENT: &str = "# Daily Log\n\n- Reviewed auth PR\n\n## Original Notes";
 
 struct TestContext {
     temporary_directory: TempDir,
@@ -73,6 +81,15 @@ struct FencedLanguageModel;
 impl LanguageModel for FencedLanguageModel {
     async fn generate_response(&self, _prompt: &str) -> Result<String> {
         Ok(format!("```md\n{FENCED_DAILY_LOG_CONTENT}\n```"))
+    }
+}
+
+struct UnformattedLanguageModel;
+
+#[async_trait]
+impl LanguageModel for UnformattedLanguageModel {
+    async fn generate_response(&self, _prompt: &str) -> Result<String> {
+        Ok(UNFORMATTED_DAILY_LOG_CONTENT.to_owned())
     }
 }
 
@@ -463,6 +480,34 @@ async fn summarize_daily_work_strips_a_markdown_code_fence_from_the_generated_da
     assert!(daily_log_content.starts_with(FENCED_DAILY_LOG_CONTENT));
 
     assert!(!daily_log_content.contains("```"));
+
+    drop(test_context.temporary_directory);
+}
+
+#[tokio::test]
+async fn summarize_daily_work_formats_the_generated_daily_log() {
+    let test_context = get_test_context();
+
+    let log_date = test_log_date();
+
+    test_context.write_swelog_files();
+
+    summarize_daily_work_from_config(
+        &test_context.config,
+        &test_context.cache_directory(),
+        &UnformattedLanguageModel,
+        &log_date,
+        Some(CONTEXT_FILE_CONTENT),
+        Overwrite::No,
+        KeepWorkFile::No,
+    )
+    .await
+    .expect("daily log should be written");
+
+    let daily_log_content =
+        fs::read_to_string(test_context.daily_log_file()).expect("daily log should be readable");
+
+    assert!(daily_log_content.starts_with(FORMATTED_DAILY_LOG_CONTENT));
 
     drop(test_context.temporary_directory);
 }

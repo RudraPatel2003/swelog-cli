@@ -1,4 +1,5 @@
 use github::issues::PullRequest;
+use markdown::formatting::format_markdown;
 
 use super::*;
 
@@ -25,9 +26,11 @@ const fn get_empty_github_activity() -> GitHubActivity {
 }
 
 const OPENED_AND_MERGED_SECTIONS: &str = r#"### Opened
+
 - "PR 123" ([#123](https://github.com/swelog-cli/swelog-cli/pull/123)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
 
 ### Merged
+
 - "PR 789" ([#789](https://github.com/swelog-cli/swelog-cli/pull/789)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)"#;
 
 #[test]
@@ -44,15 +47,19 @@ fn format_github_activity_lists_opened_and_merged_sections() {
 }
 
 const ALL_SECTIONS: &str = r#"### Opened
+
 - "PR 123" ([#123](https://github.com/swelog-cli/swelog-cli/pull/123)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
 
 ### Merged
+
 - "PR 789" ([#789](https://github.com/swelog-cli/swelog-cli/pull/789)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
 
 ### Closed
+
 - "PR 321" ([#321](https://github.com/swelog-cli/swelog-cli/pull/321)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
 
 ### Reviewed
+
 - "PR 654" ([#654](https://github.com/swelog-cli/swelog-cli/pull/654)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)"#;
 
 #[test]
@@ -70,6 +77,7 @@ fn format_github_activity_lists_opened_merged_closed_and_reviewed_sections_in_or
 }
 
 const REVIEWED_SECTION_ONLY: &str = r#"### Reviewed
+
 - "PR 654" ([#654](https://github.com/swelog-cli/swelog-cli/pull/654)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)"#;
 
 #[test]
@@ -85,6 +93,7 @@ fn format_github_activity_lists_reviewed_pull_requests_without_authored_ones() {
 }
 
 const OPENED_SECTION_ONLY: &str = r#"### Opened
+
 - "PR 123" ([#123](https://github.com/swelog-cli/swelog-cli/pull/123)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)"#;
 
 #[test]
@@ -100,6 +109,7 @@ fn format_github_activity_omits_a_section_with_no_pull_requests() {
 }
 
 const OPENED_SECTION_WITH_MULTIPLE_PULL_REQUESTS: &str = r#"### Opened
+
 - "PR 123" ([#123](https://github.com/swelog-cli/swelog-cli/pull/123)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)
 - "PR 456" ([#456](https://github.com/swelog-cli/swelog-cli/pull/456)) in [swelog-cli/swelog-cli](https://github.com/swelog-cli/swelog-cli)"#;
 
@@ -127,6 +137,7 @@ fn format_github_activity_is_empty_when_there_is_no_activity() {
 }
 
 const PULL_REQUEST_IN_ANOTHER_REPOSITORY: &str = r#"### Opened
+
 - "PR 37" ([#37](https://github.com/swelog-cli/swelog-cli/pull/37)) in [getsentry/sentry](https://github.com/getsentry/sentry)"#;
 
 #[test]
@@ -139,4 +150,18 @@ fn format_github_activity_links_the_repository_the_pull_request_belongs_to() {
     let markdown = format_github_activity(&github_activity);
 
     assert_eq!(markdown, PULL_REQUEST_IN_ANOTHER_REPOSITORY);
+}
+
+#[test]
+fn format_github_activity_is_already_formatted_markdown() {
+    let github_activity = GitHubActivity {
+        opened: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 123)],
+        merged: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 789)],
+        closed: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 321)],
+        reviewed: vec![get_mock_issue(SWELOG_REPOSITORY_URL, 654)],
+    };
+
+    let markdown = format!("{}\n", format_github_activity(&github_activity));
+
+    assert_eq!(format_markdown(&markdown), markdown);
 }

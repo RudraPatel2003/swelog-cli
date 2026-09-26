@@ -25,7 +25,7 @@ fn format_status_group(issues: &[&LinearIssue]) -> String {
     let issue_lines =
         issues.iter().map(|issue| format_linear_issue(issue)).collect::<Vec<_>>().join("\n");
 
-    format!("### {status_name}\n{issue_lines}")
+    format!("### {status_name}\n\n{issue_lines}")
 }
 
 fn format_linear_issue(issue: &LinearIssue) -> String {

@@ -42,6 +42,14 @@ impl TestContext {
     }
 }
 
+fn make_read_only(file: &Path) {
+    let mut permissions = fs::metadata(file).expect("file should have metadata").permissions();
+
+    permissions.set_readonly(true);
+
+    fs::set_permissions(file, permissions).expect("file should be made read-only");
+}
+
 fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
@@ -81,6 +89,7 @@ fn upsert_work_file_section_writes_the_section_into_the_work_file() {
 - Ship it
 
 ## Linear
+
 {LINEAR_SECTION_CONTENT}
 
 ## Log
@@ -121,6 +130,69 @@ fn remove_work_file_section_writes_the_updated_work_file() {
 ";
 
     assert_eq!(updated_work_file_content, expected_work_file_content);
+
+    drop(test_context.temporary_directory);
+}
+
+#[test]
+fn format_work_file_formats_the_work_file_in_place() {
+    let test_context = get_test_context();
+
+    let work_file_content = r"# Today's Work
+## Log
+* Paired on billing
+";
+
+    test_context.write_work_file(work_file_content);
+
+    format_work_file(&test_context.work_file()).expect("work file should be formatted");
+
+    let formatted_work_file_content =
+        fs::read_to_string(test_context.work_file()).expect("work file should be readable");
+
+    let expected_work_file_content = r"# Today's Work
+
+## Log
+
+- Paired on billing
+";
+
+    assert_eq!(formatted_work_file_content, expected_work_file_content);
+
+    drop(test_context.temporary_directory);
+}
+
+#[test]
+fn format_work_file_leaves_a_formatted_work_file_untouched() {
+    let test_context = get_test_context();
+
+    let work_file_content = r"# Today's Work
+
+## Log
+
+- Paired on billing
+";
+
+    test_context.write_work_file(work_file_content);
+
+    make_read_only(&test_context.work_file());
+
+    format_work_file(&test_context.work_file()).expect("formatted work file should not be written");
+
+    drop(test_context.temporary_directory);
+}
+
+#[test]
+fn format_work_file_fails_when_work_file_is_missing() {
+    let test_context = get_test_context();
+
+    let error =
+        format_work_file(&test_context.work_file()).expect_err("missing work file should fail");
+
+    let error =
+        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+
+    assert_eq!(error.swelog_path, test_context.work_file());
 
     drop(test_context.temporary_directory);
 }
@@ -169,6 +241,7 @@ fn upsert_section_inserts_before_log() {
 - Ship it
 
 ## Linear
+
 ### In Progress
 - [ENG-123](https://linear.app/issue/ENG-123) Ship it
 
@@ -191,6 +264,7 @@ fn upsert_section_appends_when_work_file_has_no_log_section() {
 - Ship it
 
 ## Linear
+
 - New
 ";
 
@@ -212,6 +286,7 @@ fn upsert_section_replaces_existing_section_content() {
     let expected_markdown = r"# Today's Work
 
 ## Linear
+
 - New
 
 ## Log
@@ -239,6 +314,7 @@ fn upsert_section_leaves_other_sections_untouched() {
     let expected_markdown = r"# Today's Work
 
 ## Linear
+
 - New
 
 ## GitHub
@@ -271,6 +347,7 @@ fn upsert_section_ignores_heading_in_code_block() {
 ```
 
 ## Linear
+
 - New
 
 ## Log

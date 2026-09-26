@@ -1,6 +1,6 @@
 [package]
 name = "summary"
-version = "0.27.0"
+version = "0.28.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -24,6 +24,7 @@ dates = { path = "../dates" }
 highlight = { path = "../highlight" }
 miette = { workspace = true }
 llm = { path = "../llm" }
+markdown = { path = "../markdown" }
 thiserror = { workspace = true }
 undo = { path = "../undo" }
 

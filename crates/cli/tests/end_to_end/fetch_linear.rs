@@ -21,16 +21,21 @@ use crate::support::{
 const WORK_FILE_WITH_LINEAR_SECTION_FOR_THE_DAY: &str = "# Today's Work
 
 ## Priorities
+
 - Ship end-to-end tests
 
 ## Linear
+
 ### In Progress
+
 - [SWE-42](https://linear.app/example/issue/SWE-42) Ship end-to-end tests
 
 ### Done
+
 - [SWE-41](https://linear.app/example/issue/SWE-41) Fix work file formatting
 
 ## Log
+
 - Reviewed the auth PR
 - Paired on the release flow
 ";

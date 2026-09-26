@@ -26,7 +26,7 @@ fn format_pull_request_section(action: &str, pull_requests: &[Issue]) -> String 
     let pull_request_lines: Vec<String> =
         pull_requests.iter().map(format_pull_request_line).collect();
 
-    format!("### {action}\n{}", pull_request_lines.join("\n"))
+    format!("### {action}\n\n{}", pull_request_lines.join("\n"))
 }
 
 fn format_pull_request_line(pull_request: &Issue) -> String {

@@ -1,4 +1,5 @@
 use linear::client::structs::LinearIssueTimestamps;
+use markdown::formatting::format_markdown;
 
 use super::*;
 
@@ -19,12 +20,15 @@ fn get_mock_issue(
 }
 
 const ACTIVE_STATUSES_GROUPED_AND_ORDERED: &str = r"### In Progress
+
 - [ENG-2](https://linear.app/issue/ENG-2) Started issue
 
 ### Todo
+
 - [ENG-1](https://linear.app/issue/ENG-1) Todo issue
 
 ### Backlog
+
 - [ENG-3](https://linear.app/issue/ENG-3) Backlog issue";
 
 #[test]
@@ -45,6 +49,7 @@ fn format_linear_issues_groups_and_orders_active_statuses() {
 }
 
 const ISSUES_SHARING_A_STATUS: &str = r"### In Progress
+
 - [ENG-1](https://linear.app/issue/ENG-1) First
 - [ENG-2](https://linear.app/issue/ENG-2) Second";
 
@@ -71,4 +76,18 @@ fn format_linear_issues_collapses_whitespace_and_escapes_link_text() {
     let markdown = format_linear_issues(&issues);
 
     assert!(markdown.contains("Fix \\[OAuth\\] callback"));
+}
+
+#[test]
+fn format_linear_issues_is_already_formatted_markdown() {
+    let todo_issue = get_mock_issue("ENG-1", "Todo issue", "Todo", LinearStatusType::Unstarted);
+
+    let started_issue =
+        get_mock_issue("ENG-2", "Started issue", "In Progress", LinearStatusType::Started);
+
+    let issues = vec![todo_issue, started_issue];
+
+    let markdown = format!("{}\n", format_linear_issues(&issues));
+
+    assert_eq!(format_markdown(&markdown), markdown);
 }

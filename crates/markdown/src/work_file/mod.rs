@@ -1,6 +1,7 @@
 use std::{
     fs,
     ops::Range,
+    path::Path,
 };
 
 use config::{
@@ -15,16 +16,23 @@ use miette::{
     WrapErr,
 };
 
-use crate::sections::{
-    find_section_bounds,
-    format_section,
-    remove_block,
-    replace_block,
+use crate::{
+    formatting::format_markdown,
+    sections::{
+        find_section_bounds,
+        format_section,
+        remove_block,
+        replace_block,
+    },
 };
 
 /// Integration sections are inserted directly above this section so the user's
 /// own notes stay at the bottom of the work file.
 const LOG_SECTION_TITLE: &str = "Log";
+
+pub fn format_work_file(work_file: &Path) -> Result<()> {
+    update_work_file(work_file, format_markdown)
+}
 
 pub fn upsert_work_file_section_from_config(
     swelog_config: &SwelogConfig,
@@ -47,24 +55,32 @@ pub fn remove_work_file_section_from_config(
 
 fn update_work_file_from_config(
     swelog_config: &SwelogConfig,
-    update_work_file: impl FnOnce(&str) -> String,
+    rewrite_work_file_content: impl FnOnce(&str) -> String,
 ) -> Result<()> {
     let swelog_paths = SwelogPaths::new(swelog_config);
 
-    ensure_swelog_file_exists(&swelog_paths.work_file)?;
+    update_work_file(&swelog_paths.work_file, rewrite_work_file_content)
+}
 
-    let work_file_content =
-        fs::read_to_string(&swelog_paths.work_file).into_diagnostic().wrap_err_with(|| {
-            format!("failed to read work file at {}", path_link(&swelog_paths.work_file))
-        })?;
+fn update_work_file(
+    work_file: &Path,
+    rewrite_work_file_content: impl FnOnce(&str) -> String,
+) -> Result<()> {
+    ensure_swelog_file_exists(work_file)?;
 
-    let updated_work_file_content = update_work_file(&work_file_content);
+    let work_file_content = fs::read_to_string(work_file)
+        .into_diagnostic()
+        .wrap_err_with(|| format!("failed to read work file at {}", path_link(work_file)))?;
 
-    fs::write(&swelog_paths.work_file, updated_work_file_content).into_diagnostic().wrap_err_with(
-        || format!("failed to write work file at {}", path_link(&swelog_paths.work_file)),
-    )?;
+    let updated_work_file_content = rewrite_work_file_content(&work_file_content);
 
-    Ok(())
+    if updated_work_file_content == work_file_content {
+        return Ok(());
+    }
+
+    fs::write(work_file, updated_work_file_content)
+        .into_diagnostic()
+        .wrap_err_with(|| format!("failed to write work file at {}", path_link(work_file)))
 }
 
 fn upsert_section(markdown: &str, section_title: &str, content: &str) -> String {

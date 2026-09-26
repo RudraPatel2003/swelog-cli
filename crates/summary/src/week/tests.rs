@@ -37,6 +37,11 @@ const EXISTING_WEEKLY_LOG_CONTENT: &str = "existing weekly log";
 
 const FENCED_WEEKLY_LOG_CONTENT: &str = "# Weekly Log\n\n- Reviewed auth PR";
 
+const UNFORMATTED_WEEKLY_LOG_CONTENT: &str = "# Weekly Log\n* Reviewed auth PR\n* Planned release";
+
+const FORMATTED_WEEKLY_LOG_CONTENT: &str =
+    "# Weekly Log\n\n- Reviewed auth PR\n- Planned release\n";
+
 struct TestContext {
     temporary_directory: TempDir,
     config: SwelogConfig,
@@ -57,6 +62,15 @@ struct FencedLanguageModel;
 impl LanguageModel for FencedLanguageModel {
     async fn generate_response(&self, _prompt: &str) -> Result<String> {
         Ok(format!("```md\n{FENCED_WEEKLY_LOG_CONTENT}\n```"))
+    }
+}
+
+struct UnformattedLanguageModel;
+
+#[async_trait]
+impl LanguageModel for UnformattedLanguageModel {
+    async fn generate_response(&self, _prompt: &str) -> Result<String> {
+        Ok(UNFORMATTED_WEEKLY_LOG_CONTENT.to_owned())
     }
 }
 
@@ -477,7 +491,35 @@ async fn summarize_weekly_work_strips_a_markdown_code_fence_from_the_generated_w
     let weekly_log_content =
         fs::read_to_string(test_context.weekly_log_file()).expect("weekly log should be readable");
 
-    assert_eq!(weekly_log_content, FENCED_WEEKLY_LOG_CONTENT);
+    assert_eq!(weekly_log_content, format!("{FENCED_WEEKLY_LOG_CONTENT}\n"));
+
+    drop(test_context.temporary_directory);
+}
+
+#[tokio::test]
+async fn summarize_weekly_work_formats_the_generated_weekly_log() {
+    let test_context = get_test_context();
+
+    let monday_date = test_monday_date();
+
+    test_context.write_swelog_files();
+
+    test_context.write_daily_log(monday_date, MONDAY_DAILY_LOG_CONTENT);
+
+    summarize_weekly_work_from_config(
+        &test_context.config,
+        &UnformattedLanguageModel,
+        &monday_date,
+        Some(CONTEXT_FILE_CONTENT),
+        Overwrite::No,
+    )
+    .await
+    .expect("weekly log should be written");
+
+    let weekly_log_content =
+        fs::read_to_string(test_context.weekly_log_file()).expect("weekly log should be readable");
+
+    assert_eq!(weekly_log_content, FORMATTED_WEEKLY_LOG_CONTENT);
 
     drop(test_context.temporary_directory);
 }

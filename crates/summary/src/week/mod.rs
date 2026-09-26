@@ -35,6 +35,7 @@ use llm::{
     language_model::LanguageModel,
     prompts::get_weekly_log_prompt,
 };
+use markdown::formatting::format_markdown;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -89,9 +90,11 @@ pub async fn summarize_weekly_work_from_config(
 
     let generated_weekly_log_content = strip_markdown_code_fence(&language_model_response);
 
-    fs::write(&weekly_log_file, generated_weekly_log_content).into_diagnostic().wrap_err_with(
-        || format!("failed to write weekly log file at {}", path_link(&weekly_log_file)),
-    )?;
+    let weekly_log_content = format_markdown(generated_weekly_log_content);
+
+    fs::write(&weekly_log_file, weekly_log_content).into_diagnostic().wrap_err_with(|| {
+        format!("failed to write weekly log file at {}", path_link(&weekly_log_file))
+    })?;
 
     Ok(())
 }
