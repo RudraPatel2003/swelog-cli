@@ -48,6 +48,7 @@ const EVENTS_RESPONSE: &str = r#"{
 }"#;
 
 pub const GOOGLE_CALENDAR_SECTION: &str = "## Google Calendar
+
 - 9:00 AM - 9:15 AM | Standup
 - ~~2:00 PM - 2:30 PM | Optional sync~~";
 

@@ -14,6 +14,7 @@ use crate::support::{
         GITHUB_TOKEN,
         LAST_FRIDAY,
         SwelogSandbox,
+        UNFORMATTED_WORK_FILE_CONTENT,
         WRITTEN_WORK_FILE_CONTENT,
     },
 };
@@ -21,22 +22,29 @@ use crate::support::{
 const WORK_FILE_WITH_GITHUB_SECTION: &str = r#"# Today's Work
 
 ## Priorities
+
 - Ship end-to-end tests
 
 ## GitHub
+
 ### Opened
+
 - "Add end-to-end tests" ([#42](https://github.com/example/swelog/pull/42)) in [example/swelog](https://github.com/example/swelog)
 
 ### Merged
+
 - "Fix work file formatting" ([#43](https://github.com/example/swelog/pull/43)) in [example/swelog](https://github.com/example/swelog)
 
 ### Closed
+
 - "Try a separate formatting crate" ([#44](https://github.com/example/swelog/pull/44)) in [example/swelog](https://github.com/example/swelog)
 
 ### Reviewed
+
 - "Add Linear integration" ([#50](https://github.com/example/swelog/pull/50)) in [example/swelog](https://github.com/example/swelog)
 
 ## Log
+
 - Reviewed the auth PR
 - Paired on the release flow
 "#;
@@ -44,22 +52,29 @@ const WORK_FILE_WITH_GITHUB_SECTION: &str = r#"# Today's Work
 const DAILY_LOG_WITH_GITHUB_SECTION: &str = r#"# Daily Log - 07-04-2026
 
 ## Priorities
+
 - Ship end-to-end tests
 
 ## GitHub
+
 ### Opened
+
 - "Add end-to-end tests" ([#42](https://github.com/example/swelog/pull/42)) in [example/swelog](https://github.com/example/swelog)
 
 ### Merged
+
 - "Fix work file formatting" ([#43](https://github.com/example/swelog/pull/43)) in [example/swelog](https://github.com/example/swelog)
 
 ### Closed
+
 - "Try a separate formatting crate" ([#44](https://github.com/example/swelog/pull/44)) in [example/swelog](https://github.com/example/swelog)
 
 ### Reviewed
+
 - "Add Linear integration" ([#50](https://github.com/example/swelog/pull/50)) in [example/swelog](https://github.com/example/swelog)
 
 ## Log
+
 - Reviewed the auth PR
 - Paired on the release flow
 "#;
@@ -93,6 +108,29 @@ fn fetch_github_records_the_days_pull_requests_above_the_log_section() {
         .stdout(contains("Recorded 4 GitHub PRs in your work file."));
 
     github_mocks.assert_every_endpoint_was_called();
+
+    assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_GITHUB_SECTION);
+}
+
+#[test]
+fn fetch_github_formats_the_users_notes_in_the_work_file() {
+    let sandbox = SwelogSandbox::new();
+
+    sandbox.setup();
+
+    sandbox.write_work_file(UNFORMATTED_WORK_FILE_CONTENT);
+
+    let github = MockServer::start();
+
+    mock_github_with_activity_on(&github, ACTIVITY_DATE);
+
+    sandbox
+        .swelog()
+        .env("GITHUB_TOKEN", GITHUB_TOKEN)
+        .env("SWELOG_GITHUB_API_URL", github.base_url())
+        .args(["fetch", "github", "--date", ACTIVITY_DATE])
+        .assert()
+        .success();
 
     assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_GITHUB_SECTION);
 }

@@ -8,6 +8,7 @@ use daily_log::{
     write::write_daily_log_from_config,
 };
 use highlight::stdout::path_link;
+use markdown::work_file::format_work_file;
 use miette::Result;
 
 use crate::{
@@ -25,6 +26,10 @@ impl LogArgs {
     pub fn run(self, environment: &Environment) -> Result<()> {
         let swelog_config = read_config_file(&environment.config_file_path)?;
 
+        let swelog_paths = SwelogPaths::new(&swelog_config);
+
+        format_work_file(&swelog_paths.work_file)?;
+
         let log_date = self.daily_log_args.resolve_log_date(environment.today)?;
 
         write_daily_log_from_config(
@@ -34,8 +39,6 @@ impl LogArgs {
             self.daily_log_args.overwrite(),
             self.daily_log_args.keep_work_file(),
         )?;
-
-        let swelog_paths = SwelogPaths::new(&swelog_config);
 
         let daily_log_file = get_daily_log_file_path(&swelog_paths, &log_date);
 

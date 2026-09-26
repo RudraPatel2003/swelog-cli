@@ -37,9 +37,11 @@ pub const GITHUB_TOKEN: &str = "ghp_end_to_end";
 pub const DEFAULT_WORK_FILE_CONTENT: &str = "# Today's Work
 
 ## Priorities
+
 <!-- What you plan to focus on today. -->
 
 ## Log
+
 <!-- Quick capture. Use short bullets; include systems, outcomes, reviews, debugging, meetings, or support work when useful. -->
 ";
 
@@ -50,12 +52,23 @@ pub const DEFAULT_WORK_FILE_CONTENT_WITHOUT_COMMENTS: &str = "# Today's Work
 ## Log
 ";
 
+pub const UNFORMATTED_WORK_FILE_CONTENT: &str = "# Today's Work
+## Priorities
+* Ship end-to-end tests
+
+## Log
+* Reviewed the auth PR
+* Paired on the release flow
+";
+
 pub const WRITTEN_WORK_FILE_CONTENT: &str = "# Today's Work
 
 ## Priorities
+
 - Ship end-to-end tests
 
 ## Log
+
 - Reviewed the auth PR
 - Paired on the release flow
 ";
@@ -124,6 +137,10 @@ impl SwelogSandbox {
         self.swelog_paths().work_file
     }
 
+    pub fn context_file(&self) -> PathBuf {
+        self.swelog_paths().context_file
+    }
+
     pub fn daily_log_file(&self, date: &str) -> PathBuf {
         get_daily_log_file_path(&self.swelog_paths(), &parse_date(date))
     }
@@ -138,6 +155,14 @@ impl SwelogSandbox {
 
     pub fn write_work_file(&self, content: &str) {
         fs::write(self.work_file(), content).expect("work file should be written");
+    }
+
+    pub fn read_context_file(&self) -> String {
+        fs::read_to_string(self.context_file()).expect("context file should be readable")
+    }
+
+    pub fn write_context_file(&self, content: &str) {
+        fs::write(self.context_file(), content).expect("context file should be written");
     }
 
     pub fn read_daily_log(&self, date: &str) -> String {

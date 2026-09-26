@@ -8,15 +8,18 @@ use crate::support::sandbox::{
     LAST_FRIDAY,
     SwelogSandbox,
     TODAY,
+    UNFORMATTED_WORK_FILE_CONTENT,
     WRITTEN_WORK_FILE_CONTENT,
 };
 
 const EXPECTED_DAILY_LOG_CONTENT: &str = "# Daily Log - 07-04-2026
 
 ## Priorities
+
 - Ship end-to-end tests
 
 ## Log
+
 - Reviewed the auth PR
 - Paired on the release flow
 ";
@@ -44,6 +47,21 @@ fn log_writes_the_work_file_into_a_dated_daily_log_and_resets_the_work_file() {
     assert_eq!(sandbox.read_work_file(), DEFAULT_WORK_FILE_CONTENT_WITHOUT_COMMENTS);
 
     assert!(get_undo_snapshot_file_path(&sandbox.cache_directory()).is_file());
+}
+
+#[test]
+fn log_formats_the_work_file_before_writing_the_daily_log() {
+    let sandbox = SwelogSandbox::new();
+
+    sandbox.setup();
+
+    sandbox.write_work_file(UNFORMATTED_WORK_FILE_CONTENT);
+
+    sandbox.swelog().args(["log", "--keep", "--date", ACTIVITY_DATE]).assert().success();
+
+    assert_eq!(sandbox.read_daily_log(ACTIVITY_DATE), EXPECTED_DAILY_LOG_CONTENT);
+
+    assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 }
 
 #[test]
@@ -133,7 +151,7 @@ fn log_fails_when_the_daily_log_exists_without_force() {
 
     assert_eq!(
         sandbox.read_daily_log(ACTIVITY_DATE),
-        "# Daily Log - 07-04-2026\n\n## Log\n- Second attempt\n"
+        "# Daily Log - 07-04-2026\n\n## Log\n\n- Second attempt\n"
     );
 }
 

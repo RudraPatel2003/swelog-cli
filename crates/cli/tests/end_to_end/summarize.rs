@@ -9,13 +9,13 @@ use crate::support::{
     anthropic::{
         ANTHROPIC_API_KEY,
         ANTHROPIC_MODEL,
-        GENERATED_SUMMARY,
         mock_anthropic_messages,
     },
     sandbox::{
         ACTIVITY_DATE,
         DEFAULT_WORK_FILE_CONTENT_WITHOUT_COMMENTS,
         SwelogSandbox,
+        UNFORMATTED_WORK_FILE_CONTENT,
         WRITTEN_WORK_FILE_CONTENT,
     },
 };
@@ -23,6 +23,7 @@ use crate::support::{
 const MONDAY_DATE: &str = "06-29-2026";
 
 const EXPECTED_SUMMARIZED_DAILY_LOG: &str = "## Summary
+
 - Reviewed the auth PR and paired on the release flow
 
 ## Original Notes
@@ -30,11 +31,39 @@ const EXPECTED_SUMMARIZED_DAILY_LOG: &str = "## Summary
 ### Today's Work
 
 #### Priorities
+
 - Ship end-to-end tests
 
 #### Log
+
 - Reviewed the auth PR
 - Paired on the release flow
+";
+
+const EXPECTED_WEEKLY_LOG: &str = "## Summary
+
+- Reviewed the auth PR and paired on the release flow
+";
+
+const PREVIOUS_DEFAULT_WORK_FILE_CONTENT: &str = "# Today's Work
+
+## Priorities
+<!-- What you plan to focus on today. -->
+
+## Log
+<!-- Quick capture. Use short bullets; include systems, outcomes, reviews, debugging, meetings, or support work when useful. -->
+";
+
+const UNFORMATTED_CONTEXT_FILE_CONTENT: &str = "# Engineer Context
+## Systems Owned
+* Checkout APIs
+";
+
+const FORMATTED_CONTEXT_FILE_CONTENT: &str = "# Engineer Context
+
+## Systems Owned
+
+- Checkout APIs
 ";
 
 fn get_sandbox_configured_for_anthropic() -> SwelogSandbox {
@@ -79,6 +108,33 @@ fn summarize_day_writes_the_generated_summary_with_the_original_notes() {
     assert_eq!(sandbox.read_daily_log(ACTIVITY_DATE), EXPECTED_SUMMARIZED_DAILY_LOG);
 
     assert_eq!(sandbox.read_work_file(), DEFAULT_WORK_FILE_CONTENT_WITHOUT_COMMENTS);
+}
+
+#[test]
+fn summarize_day_formats_the_work_and_context_files_before_summarizing() {
+    let sandbox = get_sandbox_configured_for_anthropic();
+
+    sandbox.write_work_file(UNFORMATTED_WORK_FILE_CONTENT);
+
+    sandbox.write_context_file(UNFORMATTED_CONTEXT_FILE_CONTENT);
+
+    let anthropic = MockServer::start();
+
+    mock_anthropic_messages(&anthropic);
+
+    sandbox
+        .swelog()
+        .env("ANTHROPIC_API_KEY", ANTHROPIC_API_KEY)
+        .env("SWELOG_ANTHROPIC_API_URL", anthropic.base_url())
+        .args(["summarize", "day", "--keep", "--date", ACTIVITY_DATE])
+        .assert()
+        .success();
+
+    assert_eq!(sandbox.read_daily_log(ACTIVITY_DATE), EXPECTED_SUMMARIZED_DAILY_LOG);
+
+    assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
+
+    assert_eq!(sandbox.read_context_file(), FORMATTED_CONTEXT_FILE_CONTENT);
 }
 
 #[test]
@@ -158,7 +214,31 @@ fn summarize_week_writes_the_generated_weekly_log() {
     let weekly_log_content = std::fs::read_to_string(sandbox.weekly_log_file(MONDAY_DATE))
         .expect("weekly log should be readable");
 
-    assert_eq!(weekly_log_content, GENERATED_SUMMARY);
+    assert_eq!(weekly_log_content, EXPECTED_WEEKLY_LOG);
+}
+
+#[test]
+fn summarize_week_accepts_a_work_file_at_the_previous_default() {
+    let sandbox = get_sandbox_configured_for_anthropic();
+
+    sandbox.write_work_file(PREVIOUS_DEFAULT_WORK_FILE_CONTENT);
+
+    sandbox
+        .write_daily_log(MONDAY_DATE, "# Daily Log - 06-29-2026\n\n## Log\n- Planned the week\n");
+
+    let anthropic = MockServer::start();
+
+    mock_anthropic_messages(&anthropic);
+
+    sandbox
+        .swelog()
+        .env("ANTHROPIC_API_KEY", ANTHROPIC_API_KEY)
+        .env("SWELOG_ANTHROPIC_API_URL", anthropic.base_url())
+        .args(["summarize", "week", "--week-of", MONDAY_DATE])
+        .assert()
+        .success();
+
+    assert!(sandbox.weekly_log_file(MONDAY_DATE).is_file());
 }
 
 #[test]

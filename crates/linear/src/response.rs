@@ -61,4 +61,5 @@ fn collect_result_text(result: &CallToolResult) -> String {
 }
 
 #[cfg(test)]
+#[path = "response_tests.rs"]
 mod tests;

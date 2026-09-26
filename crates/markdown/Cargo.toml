@@ -1,6 +1,6 @@
 [package]
 name = "markdown"
-version = "0.27.0"
+version = "0.28.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -17,6 +17,7 @@ workspace = true
 
 [dependencies]
 config = { path = "../config" }
+dprint-plugin-markdown = { workspace = true }
 highlight = { path = "../highlight" }
 miette = { workspace = true }
 pulldown-cmark = { workspace = true }

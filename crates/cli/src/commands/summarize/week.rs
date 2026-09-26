@@ -25,6 +25,7 @@ use crate::{
             WeekSelection,
             resolve_monday_date,
         },
+        summarization_inputs::format_summarization_inputs,
         summarization_notice::{
             SummarizationPeriod,
             format_summarization_notice,
@@ -51,6 +52,10 @@ impl WeeklySummaryArgs {
     pub async fn run(self, environment: &Environment) -> Result<()> {
         let swelog_config = read_config_file(&environment.config_file_path)?;
 
+        let swelog_paths = SwelogPaths::new(&swelog_config);
+
+        format_summarization_inputs(&swelog_paths)?;
+
         let week_selection = WeekSelection::from_week_flags(self.monday_date, self.use_last_week);
 
         let monday_date = resolve_monday_date(week_selection, environment.today)?;
@@ -58,8 +63,6 @@ impl WeeklySummaryArgs {
         let summarization_settings = SummarizationSettings::from_config(&swelog_config)?;
 
         let language_model = environment.build_language_model(&summarization_settings)?;
-
-        let swelog_paths = SwelogPaths::new(&swelog_config);
 
         let context_file_content = get_context_file_content(&swelog_paths.context_file)?;
 

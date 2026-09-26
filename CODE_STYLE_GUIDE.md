@@ -6,6 +6,7 @@
 - Spell names out: `directory`, not `dir`.
 - Put a blank line between unrelated lines of code.
 - Keep files small and focused: give a self-contained feature its own sub-module, and extract logic so the core flow stays readable.
+- Never use `mod.rs`. A module with submodules is `issues.rs` next to an `issues/` folder.
 - A crate's `lib.rs` holds only module declarations, in one alphabetical block. Callers write `use updates::check::print_update_notice;`.
 - Import the full path and call unqualified: `use crate::utils::read_npm_package_json;` then `read_npm_package_json()`.
 - Never `pub use` to shorten an import path. The path should name the module that defines the item.
@@ -20,7 +21,7 @@
 
 ## API Calls
 
-- If making external API calls, do the call in `mod.rs` and hold types in `structs.rs`.
+- If making external API calls, do the call in the module file, such as `issues.rs`, and hold types in `issues/structs.rs`.
 
 ## CLI
 
@@ -28,7 +29,7 @@
 
 ## Testing
 
-- Place crate-local unit tests in a crate test module such as `crates/config/src/tests.rs`.
+- Place a module's unit tests in a sibling file named after it, such as `issues_tests.rs` next to `issues.rs`, declared with `#[cfg(test)] #[path = "issues_tests.rs"] mod tests;`.
 - Place crate integration tests in the `tests/` folder of the crate, at the same level as the `src/` folder.
 - Name tests by behavior, for example `write_config_fails_when_file_exists_without_force`.
 

@@ -88,16 +88,21 @@ const PREVIOUS_REVIEWS_RESPONSE: &str = r#"[
 const NO_PRS_RESPONSE: &str = r#"{ "total_count": 0, "incomplete_results": false, "items": [] }"#;
 
 pub const GITHUB_SECTION: &str = r#"## GitHub
+
 ### Opened
+
 - "Add end-to-end tests" ([#42](https://github.com/example/swelog/pull/42)) in [example/swelog](https://github.com/example/swelog)
 
 ### Merged
+
 - "Fix work file formatting" ([#43](https://github.com/example/swelog/pull/43)) in [example/swelog](https://github.com/example/swelog)
 
 ### Closed
+
 - "Try a separate formatting crate" ([#44](https://github.com/example/swelog/pull/44)) in [example/swelog](https://github.com/example/swelog)
 
 ### Reviewed
+
 - "Add Linear integration" ([#50](https://github.com/example/swelog/pull/50)) in [example/swelog](https://github.com/example/swelog)"#;
 
 pub struct GitHubMocks<'server> {

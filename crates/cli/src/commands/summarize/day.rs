@@ -14,6 +14,7 @@ use crate::{
     environment::Environment,
     shared::{
         daily_log_args::DailyLogArgs,
+        summarization_inputs::format_summarization_inputs,
         summarization_notice::{
             SummarizationPeriod,
             format_summarization_notice,
@@ -31,13 +32,15 @@ impl DailySummaryArgs {
     pub async fn run(self, environment: &Environment) -> Result<()> {
         let swelog_config = read_config_file(&environment.config_file_path)?;
 
+        let swelog_paths = SwelogPaths::new(&swelog_config);
+
+        format_summarization_inputs(&swelog_paths)?;
+
         let summarization_settings = SummarizationSettings::from_config(&swelog_config)?;
 
         let language_model = environment.build_language_model(&summarization_settings)?;
 
         let log_date = self.daily_log_args.resolve_log_date(environment.today)?;
-
-        let swelog_paths = SwelogPaths::new(&swelog_config);
 
         let context_file_content = get_context_file_content(&swelog_paths.context_file)?;
 
