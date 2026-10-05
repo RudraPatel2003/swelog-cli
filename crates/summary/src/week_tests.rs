@@ -3,7 +3,6 @@ use std::{
     path::PathBuf,
 };
 
-use async_trait::async_trait;
 use chrono::{
     Duration,
     NaiveDate,
@@ -16,14 +15,17 @@ use config::{
     },
     swelog_config::SwelogConfig,
 };
-use llm::language_model::LanguageModel;
-use miette::Result;
 use tempfile::{
     TempDir,
     tempdir,
 };
 
 use super::*;
+use crate::mock_language_model::{
+    get_language_model_responding_with,
+    get_prompt_echoing_language_model,
+    get_uncalled_language_model,
+};
 
 const CONTEXT_FILE_CONTENT: &str = "backend engineer on platform team";
 
@@ -45,33 +47,6 @@ const FORMATTED_WEEKLY_LOG_CONTENT: &str =
 struct TestContext {
     temporary_directory: TempDir,
     config: SwelogConfig,
-}
-
-struct FakeLanguageModel;
-
-#[async_trait]
-impl LanguageModel for FakeLanguageModel {
-    async fn generate_response(&self, prompt: &str) -> Result<String> {
-        Ok(format!("generated from prompt:\n{prompt}"))
-    }
-}
-
-struct FencedLanguageModel;
-
-#[async_trait]
-impl LanguageModel for FencedLanguageModel {
-    async fn generate_response(&self, _prompt: &str) -> Result<String> {
-        Ok(format!("```md\n{FENCED_WEEKLY_LOG_CONTENT}\n```"))
-    }
-}
-
-struct UnformattedLanguageModel;
-
-#[async_trait]
-impl LanguageModel for UnformattedLanguageModel {
-    async fn generate_response(&self, _prompt: &str) -> Result<String> {
-        Ok(UNFORMATTED_WEEKLY_LOG_CONTENT.to_owned())
-    }
 }
 
 impl TestContext {
@@ -160,9 +135,11 @@ async fn summarize_weekly_work_writes_generated_weekly_log() {
 
     test_context.write_daily_log(wednesday_date, WEDNESDAY_DAILY_LOG_CONTENT);
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -196,9 +173,11 @@ async fn summarize_weekly_work_skips_missing_weekday_logs() {
 
     test_context.write_daily_log(friday_date, FRIDAY_DAILY_LOG_CONTENT);
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -226,9 +205,11 @@ async fn summarize_weekly_work_fails_when_no_daily_logs_exist() {
 
     test_context.write_swelog_files();
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -253,9 +234,11 @@ async fn summarize_weekly_work_prompts_without_context_when_none_is_given() {
 
     test_context.write_daily_log(monday_date, MONDAY_DAILY_LOG_CONTENT);
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         None,
         Overwrite::No,
@@ -285,9 +268,11 @@ async fn summarize_weekly_work_fails_when_work_file_is_missing() {
 
     fs::remove_file(test_context.work_file()).expect("work file should be removed");
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -314,9 +299,11 @@ async fn summarize_weekly_work_fails_when_daily_log_directory_is_missing() {
     fs::remove_dir(test_context.daily_log_directory())
         .expect("daily log directory should be removed");
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -345,9 +332,11 @@ async fn summarize_weekly_work_fails_when_weekly_log_directory_is_missing() {
     fs::remove_dir(test_context.weekly_log_directory())
         .expect("weekly log directory should be removed");
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -376,9 +365,11 @@ async fn summarize_weekly_work_fails_when_weekly_log_exists_without_force() {
     fs::write(test_context.weekly_log_file(), EXISTING_WEEKLY_LOG_CONTENT)
         .expect("existing weekly log should be written");
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -413,9 +404,11 @@ async fn summarize_weekly_work_overwrites_existing_weekly_log_with_force() {
     fs::write(test_context.weekly_log_file(), EXISTING_WEEKLY_LOG_CONTENT)
         .expect("existing weekly log should be written");
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::Yes,
@@ -451,9 +444,11 @@ async fn summarize_weekly_work_fails_when_work_file_is_not_default() {
 
     test_context.write_work_file(UNSUMMARIZED_WORK_FILE_CONTENT);
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_weekly_work_from_config(
         &test_context.config,
-        &FakeLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -478,9 +473,13 @@ async fn summarize_weekly_work_strips_a_markdown_code_fence_from_the_generated_w
 
     test_context.write_daily_log(monday_date, MONDAY_DAILY_LOG_CONTENT);
 
+    let fenced_response = format!("```md\n{FENCED_WEEKLY_LOG_CONTENT}\n```");
+
+    let language_model = get_language_model_responding_with(fenced_response);
+
     summarize_weekly_work_from_config(
         &test_context.config,
-        &FencedLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -506,9 +505,12 @@ async fn summarize_weekly_work_formats_the_generated_weekly_log() {
 
     test_context.write_daily_log(monday_date, MONDAY_DAILY_LOG_CONTENT);
 
+    let language_model =
+        get_language_model_responding_with(UNFORMATTED_WEEKLY_LOG_CONTENT.to_owned());
+
     summarize_weekly_work_from_config(
         &test_context.config,
-        &UnformattedLanguageModel,
+        &language_model,
         &monday_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
