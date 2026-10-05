@@ -1,6 +1,6 @@
 [package]
 name = "summary"
-version = "0.28.0"
+version = "0.29.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -16,7 +16,6 @@ license = { workspace = true }
 workspace = true
 
 [dependencies]
-async-trait = { workspace = true }
 chrono = { workspace = true }
 config = { path = "../config" }
 daily_log = { path = "../daily_log" }
@@ -29,5 +28,7 @@ thiserror = { workspace = true }
 undo = { path = "../undo" }
 
 [dev-dependencies]
+async-trait = { workspace = true }
+mockall = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }

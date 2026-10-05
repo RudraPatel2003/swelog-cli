@@ -3,7 +3,6 @@ use std::{
     path::PathBuf,
 };
 
-use async_trait::async_trait;
 use chrono::NaiveDate;
 use config::{
     errors::SwelogFileNotFound,
@@ -17,8 +16,6 @@ use daily_log::{
     errors::DailyLogAlreadyExists,
     file::get_daily_log_file_path,
 };
-use llm::language_model::LanguageModel;
-use miette::Result;
 use tempfile::{
     TempDir,
     tempdir,
@@ -29,6 +26,11 @@ use undo::snapshot::{
 };
 
 use super::*;
+use crate::mock_language_model::{
+    get_language_model_responding_with,
+    get_prompt_echoing_language_model,
+    get_uncalled_language_model,
+};
 
 const CONTEXT_FILE_CONTENT: &str = "backend engineer on platform team";
 
@@ -64,33 +66,6 @@ const FORMATTED_DAILY_LOG_CONTENT: &str = "# Daily Log\n\n- Reviewed auth PR\n\n
 struct TestContext {
     temporary_directory: TempDir,
     config: SwelogConfig,
-}
-
-struct FakeLanguageModel;
-
-#[async_trait]
-impl LanguageModel for FakeLanguageModel {
-    async fn generate_response(&self, prompt: &str) -> Result<String> {
-        Ok(format!("generated from prompt:\n{prompt}"))
-    }
-}
-
-struct FencedLanguageModel;
-
-#[async_trait]
-impl LanguageModel for FencedLanguageModel {
-    async fn generate_response(&self, _prompt: &str) -> Result<String> {
-        Ok(format!("```md\n{FENCED_DAILY_LOG_CONTENT}\n```"))
-    }
-}
-
-struct UnformattedLanguageModel;
-
-#[async_trait]
-impl LanguageModel for UnformattedLanguageModel {
-    async fn generate_response(&self, _prompt: &str) -> Result<String> {
-        Ok(UNFORMATTED_DAILY_LOG_CONTENT.to_owned())
-    }
 }
 
 impl TestContext {
@@ -151,10 +126,12 @@ async fn summarize_daily_work_writes_generated_daily_log() {
 
     test_context.write_swelog_files();
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -187,10 +164,12 @@ async fn summarize_daily_work_prompts_without_context_when_none_is_given() {
 
     test_context.write_swelog_files();
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         None,
         Overwrite::No,
@@ -219,10 +198,12 @@ async fn summarize_daily_work_fails_when_work_file_is_missing() {
 
     fs::remove_file(test_context.work_file()).expect("work file should be removed");
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -250,10 +231,12 @@ async fn summarize_daily_work_fails_when_daily_log_directory_is_missing() {
     fs::remove_dir_all(test_context.daily_log_directory())
         .expect("daily log directory should be removed");
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -281,10 +264,12 @@ async fn summarize_daily_work_fails_when_daily_log_exists_without_force() {
     fs::write(test_context.daily_log_file(), EXISTING_DAILY_LOG_CONTENT)
         .expect("existing daily log should be written");
 
+    let language_model = get_uncalled_language_model();
+
     let error = summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -318,10 +303,12 @@ async fn summarize_daily_work_overwrites_existing_daily_log_with_force() {
     fs::write(test_context.daily_log_file(), EXISTING_DAILY_LOG_CONTENT)
         .expect("existing daily log should be written");
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::Yes,
@@ -348,10 +335,12 @@ async fn summarize_daily_work_resets_work_file_by_default() {
 
     test_context.write_swelog_files();
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -383,10 +372,12 @@ async fn summarize_daily_work_keeps_work_file_when_keep_is_set() {
 
     test_context.write_swelog_files();
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -432,10 +423,12 @@ async fn summarize_daily_work_saves_an_undo_snapshot_of_the_original_work_file()
 
     test_context.write_swelog_files();
 
+    let language_model = get_prompt_echoing_language_model();
+
     summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FakeLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -462,10 +455,14 @@ async fn summarize_daily_work_strips_a_markdown_code_fence_from_the_generated_da
 
     test_context.write_swelog_files();
 
+    let fenced_response = format!("```md\n{FENCED_DAILY_LOG_CONTENT}\n```");
+
+    let language_model = get_language_model_responding_with(fenced_response);
+
     summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &FencedLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
@@ -492,10 +489,13 @@ async fn summarize_daily_work_formats_the_generated_daily_log() {
 
     test_context.write_swelog_files();
 
+    let language_model =
+        get_language_model_responding_with(UNFORMATTED_DAILY_LOG_CONTENT.to_owned());
+
     summarize_daily_work_from_config(
         &test_context.config,
         &test_context.cache_directory(),
-        &UnformattedLanguageModel,
+        &language_model,
         &log_date,
         Some(CONTEXT_FILE_CONTENT),
         Overwrite::No,
