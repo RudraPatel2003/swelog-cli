@@ -50,9 +50,15 @@ fn fetch_all_runs_only_the_sources_with_a_credential() {
         .stdout(contains("Running the fetch commands you have configured: GitHub."))
         .stdout(contains("Recorded 4 GitHub PRs in your work file."));
 
-    github_mocks.user.assert();
+    github_mocks
+        .user
+        .assert();
 
-    assert!(sandbox.read_work_file().contains(GITHUB_SECTION));
+    assert!(
+        sandbox
+            .read_work_file()
+            .contains(GITHUB_SECTION)
+    );
 }
 
 #[test]
@@ -98,9 +104,13 @@ fn fetch_all_runs_every_configured_source_and_records_each_section() {
         .stdout(contains("Added 2 Linear issues from 07-04-2026 to your work file."))
         .stdout(contains("Added 3 Sentry issues from 07-04-2026 to your work file."));
 
-    github_mocks.user.assert();
+    github_mocks
+        .user
+        .assert();
 
-    linear_mocks.list_issues.assert();
+    linear_mocks
+        .list_issues
+        .assert();
 
     sentry_mocks.assert_every_endpoint_was_called();
 

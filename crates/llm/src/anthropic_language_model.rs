@@ -66,12 +66,18 @@ impl LanguageModel for AnthropicLanguageModel {
             }],
         };
 
-        let endpoint_url = self.base_url.join(MESSAGES_ENDPOINT_PATH)?;
+        let endpoint_url = self
+            .base_url
+            .join(MESSAGES_ENDPOINT_PATH)?;
 
         let response = self
             .client
             .post(endpoint_url)
-            .header(ANTHROPIC_API_KEY_HEADER, self.api_key.as_str())
+            .header(
+                ANTHROPIC_API_KEY_HEADER,
+                self.api_key
+                    .as_str(),
+            )
             .header(ANTHROPIC_VERSION_HEADER, ANTHROPIC_VERSION)
             .json(&request)
             .send()
@@ -115,7 +121,11 @@ fn parse_anthropic_response_text(response_body: &str, model: &str) -> Result<Str
         .content
         .iter()
         .filter(|content| content.content_type == "text")
-        .filter_map(|content| content.text.as_deref())
+        .filter_map(|content| {
+            content
+                .text
+                .as_deref()
+        })
         .collect();
 
     if text_parts.is_empty() {

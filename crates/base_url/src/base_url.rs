@@ -41,10 +41,13 @@ impl BaseUrl {
     }
 
     pub fn join(&self, endpoint_path: &str) -> Result<Url> {
-        let endpoint_url = self.url.join(endpoint_path).map_err(|error| InvalidBaseUrl {
-            value: format!("{}{endpoint_path}", self.url),
-            message: error.to_string(),
-        })?;
+        let endpoint_url = self
+            .url
+            .join(endpoint_path)
+            .map_err(|error| InvalidBaseUrl {
+                value: format!("{}{endpoint_path}", self.url),
+                message: error.to_string(),
+            })?;
 
         Ok(endpoint_url)
     }
@@ -56,7 +59,10 @@ impl BaseUrl {
 }
 
 fn ensure_trailing_slash(url: &mut Url) {
-    if !url.path().ends_with('/') {
+    if !url
+        .path()
+        .ends_with('/')
+    {
         let path_with_trailing_slash = format!("{}/", url.path());
 
         url.set_path(&path_with_trailing_slash);

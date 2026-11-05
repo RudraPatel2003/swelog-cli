@@ -28,8 +28,11 @@ pub async fn read_successful_response_page(response: Response) -> Result<Respons
 
     let next_cursor = read_next_cursor(&response);
 
-    let response_text =
-        response.text().await.into_diagnostic().wrap_err("failed to read Sentry response body")?;
+    let response_text = response
+        .text()
+        .await
+        .into_diagnostic()
+        .wrap_err("failed to read Sentry response body")?;
 
     if matches!(status_code, StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN) {
         let sentry_authorization_failed_error = SentryAuthorizationFailed { status_code };
@@ -48,7 +51,11 @@ pub async fn read_successful_response_page(response: Response) -> Result<Respons
 }
 
 fn read_next_cursor(response: &Response) -> Option<String> {
-    let link_header = response.headers().get(LINK)?.to_str().ok()?;
+    let link_header = response
+        .headers()
+        .get(LINK)?
+        .to_str()
+        .ok()?;
 
     parse_next_cursor(link_header)
 }

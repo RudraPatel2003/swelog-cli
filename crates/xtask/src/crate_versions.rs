@@ -37,9 +37,13 @@ pub fn list_crate_manifest_paths() -> Result<Vec<PathBuf>> {
     let mut manifest_paths = Vec::new();
 
     for entry in entries {
-        let entry = entry.into_diagnostic().wrap_err("failed to read crates directory entry")?;
+        let entry = entry
+            .into_diagnostic()
+            .wrap_err("failed to read crates directory entry")?;
 
-        let manifest_path = entry.path().join("Cargo.toml");
+        let manifest_path = entry
+            .path()
+            .join("Cargo.toml");
 
         if manifest_path.is_file() {
             manifest_paths.push(manifest_path);

@@ -9,7 +9,7 @@ use config::{
     swelog_config::SwelogConfig,
     swelog_file_existence::ensure_swelog_file_exists,
 };
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -70,7 +70,7 @@ fn update_work_file(
 
     let work_file_content = fs::read_to_string(work_file)
         .into_diagnostic()
-        .wrap_err_with(|| format!("failed to read work file at {}", path_link(work_file)))?;
+        .wrap_err_with(|| format!("failed to read work file at {}", stderr_path_link(work_file)))?;
 
     let updated_work_file_content = rewrite_work_file_content(&work_file_content);
 
@@ -80,7 +80,7 @@ fn update_work_file(
 
     fs::write(work_file, updated_work_file_content)
         .into_diagnostic()
-        .wrap_err_with(|| format!("failed to write work file at {}", path_link(work_file)))
+        .wrap_err_with(|| format!("failed to write work file at {}", stderr_path_link(work_file)))
 }
 
 fn upsert_section(markdown: &str, section_title: &str, content: &str) -> String {

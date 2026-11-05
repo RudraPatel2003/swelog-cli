@@ -4,7 +4,9 @@ use sentry::issues::structs::{
 };
 
 pub fn format_sentry_issues(issues: &[SentryIssue]) -> String {
-    let mut sorted_issues = issues.iter().collect::<Vec<_>>();
+    let mut sorted_issues = issues
+        .iter()
+        .collect::<Vec<_>>();
 
     sorted_issues.sort_by_key(|issue| substatus_sort_key(issue.substatus));
 
@@ -16,10 +18,15 @@ pub fn format_sentry_issues(issues: &[SentryIssue]) -> String {
 }
 
 fn format_substatus_group(issues: &[&SentryIssue]) -> String {
-    let substatus_label = issues.first().map_or("", |issue| substatus_label(issue.substatus));
+    let substatus_label = issues
+        .first()
+        .map_or("", |issue| substatus_label(issue.substatus));
 
-    let issue_lines =
-        issues.iter().map(|issue| format_sentry_issue(issue)).collect::<Vec<_>>().join("\n");
+    let issue_lines = issues
+        .iter()
+        .map(|issue| format_sentry_issue(issue))
+        .collect::<Vec<_>>()
+        .join("\n");
 
     format!("### {substatus_label}\n\n{issue_lines}")
 }
@@ -33,11 +40,15 @@ fn format_sentry_issue(issue: &SentryIssue) -> String {
 }
 
 fn collapse_whitespace(text: &str) -> String {
-    text.split_whitespace().collect::<Vec<_>>().join(" ")
+    text.split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn escape_markdown_link_text(text: &str) -> String {
-    text.replace('\\', "\\\\").replace('[', "\\[").replace(']', "\\]")
+    text.replace('\\', "\\\\")
+        .replace('[', "\\[")
+        .replace(']', "\\]")
 }
 
 const fn substatus_label(substatus: Option<SentryIssueSubstatus>) -> &'static str {

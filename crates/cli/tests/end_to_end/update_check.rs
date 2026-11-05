@@ -15,7 +15,8 @@ const NEWER_VERSION: &str = "99.0.0";
 
 fn mock_npm_registry(server: &MockServer) -> Mock<'_> {
     server.mock(|when, then| {
-        when.method(GET).path("/swelog-cli/latest");
+        when.method(GET)
+            .path("/swelog-cli/latest");
 
         then.status(200)
             .header("content-type", "application/json")

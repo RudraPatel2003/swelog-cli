@@ -22,7 +22,9 @@ impl ClearArgs {
             .map_or_else(|| Credential::ALL_CREDENTIALS.to_vec(), |credential| vec![credential]);
 
         for credential in credentials {
-            let was_credential_cleared = environment.credential_store.clear(credential)?;
+            let was_credential_cleared = environment
+                .credential_store
+                .clear(credential)?;
 
             if was_credential_cleared {
                 println!("Removed the stored {}.", credential.label());

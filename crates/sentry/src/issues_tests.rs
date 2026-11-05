@@ -141,7 +141,9 @@ fn parse_issues_response_text_maps_an_unknown_substatus_to_other() {
     let issues = parse_issues_response_text(response_body).expect("response should parse");
 
     assert_eq!(
-        issues.first().map(|issue| issue.substatus),
+        issues
+            .first()
+            .map(|issue| issue.substatus),
         Some(Some(SentryIssueSubstatus::Other))
     );
 }
@@ -162,7 +164,12 @@ fn parse_issues_response_text_accepts_a_missing_substatus() {
 
     let issues = parse_issues_response_text(response_body).expect("response should parse");
 
-    assert_eq!(issues.first().map(|issue| issue.substatus), Some(None));
+    assert_eq!(
+        issues
+            .first()
+            .map(|issue| issue.substatus),
+        Some(None)
+    );
 }
 
 #[test]

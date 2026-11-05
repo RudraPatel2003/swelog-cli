@@ -107,7 +107,12 @@ fn format_sentry_issues_labels_an_unknown_or_missing_substatus_as_other() {
 
     let markdown = format_sentry_issues(&issues);
 
-    assert_eq!(markdown.matches("### Other\n").count(), 1);
+    assert_eq!(
+        markdown
+            .matches("### Other\n")
+            .count(),
+        1
+    );
 }
 
 #[test]

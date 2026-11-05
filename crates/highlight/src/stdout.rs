@@ -17,25 +17,25 @@ use crate::{
     },
 };
 
-pub fn highlight_cyan(text: impl Display) -> String {
+pub fn highlight_stdout_cyan(text: impl Display) -> String {
     highlight_with_style(text, Stream::Stdout, cyan())
 }
 
-pub fn highlight_yellow(text: impl Display) -> String {
+pub fn highlight_stdout_yellow(text: impl Display) -> String {
     highlight_with_style(text, Stream::Stdout, yellow())
 }
 
-pub fn highlight_green(text: impl Display) -> String {
+pub fn highlight_stdout_green(text: impl Display) -> String {
     highlight_with_style(text, Stream::Stdout, green())
 }
 
-pub fn highlight_dimmed(text: impl Display) -> String {
+pub fn highlight_stdout_dimmed(text: impl Display) -> String {
     highlight_with_style(text, Stream::Stdout, dimmed())
 }
 
 #[must_use]
-pub fn path_link(path: &Path) -> String {
+pub fn stdout_path_link(path: &Path) -> String {
     let formatted_path_link = format_path_link(path, HyperlinkStream::Stdout);
 
-    highlight_cyan(formatted_path_link)
+    highlight_stdout_cyan(formatted_path_link)
 }

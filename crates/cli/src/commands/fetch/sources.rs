@@ -136,7 +136,10 @@ fn read_authorization_presence(
         return Ok(AuthorizationPresence::Present);
     }
 
-    if credential_store.read(credential)?.is_some() {
+    if credential_store
+        .read(credential)?
+        .is_some()
+    {
         return Ok(AuthorizationPresence::Present);
     }
 

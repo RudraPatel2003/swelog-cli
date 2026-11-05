@@ -173,19 +173,35 @@ fn fetched_activity_flows_from_the_work_file_into_the_daily_log_and_back_through
         .assert()
         .success();
 
-    assert!(sandbox.read_work_file().contains(GITHUB_SECTION));
+    assert!(
+        sandbox
+            .read_work_file()
+            .contains(GITHUB_SECTION)
+    );
 
-    sandbox.swelog().args(["log", "--date", ACTIVITY_DATE]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--date", ACTIVITY_DATE])
+        .assert()
+        .success();
 
     assert_eq!(sandbox.read_daily_log(ACTIVITY_DATE), DAILY_LOG_WITH_GITHUB_SECTION);
 
     assert_eq!(sandbox.read_work_file(), DEFAULT_WORK_FILE_CONTENT_WITHOUT_COMMENTS);
 
-    sandbox.swelog().arg("undo").assert().success();
+    sandbox
+        .swelog()
+        .arg("undo")
+        .assert()
+        .success();
 
     assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_GITHUB_SECTION);
 
-    assert!(!sandbox.daily_log_file(ACTIVITY_DATE).exists());
+    assert!(
+        !sandbox
+            .daily_log_file(ACTIVITY_DATE)
+            .exists()
+    );
 }
 
 #[test]
@@ -247,7 +263,9 @@ fn fetch_github_uses_the_stored_token_when_the_environment_variable_is_unset() {
         .assert()
         .success();
 
-    github_mocks.user.assert();
+    github_mocks
+        .user
+        .assert();
 
     assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_GITHUB_SECTION);
 }
@@ -269,7 +287,12 @@ fn fetch_github_fails_fast_without_a_token_when_there_is_no_terminal() {
         .stderr(contains("GitHub token is not available"))
         .stderr(contains("GITHUB_TOKEN"));
 
-    assert_eq!(github_mocks.user.calls(), 0);
+    assert_eq!(
+        github_mocks
+            .user
+            .calls(),
+        0
+    );
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 }

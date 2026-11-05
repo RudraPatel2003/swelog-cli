@@ -4,7 +4,11 @@ use super::*;
 fn take_next_page_token_stops_on_the_last_page() {
     let mut event_page = parse_event_page(r#"{ "items": [] }"#).expect("response should parse");
 
-    assert!(event_page.take_next_page_token().is_none());
+    assert!(
+        event_page
+            .take_next_page_token()
+            .is_none()
+    );
 }
 
 #[test]
@@ -37,7 +41,11 @@ fn get_event_page_query_parameters_bounds_the_request_to_the_day_window() {
 
     assert!(query_parameters.contains(&("showDeleted", "true".to_string())));
 
-    assert!(query_parameters.iter().all(|(name, _)| *name != "pageToken"));
+    assert!(
+        query_parameters
+            .iter()
+            .all(|(name, _)| *name != "pageToken")
+    );
 }
 
 #[test]

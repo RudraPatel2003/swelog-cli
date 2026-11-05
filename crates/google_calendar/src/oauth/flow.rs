@@ -44,7 +44,9 @@ pub async fn authorize_in_browser(
 
     let csrf_token = CsrfToken::new_random();
 
-    let redirect_uri = callback_server.redirect_uri().to_string();
+    let redirect_uri = callback_server
+        .redirect_uri()
+        .to_string();
 
     let authorization_url = build_authorization_url(
         application,

@@ -73,7 +73,11 @@ pub fn read_credential_from_environment(credential: Credential) -> Option<String
 
     env::var(environment_variable)
         .ok()
-        .map(|secret| secret.trim().to_string())
+        .map(|secret| {
+            secret
+                .trim()
+                .to_string()
+        })
         .filter(|secret| !secret.is_empty())
 }
 
@@ -88,7 +92,9 @@ fn prompt_for_secret(label: &str, instructions: &str) -> Result<String> {
         .into_diagnostic()
         .wrap_err_with(|| format!("failed to read the {label} from the terminal"))?;
 
-    let trimmed_secret = secret.trim().to_string();
+    let trimmed_secret = secret
+        .trim()
+        .to_string();
 
     Ok(trimmed_secret)
 }

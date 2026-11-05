@@ -4,12 +4,17 @@ use linear::client::structs::{
 };
 
 pub fn format_linear_issues(issues: &[LinearIssue]) -> String {
-    let mut sorted_issues = issues.iter().collect::<Vec<_>>();
+    let mut sorted_issues = issues
+        .iter()
+        .collect::<Vec<_>>();
 
     sorted_issues.sort_by(|left, right| {
         status_sort_key(left.status_type)
             .cmp(&status_sort_key(right.status_type))
-            .then_with(|| left.status_name.cmp(&right.status_name))
+            .then_with(|| {
+                left.status_name
+                    .cmp(&right.status_name)
+            })
     });
 
     sorted_issues
@@ -20,10 +25,19 @@ pub fn format_linear_issues(issues: &[LinearIssue]) -> String {
 }
 
 fn format_status_group(issues: &[&LinearIssue]) -> String {
-    let status_name = issues.first().map_or("", |issue| issue.status_name.as_str());
+    let status_name = issues
+        .first()
+        .map_or("", |issue| {
+            issue
+                .status_name
+                .as_str()
+        });
 
-    let issue_lines =
-        issues.iter().map(|issue| format_linear_issue(issue)).collect::<Vec<_>>().join("\n");
+    let issue_lines = issues
+        .iter()
+        .map(|issue| format_linear_issue(issue))
+        .collect::<Vec<_>>()
+        .join("\n");
 
     format!("### {status_name}\n\n{issue_lines}")
 }
@@ -37,11 +51,15 @@ fn format_linear_issue(issue: &LinearIssue) -> String {
 }
 
 fn collapse_whitespace(text: &str) -> String {
-    text.split_whitespace().collect::<Vec<_>>().join(" ")
+    text.split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn escape_markdown_link_text(text: &str) -> String {
-    text.replace('\\', "\\\\").replace('[', "\\[").replace(']', "\\]")
+    text.replace('\\', "\\\\")
+        .replace('[', "\\[")
+        .replace(']', "\\]")
 }
 
 const fn status_sort_key(status_type: LinearStatusType) -> u8 {

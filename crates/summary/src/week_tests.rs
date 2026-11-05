@@ -55,15 +55,18 @@ impl TestContext {
     }
 
     fn work_file(&self) -> PathBuf {
-        self.swelog_paths().work_file
+        self.swelog_paths()
+            .work_file
     }
 
     fn daily_log_directory(&self) -> PathBuf {
-        self.swelog_paths().daily_log_directory
+        self.swelog_paths()
+            .daily_log_directory
     }
 
     fn weekly_log_directory(&self) -> PathBuf {
-        self.swelog_paths().weekly_log_directory
+        self.swelog_paths()
+            .weekly_log_directory
     }
 
     fn daily_log_file(&self, log_date: NaiveDate) -> PathBuf {
@@ -98,7 +101,9 @@ fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
     let config = SwelogConfig {
-        obsidian_vault_path: temporary_directory.path().to_path_buf(),
+        obsidian_vault_path: temporary_directory
+            .path()
+            .to_path_buf(),
         ..SwelogConfig::get_default_config()
     };
 
@@ -217,7 +222,9 @@ async fn summarize_weekly_work_fails_when_no_daily_logs_exist() {
     .await
     .expect_err("missing daily logs should fail");
 
-    let error = error.downcast_ref::<NoDailyLogsFound>().expect("error should be NoDailyLogsFound");
+    let error = error
+        .downcast_ref::<NoDailyLogsFound>()
+        .expect("error should be NoDailyLogsFound");
 
     assert_eq!(error.monday_date, monday_date);
 
@@ -280,8 +287,9 @@ async fn summarize_weekly_work_fails_when_work_file_is_missing() {
     .await
     .expect_err("missing work file should fail");
 
-    let error =
-        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+    let error = error
+        .downcast_ref::<SwelogFileNotFound>()
+        .expect("error should be SwelogFileNotFound");
 
     assert_eq!(error.swelog_path, test_context.work_file());
 
@@ -311,8 +319,9 @@ async fn summarize_weekly_work_fails_when_daily_log_directory_is_missing() {
     .await
     .expect_err("missing daily log directory should fail");
 
-    let error =
-        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+    let error = error
+        .downcast_ref::<SwelogFileNotFound>()
+        .expect("error should be SwelogFileNotFound");
 
     assert_eq!(error.swelog_path, test_context.daily_log_directory());
 
@@ -344,8 +353,9 @@ async fn summarize_weekly_work_fails_when_weekly_log_directory_is_missing() {
     .await
     .expect_err("missing weekly log directory should fail");
 
-    let error =
-        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+    let error = error
+        .downcast_ref::<SwelogFileNotFound>()
+        .expect("error should be SwelogFileNotFound");
 
     assert_eq!(error.swelog_path, test_context.weekly_log_directory());
 
@@ -456,9 +466,15 @@ async fn summarize_weekly_work_fails_when_work_file_is_not_default() {
     .await
     .expect_err("unsummarized work file should fail");
 
-    error.downcast_ref::<WorkFileNotDefault>().expect("error should be WorkFileNotDefault");
+    error
+        .downcast_ref::<WorkFileNotDefault>()
+        .expect("error should be WorkFileNotDefault");
 
-    assert!(!test_context.weekly_log_file().exists());
+    assert!(
+        !test_context
+            .weekly_log_file()
+            .exists()
+    );
 
     drop(test_context.temporary_directory);
 }

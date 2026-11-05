@@ -26,7 +26,10 @@ pub fn get_prompt_echoing_language_model() -> MockLanguageModel {
 pub fn get_language_model_responding_with(response: String) -> MockLanguageModel {
     let mut language_model = MockLanguageModel::new();
 
-    language_model.expect_generate_response().times(1).return_once(move |_| Ok(response));
+    language_model
+        .expect_generate_response()
+        .times(1)
+        .return_once(move |_| Ok(response));
 
     language_model
 }
@@ -34,7 +37,9 @@ pub fn get_language_model_responding_with(response: String) -> MockLanguageModel
 pub fn get_uncalled_language_model() -> MockLanguageModel {
     let mut language_model = MockLanguageModel::new();
 
-    language_model.expect_generate_response().never();
+    language_model
+        .expect_generate_response()
+        .never();
 
     language_model
 }

@@ -89,6 +89,8 @@ impl LinearIssuePage {
             return None;
         }
 
-        self.next_cursor.take().filter(|next_cursor| !next_cursor.is_empty())
+        self.next_cursor
+            .take()
+            .filter(|next_cursor| !next_cursor.is_empty())
     }
 }

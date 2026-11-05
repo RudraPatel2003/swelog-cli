@@ -17,8 +17,9 @@ pub struct SwelogPaths {
 impl SwelogPaths {
     #[must_use]
     pub fn new(swelog_config: &SwelogConfig) -> Self {
-        let swelog_directory =
-            swelog_config.obsidian_vault_path.join(&swelog_config.swelog_folder_name);
+        let swelog_directory = swelog_config
+            .obsidian_vault_path
+            .join(&swelog_config.swelog_folder_name);
 
         Self {
             context_file: swelog_directory.join(CONTEXT_FILE_NAME),

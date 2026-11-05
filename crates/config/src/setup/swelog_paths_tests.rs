@@ -34,7 +34,14 @@ fn swelog_paths_put_the_context_file_beside_the_work_file() {
 
     assert_eq!(swelog_paths.context_file, Path::new("/home/user/vault/swelog/CONTEXT.md"));
 
-    assert_eq!(swelog_paths.context_file.parent(), swelog_paths.work_file.parent());
+    assert_eq!(
+        swelog_paths
+            .context_file
+            .parent(),
+        swelog_paths
+            .work_file
+            .parent()
+    );
 }
 
 #[test]

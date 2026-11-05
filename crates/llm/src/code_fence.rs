@@ -20,7 +20,8 @@ pub fn strip_markdown_code_fence(response: &str) -> &str {
 }
 
 fn is_code_fence_line(line: &str) -> bool {
-    line.trim().starts_with(CODE_FENCE)
+    line.trim()
+        .starts_with(CODE_FENCE)
 }
 
 #[cfg(test)]

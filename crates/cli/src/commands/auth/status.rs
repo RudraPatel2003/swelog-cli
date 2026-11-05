@@ -5,9 +5,9 @@ use credentials::{
     store::CredentialStore,
 };
 use highlight::stdout::{
-    highlight_dimmed,
-    highlight_green,
-    highlight_yellow,
+    highlight_stdout_dimmed,
+    highlight_stdout_green,
+    highlight_stdout_yellow,
 };
 use miette::Result;
 
@@ -22,7 +22,12 @@ impl StatusArgs {
     pub fn run(self, environment: &Environment) -> Result<()> {
         let _ = self;
 
-        println!("Credentials stored in {}:", environment.credential_store.describe());
+        println!(
+            "Credentials stored in {}:",
+            environment
+                .credential_store
+                .describe()
+        );
 
         println!();
 
@@ -49,13 +54,16 @@ fn describe_credential_status(
     if let Some(environment_variable) = credential.environment_variable()
         && read_credential_from_environment(credential).is_some()
     {
-        return Ok(highlight_yellow(format!("set by ${environment_variable}")));
+        return Ok(highlight_stdout_yellow(format!("set by ${environment_variable}")));
     }
 
-    let description = if credential_store.read(credential)?.is_some() {
-        highlight_green("stored")
+    let description = if credential_store
+        .read(credential)?
+        .is_some()
+    {
+        highlight_stdout_green("stored")
     } else {
-        highlight_dimmed("not stored")
+        highlight_stdout_dimmed("not stored")
     };
 
     Ok(description)

@@ -67,7 +67,10 @@ impl SentryArgs {
 }
 
 pub fn describe_missing_sentry_configuration(swelog_config: &SwelogConfig) -> Option<&'static str> {
-    if swelog_config.get_sentry_organization().is_some() {
+    if swelog_config
+        .get_sentry_organization()
+        .is_some()
+    {
         return None;
     }
 
@@ -92,8 +95,9 @@ pub async fn collect_sentry_issues(
     swelog_config: &SwelogConfig,
     date_selection: DateSelection,
 ) -> Result<FetchOutcome> {
-    let sentry_organization =
-        swelog_config.get_sentry_organization().ok_or(MissingSentryOrganization)?;
+    let sentry_organization = swelog_config
+        .get_sentry_organization()
+        .ok_or(MissingSentryOrganization)?;
 
     let sentry_client = environment.build_sentry_client()?;
 
@@ -101,10 +105,16 @@ pub async fn collect_sentry_issues(
 
     let issues = match activity_date {
         Some(activity_date) => {
-            sentry_client.get_assigned_issues_on_date(sentry_organization, &activity_date).await?
+            sentry_client
+                .get_assigned_issues_on_date(sentry_organization, &activity_date)
+                .await?
         }
 
-        None => sentry_client.get_current_assigned_issues(sentry_organization).await?,
+        None => {
+            sentry_client
+                .get_current_assigned_issues(sentry_organization)
+                .await?
+        }
     };
 
     let sentry_fetch_outcome = get_sentry_fetch_outcome(&issues, activity_date.as_ref());

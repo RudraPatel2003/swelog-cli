@@ -38,7 +38,8 @@ impl SentryClient {
     ) -> Result<Vec<SentryIssue>> {
         let activity_window = get_activity_window(*date, &Local)?;
 
-        self.fetch_all_assigned_issues(organization, Some(&activity_window)).await
+        self.fetch_all_assigned_issues(organization, Some(&activity_window))
+            .await
     }
 
     /// Sentry searches the last 90 days of activity when no window is given.
@@ -46,7 +47,8 @@ impl SentryClient {
         &self,
         organization: &str,
     ) -> Result<Vec<SentryIssue>> {
-        self.fetch_all_assigned_issues(organization, None).await
+        self.fetch_all_assigned_issues(organization, None)
+            .await
     }
 
     async fn fetch_all_assigned_issues(
@@ -63,7 +65,9 @@ impl SentryClient {
         loop {
             let query_parameters = get_issues_query_parameters(activity_window, cursor.as_deref());
 
-            let page = self.get_json_page(&endpoint_path, &query_parameters).await?;
+            let page = self
+                .get_json_page(&endpoint_path, &query_parameters)
+                .await?;
 
             issues.append(&mut parse_issues_response_text(&page.body)?);
 

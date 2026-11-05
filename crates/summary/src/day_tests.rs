@@ -74,11 +74,13 @@ impl TestContext {
     }
 
     fn work_file(&self) -> PathBuf {
-        self.swelog_paths().work_file
+        self.swelog_paths()
+            .work_file
     }
 
     fn daily_log_directory(&self) -> PathBuf {
-        self.swelog_paths().daily_log_directory
+        self.swelog_paths()
+            .daily_log_directory
     }
 
     fn daily_log_file(&self) -> PathBuf {
@@ -88,7 +90,9 @@ impl TestContext {
     }
 
     fn cache_directory(&self) -> PathBuf {
-        self.temporary_directory.path().join("cache")
+        self.temporary_directory
+            .path()
+            .join("cache")
     }
 
     fn undo_snapshot_file(&self) -> PathBuf {
@@ -107,7 +111,9 @@ fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
     let config = SwelogConfig {
-        obsidian_vault_path: temporary_directory.path().to_path_buf(),
+        obsidian_vault_path: temporary_directory
+            .path()
+            .to_path_buf(),
         ..SwelogConfig::get_default_config()
     };
 
@@ -212,8 +218,9 @@ async fn summarize_daily_work_fails_when_work_file_is_missing() {
     .await
     .expect_err("missing work file should fail");
 
-    let error =
-        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+    let error = error
+        .downcast_ref::<SwelogFileNotFound>()
+        .expect("error should be SwelogFileNotFound");
 
     assert_eq!(error.swelog_path, test_context.work_file());
 
@@ -245,8 +252,9 @@ async fn summarize_daily_work_fails_when_daily_log_directory_is_missing() {
     .await
     .expect_err("missing daily log directory should fail");
 
-    let error =
-        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+    let error = error
+        .downcast_ref::<SwelogFileNotFound>()
+        .expect("error should be SwelogFileNotFound");
 
     assert_eq!(error.swelog_path, test_context.daily_log_directory());
 

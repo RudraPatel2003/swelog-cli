@@ -16,14 +16,18 @@ struct TestContext {
 
 impl TestContext {
     fn flag_file_path(&self) -> PathBuf {
-        self.cache_directory.join(HIDE_COMMENTS_FLAG_FILE_NAME)
+        self.cache_directory
+            .join(HIDE_COMMENTS_FLAG_FILE_NAME)
     }
 }
 
 fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
-    let cache_directory = temporary_directory.path().join("cache").join("swelog");
+    let cache_directory = temporary_directory
+        .path()
+        .join("cache")
+        .join("swelog");
 
     TestContext { temporary_directory, cache_directory }
 }
@@ -44,7 +48,11 @@ fn set_hide_comments_flag_creates_parent_directories() {
     set_hide_comments_flag(&test_context.cache_directory)
         .expect("hide comments flag should be written");
 
-    assert!(test_context.flag_file_path().is_file());
+    assert!(
+        test_context
+            .flag_file_path()
+            .is_file()
+    );
 
     drop(test_context.temporary_directory);
 }

@@ -21,7 +21,8 @@ impl TestContext {
     }
 
     fn work_file(&self) -> PathBuf {
-        self.swelog_paths().work_file
+        self.swelog_paths()
+            .work_file
     }
 
     fn write_work_file(&self) {
@@ -38,7 +39,9 @@ fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
     let config = SwelogConfig {
-        obsidian_vault_path: temporary_directory.path().to_path_buf(),
+        obsidian_vault_path: temporary_directory
+            .path()
+            .to_path_buf(),
         ..SwelogConfig::get_default_config()
     };
 
@@ -66,8 +69,9 @@ fn read_work_file_fails_when_the_work_file_is_missing() {
     let error =
         read_work_file(&test_context.swelog_paths()).expect_err("missing work file should fail");
 
-    let error =
-        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+    let error = error
+        .downcast_ref::<SwelogFileNotFound>()
+        .expect("error should be SwelogFileNotFound");
 
     assert_eq!(error.swelog_path, test_context.work_file());
 

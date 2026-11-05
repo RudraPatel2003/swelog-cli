@@ -33,15 +33,21 @@ impl SummarizeArgs {
     pub async fn run(self, environment: &Environment) -> Result<()> {
         match self.command {
             Some(SummarizeCommands::Day(daily_summary_args)) => {
-                daily_summary_args.run(environment).await?;
+                daily_summary_args
+                    .run(environment)
+                    .await?;
             }
 
             Some(SummarizeCommands::Week(weekly_summary_args)) => {
-                weekly_summary_args.run(environment).await?;
+                weekly_summary_args
+                    .run(environment)
+                    .await?;
             }
 
             None => {
-                self.daily_summary_args.run(environment).await?;
+                self.daily_summary_args
+                    .run(environment)
+                    .await?;
             }
         }
 

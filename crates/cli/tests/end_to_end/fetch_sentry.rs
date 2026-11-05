@@ -83,7 +83,11 @@ fn fetch_sentry_records_the_days_issues_grouped_by_substatus() {
 
     sentry_mocks.assert_every_endpoint_was_called();
 
-    assert!(sandbox.read_work_file().contains(SENTRY_SECTION));
+    assert!(
+        sandbox
+            .read_work_file()
+            .contains(SENTRY_SECTION)
+    );
 
     assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_SENTRY_SECTION);
 }
@@ -235,7 +239,12 @@ fn fetch_sentry_fails_fast_without_a_token_when_there_is_no_terminal() {
         .stderr(contains("Sentry auth token is not available"))
         .stderr(contains("SENTRY_AUTH_TOKEN"));
 
-    assert!(sentry_mocks.issue_pages.iter().all(|issue_page| issue_page.calls() == 0));
+    assert!(
+        sentry_mocks
+            .issue_pages
+            .iter()
+            .all(|issue_page| issue_page.calls() == 0)
+    );
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 }
@@ -285,7 +294,12 @@ fn fetch_sentry_fails_when_the_organization_is_not_configured() {
         .stderr(contains("Sentry organization is not configured"))
         .stderr(contains("sentryOrganization"));
 
-    assert!(sentry_mocks.issue_pages.iter().all(|issue_page| issue_page.calls() == 0));
+    assert!(
+        sentry_mocks
+            .issue_pages
+            .iter()
+            .all(|issue_page| issue_page.calls() == 0)
+    );
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 }

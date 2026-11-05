@@ -103,7 +103,9 @@ pub struct SentryMocks<'server> {
 
 impl SentryMocks<'_> {
     pub fn assert_every_endpoint_was_called(&self) {
-        self.issue_pages.iter().for_each(Mock::assert);
+        self.issue_pages
+            .iter()
+            .for_each(Mock::assert);
     }
 }
 
@@ -131,7 +133,9 @@ pub fn mock_sentry_with_current_issues(server: &MockServer) -> SentryMocks<'_> {
             .query_param_missing("cursor")
             .header("authorization", format!("Bearer {SENTRY_AUTH_TOKEN}"));
 
-        then.status(200).header("content-type", "application/json").body(ISSUES_RESPONSE);
+        then.status(200)
+            .header("content-type", "application/json")
+            .body(ISSUES_RESPONSE);
     });
 
     SentryMocks { issue_pages: vec![issues] }
@@ -179,7 +183,8 @@ pub fn mock_sentry_with_two_pages_on<'server>(
 
 pub fn mock_sentry_rejecting_the_token(server: &MockServer) -> Mock<'_> {
     server.mock(|when, then| {
-        when.method(GET).path(ISSUES_PATH);
+        when.method(GET)
+            .path(ISSUES_PATH);
 
         then.status(401)
             .header("content-type", "application/json")
@@ -221,7 +226,9 @@ fn start_of(date: &str) -> String {
 }
 
 fn start_of_the_day_after(date: &str) -> String {
-    let following_date = parse_date(date).succ_opt().expect("test date should have a next day");
+    let following_date = parse_date(date)
+        .succ_opt()
+        .expect("test date should have a next day");
 
     format!("{}T00:00:00", following_date.format("%Y-%m-%d"))
 }

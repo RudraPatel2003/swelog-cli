@@ -5,7 +5,10 @@ const CURSOR_QUERY_KEY: &str = "cursor";
 /// Sentry paginates with the `Link` header standard. The `rel="next"` entry
 /// carries `results="false"` on the last page.
 pub fn parse_next_cursor(link_header: &str) -> Option<String> {
-    link_header.split('<').skip(1).find_map(parse_next_link_cursor)
+    link_header
+        .split('<')
+        .skip(1)
+        .find_map(parse_next_link_cursor)
 }
 
 fn parse_next_link_cursor(link: &str) -> Option<String> {

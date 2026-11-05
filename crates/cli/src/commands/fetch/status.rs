@@ -1,8 +1,8 @@
 use clap::Args;
 use config::config_file::read_config_file;
 use highlight::stdout::{
-    highlight_dimmed,
-    highlight_green,
+    highlight_stdout_dimmed,
+    highlight_stdout_green,
 };
 use miette::Result;
 
@@ -54,15 +54,17 @@ fn describe_fetch_source_availability(
     availability: FetchSourceAvailability,
 ) -> String {
     match availability {
-        FetchSourceAvailability::Included => highlight_green("included"),
+        FetchSourceAvailability::Included => highlight_stdout_green("included"),
 
-        FetchSourceAvailability::MissingAuthorization => highlight_dimmed(format!(
+        FetchSourceAvailability::MissingAuthorization => highlight_stdout_dimmed(format!(
             "not included, {} is not stored",
-            fetch_source.credential().label()
+            fetch_source
+                .credential()
+                .label()
         )),
 
         FetchSourceAvailability::MissingConfiguration { reason } => {
-            highlight_dimmed(format!("not included, {reason}"))
+            highlight_stdout_dimmed(format!("not included, {reason}"))
         }
     }
 }

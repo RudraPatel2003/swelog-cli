@@ -82,7 +82,9 @@ pub fn mock_events_for_access_token<'server>(
             .query_param("timeMax", "2026-07-05T00:00:00Z")
             .header("authorization", format!("Bearer {access_token}"));
 
-        then.status(200).header("content-type", "application/json").body(EVENTS_RESPONSE);
+        then.status(200)
+            .header("content-type", "application/json")
+            .body(EVENTS_RESPONSE);
     })
 }
 
@@ -94,11 +96,13 @@ pub fn mock_token_refresh(server: &MockServer) -> Mock<'_> {
             .form_urlencoded_tuple("refresh_token", REFRESH_TOKEN)
             .form_urlencoded_tuple("client_id", GOOGLE_CLIENT_ID);
 
-        then.status(200).header("content-type", "application/json").json_body(serde_json::json!({
-            "access_token": REFRESHED_ACCESS_TOKEN,
-            "expires_in": 3600,
-            "scope": "https://www.googleapis.com/auth/calendar.events.readonly",
-            "token_type": "Bearer"
-        }));
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(serde_json::json!({
+                "access_token": REFRESHED_ACCESS_TOKEN,
+                "expires_in": 3600,
+                "scope": "https://www.googleapis.com/auth/calendar.events.readonly",
+                "token_type": "Bearer"
+            }));
     })
 }

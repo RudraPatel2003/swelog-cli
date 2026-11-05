@@ -18,7 +18,7 @@ use daily_log::{
         read_work_file_notes,
     },
 };
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use llm::{
     code_fence::strip_markdown_code_fence,
     language_model::LanguageModel,
@@ -55,7 +55,9 @@ pub async fn summarize_daily_work_from_config(
 
     let prompt = get_daily_log_prompt(&work_file_content, context_file_content, log_date);
 
-    let language_model_response = language_model.generate_response(&prompt).await?;
+    let language_model_response = language_model
+        .generate_response(&prompt)
+        .await?;
 
     let generated_daily_log_content = strip_markdown_code_fence(&language_model_response);
 
@@ -64,9 +66,11 @@ pub async fn summarize_daily_work_from_config(
 
     let daily_log_content = format_markdown(&summarized_daily_log_content);
 
-    fs::write(&daily_log_file, daily_log_content).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write daily log file at {}", path_link(&daily_log_file))
-    })?;
+    fs::write(&daily_log_file, daily_log_content)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to write daily log file at {}", stderr_path_link(&daily_log_file))
+        })?;
 
     let undo_snapshot = UndoSnapshot { created_file: Some(daily_log_file), work_file_content };
 

@@ -48,7 +48,9 @@ impl LanguageModel for OpenAiLanguageModel {
         let request =
             OpenAiResponseRequest { model: self.model.clone(), input: String::from(prompt) };
 
-        let endpoint_url = self.base_url.join(RESPONSES_ENDPOINT_PATH)?;
+        let endpoint_url = self
+            .base_url
+            .join(RESPONSES_ENDPOINT_PATH)?;
 
         let response = self
             .client
@@ -93,9 +95,17 @@ fn parse_open_ai_response_text(response_body: &str, model: &str) -> Result<Strin
     let text_parts: Vec<&str> = open_ai_response
         .output
         .iter()
-        .flat_map(|output| output.content.iter())
+        .flat_map(|output| {
+            output
+                .content
+                .iter()
+        })
         .filter(|content| content.content_type == "output_text")
-        .filter_map(|content| content.text.as_deref())
+        .filter_map(|content| {
+            content
+                .text
+                .as_deref()
+        })
         .collect();
 
     if text_parts.is_empty() {

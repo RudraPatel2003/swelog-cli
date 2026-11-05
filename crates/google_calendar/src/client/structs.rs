@@ -38,7 +38,9 @@ pub struct CalendarEventPage {
 
 impl CalendarEventPage {
     pub fn take_next_page_token(&mut self) -> Option<String> {
-        self.next_page_token.take().filter(|next_page_token| !next_page_token.is_empty())
+        self.next_page_token
+            .take()
+            .filter(|next_page_token| !next_page_token.is_empty())
     }
 }
 

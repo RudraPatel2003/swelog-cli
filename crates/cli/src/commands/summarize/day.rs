@@ -5,7 +5,7 @@ use config::{
     setup::swelog_paths::SwelogPaths,
 };
 use daily_log::file::get_daily_log_file_path;
-use highlight::stdout::path_link;
+use highlight::stdout::stdout_path_link;
 use llm::summarization_settings::SummarizationSettings;
 use miette::Result;
 use summary::day::summarize_daily_work_from_config;
@@ -40,7 +40,9 @@ impl DailySummaryArgs {
 
         let language_model = environment.build_language_model(&summarization_settings)?;
 
-        let log_date = self.daily_log_args.resolve_log_date(environment.today)?;
+        let log_date = self
+            .daily_log_args
+            .resolve_log_date(environment.today)?;
 
         let context_file_content = get_context_file_content(&swelog_paths.context_file)?;
 
@@ -59,14 +61,19 @@ impl DailySummaryArgs {
             language_model.as_ref(),
             &log_date,
             context_file_content.as_deref(),
-            self.daily_log_args.overwrite(),
-            self.daily_log_args.keep_work_file(),
+            self.daily_log_args
+                .overwrite(),
+            self.daily_log_args
+                .keep_work_file(),
         )
         .await?;
 
         let daily_log_file = get_daily_log_file_path(&swelog_paths, &log_date);
 
-        println!("Successfully summarized your daily work into {}", path_link(&daily_log_file));
+        println!(
+            "Successfully summarized your daily work into {}",
+            stdout_path_link(&daily_log_file)
+        );
 
         Ok(())
     }

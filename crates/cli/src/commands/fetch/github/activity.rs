@@ -17,11 +17,16 @@ pub struct GitHubActivity {
 
 impl GitHubActivity {
     pub fn is_empty(&self) -> bool {
-        self.get_pull_request_groups().iter().all(|pull_requests| pull_requests.is_empty())
+        self.get_pull_request_groups()
+            .iter()
+            .all(|pull_requests| pull_requests.is_empty())
     }
 
     pub fn count_pull_requests(&self) -> usize {
-        self.get_pull_request_groups().iter().map(|pull_requests| pull_requests.len()).sum()
+        self.get_pull_request_groups()
+            .iter()
+            .map(|pull_requests| pull_requests.len())
+            .sum()
     }
 
     fn get_pull_request_groups(&self) -> [&[Issue]; 4] {

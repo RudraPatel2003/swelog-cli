@@ -2,7 +2,10 @@ use super::*;
 use crate::client::structs::CalendarEventPage;
 
 fn only_meeting(response_text: &str) -> Meeting {
-    parse_meetings(response_text).into_iter().next().expect("a meeting should be collected")
+    parse_meetings(response_text)
+        .into_iter()
+        .next()
+        .expect("a meeting should be collected")
 }
 
 fn parse_meetings(response_text: &str) -> Vec<Meeting> {

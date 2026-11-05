@@ -15,7 +15,9 @@ const NO_QUERY_PARAMETERS: [(&str, &str); 0] = [];
 
 impl GitHubClient {
     pub async fn get_username(&self) -> Result<String> {
-        let response_text = self.get_json_text(USER_ENDPOINT_PATH, &NO_QUERY_PARAMETERS).await?;
+        let response_text = self
+            .get_json_text(USER_ENDPOINT_PATH, &NO_QUERY_PARAMETERS)
+            .await?;
 
         parse_user_response_text(&response_text)
     }

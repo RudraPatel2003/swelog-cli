@@ -1,5 +1,5 @@
 use config::context_file::CONTEXT_FILE_NAME;
-use highlight::stdout::highlight_cyan;
+use highlight::stdout::highlight_stdout_cyan;
 use llm::summarization_settings::SummarizationSettings;
 
 #[derive(Debug, Clone, Copy)]
@@ -26,8 +26,12 @@ pub fn format_summarization_notice(
     let summarizing_line = format!(
         "Summarizing {} with provider {} and model {}...\n",
         period.label(),
-        highlight_cyan(summarization_settings.language_model_provider.label()),
-        highlight_cyan(&summarization_settings.language_model)
+        highlight_stdout_cyan(
+            summarization_settings
+                .language_model_provider
+                .label()
+        ),
+        highlight_stdout_cyan(&summarization_settings.language_model)
     );
 
     let context_line = format_context_line(context_file_content);

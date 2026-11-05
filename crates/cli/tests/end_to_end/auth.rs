@@ -23,7 +23,9 @@ fn auth_status_reports_stored_and_environment_credentials() {
         .success()
         .stdout(contains(format!(
             "Credentials stored in the credential file at {}:",
-            sandbox.credential_file().display()
+            sandbox
+                .credential_file()
+                .display()
         )))
         .stdout(contains("GitHub token                   set by $GITHUB_TOKEN"))
         .stdout(contains("Anthropic API key              stored"))

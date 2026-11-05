@@ -26,7 +26,7 @@ fn format_config_groups_fields_under_section_headings() {
 
     assert!(output.contains("Integrations\n"));
 
-    let vault_path_link = path_link(Path::new("/home/user/vault"));
+    let vault_path_link = stdout_path_link(Path::new("/home/user/vault"));
 
     assert!(output.contains(&format!("Obsidian vault path  {vault_path_link}\n")));
 

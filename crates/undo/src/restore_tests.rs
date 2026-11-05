@@ -27,11 +27,14 @@ impl TestContext {
     }
 
     fn work_file(&self) -> PathBuf {
-        self.swelog_paths().work_file
+        self.swelog_paths()
+            .work_file
     }
 
     fn daily_log_file(&self) -> PathBuf {
-        self.swelog_paths().daily_log_directory.join(DAILY_LOG_FILE_NAME)
+        self.swelog_paths()
+            .daily_log_directory
+            .join(DAILY_LOG_FILE_NAME)
     }
 
     fn write_swelog_files(&self) {
@@ -52,7 +55,9 @@ fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
     let config = SwelogConfig {
-        obsidian_vault_path: temporary_directory.path().to_path_buf(),
+        obsidian_vault_path: temporary_directory
+            .path()
+            .to_path_buf(),
         ..SwelogConfig::get_default_config()
     };
 
@@ -95,7 +100,11 @@ fn restore_undo_snapshot_deletes_the_created_file() {
     restore_undo_snapshot(&test_context.config, &undo_snapshot)
         .expect("undo snapshot should be restored");
 
-    assert!(!test_context.daily_log_file().exists());
+    assert!(
+        !test_context
+            .daily_log_file()
+            .exists()
+    );
 
     drop(test_context.temporary_directory);
 }
@@ -136,7 +145,11 @@ fn restore_undo_snapshot_deletes_nothing_when_no_file_was_created() {
     restore_undo_snapshot(&test_context.config, &undo_snapshot)
         .expect("undo snapshot should be restored");
 
-    assert!(test_context.daily_log_file().is_file());
+    assert!(
+        test_context
+            .daily_log_file()
+            .is_file()
+    );
 
     drop(test_context.temporary_directory);
 }

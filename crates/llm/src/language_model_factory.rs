@@ -21,7 +21,9 @@ pub fn get_language_model(
     endpoints: &LanguageModelEndpoints,
     credential_store: &CredentialStore,
 ) -> Result<Box<dyn LanguageModel>> {
-    let language_model = summarization_settings.language_model.clone();
+    let language_model = summarization_settings
+        .language_model
+        .clone();
 
     match summarization_settings.language_model_provider {
         LanguageModelProvider::Anthropic => {
@@ -29,7 +31,9 @@ pub fn get_language_model(
                 get_or_prompt_for_credential(credential_store, Credential::Anthropic)?;
 
             let anthropic_language_model = AnthropicLanguageModel::new(
-                endpoints.anthropic_base_url.clone(),
+                endpoints
+                    .anthropic_base_url
+                    .clone(),
                 language_model,
                 anthropic_api_key,
             );
@@ -49,7 +53,9 @@ pub fn get_language_model(
                 get_or_prompt_for_credential(credential_store, Credential::OpenAi)?;
 
             let open_ai_language_model = OpenAiLanguageModel::new(
-                endpoints.open_ai_base_url.clone(),
+                endpoints
+                    .open_ai_base_url
+                    .clone(),
                 language_model,
                 open_ai_api_key,
             );
@@ -62,7 +68,9 @@ pub fn get_language_model(
                 get_or_prompt_for_credential(credential_store, Credential::OpenRouter)?;
 
             let open_router_language_model = OpenRouterLanguageModel::new(
-                endpoints.open_router_base_url.clone(),
+                endpoints
+                    .open_router_base_url
+                    .clone(),
                 language_model,
                 open_router_api_key,
             );

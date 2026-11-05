@@ -125,10 +125,14 @@ impl ServiceEndpoints {
     #[must_use]
     pub fn language_model_endpoints(&self) -> LanguageModelEndpoints {
         LanguageModelEndpoints {
-            anthropic_base_url: self.anthropic.clone(),
+            anthropic_base_url: self
+                .anthropic
+                .clone(),
             ollama_base_url: self.ollama.clone(),
             open_ai_base_url: self.open_ai.clone(),
-            open_router_base_url: self.open_router.clone(),
+            open_router_base_url: self
+                .open_router
+                .clone(),
         }
     }
 }

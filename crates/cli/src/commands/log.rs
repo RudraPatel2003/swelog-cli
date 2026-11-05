@@ -7,7 +7,7 @@ use daily_log::{
     file::get_daily_log_file_path,
     write::write_daily_log_from_config,
 };
-use highlight::stdout::path_link;
+use highlight::stdout::stdout_path_link;
 use markdown::work_file::format_work_file;
 use miette::Result;
 
@@ -30,19 +30,23 @@ impl LogArgs {
 
         format_work_file(&swelog_paths.work_file)?;
 
-        let log_date = self.daily_log_args.resolve_log_date(environment.today)?;
+        let log_date = self
+            .daily_log_args
+            .resolve_log_date(environment.today)?;
 
         write_daily_log_from_config(
             &swelog_config,
             &environment.cache_directory,
             &log_date,
-            self.daily_log_args.overwrite(),
-            self.daily_log_args.keep_work_file(),
+            self.daily_log_args
+                .overwrite(),
+            self.daily_log_args
+                .keep_work_file(),
         )?;
 
         let daily_log_file = get_daily_log_file_path(&swelog_paths, &log_date);
 
-        println!("Logged your work into {}", path_link(&daily_log_file));
+        println!("Logged your work into {}", stdout_path_link(&daily_log_file));
 
         Ok(())
     }

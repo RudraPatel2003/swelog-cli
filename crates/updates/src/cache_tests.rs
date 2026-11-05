@@ -22,7 +22,11 @@ struct TestContext {
 fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
-    let cache_file_path = get_version_cache_file_path(&temporary_directory.path().join("cache"));
+    let cache_file_path = get_version_cache_file_path(
+        &temporary_directory
+            .path()
+            .join("cache"),
+    );
 
     TestContext { temporary_directory, cache_file_path }
 }
@@ -89,10 +93,13 @@ fn write_version_cache_leaves_no_temporary_file_behind() {
 
     write_version_cache(&cache_file_path, &version_cache).expect("cache should be written");
 
-    let cache_directory = cache_file_path.parent().expect("cache file should have a parent");
+    let cache_directory = cache_file_path
+        .parent()
+        .expect("cache file should have a parent");
 
-    let entries =
-        fs::read_dir(cache_directory).expect("cache directory should be readable").count();
+    let entries = fs::read_dir(cache_directory)
+        .expect("cache directory should be readable")
+        .count();
 
     assert_eq!(entries, 1);
 

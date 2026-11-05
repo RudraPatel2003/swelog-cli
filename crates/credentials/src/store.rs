@@ -6,7 +6,7 @@ use std::{
     str::FromStr,
 };
 
-use highlight::stdout::path_link;
+use highlight::stdout::stdout_path_link;
 use miette::Result;
 
 use crate::{
@@ -69,7 +69,7 @@ impl CredentialStore {
             Self::Keyring => String::from("your operating system keyring"),
 
             Self::File(credential_file) => {
-                format!("the credential file at {}", path_link(credential_file))
+                format!("the credential file at {}", stdout_path_link(credential_file))
             }
         }
     }

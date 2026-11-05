@@ -41,7 +41,11 @@ pub fn find_section_bounds(markdown: &str, section_title: &str) -> Option<Range<
         .iter()
         .skip(heading_index.saturating_add(1))
         .find(|candidate| heading_level_number(candidate.level) <= 2)
-        .map_or(markdown.len(), |candidate| candidate.range.start);
+        .map_or(markdown.len(), |candidate| {
+            candidate
+                .range
+                .start
+        });
 
     Some(heading.range.start..end)
 }
@@ -87,7 +91,9 @@ fn collect_headings(markdown: &str) -> Vec<Heading> {
 
             Event::Text(text) | Event::Code(text) => {
                 if let Some(heading) = &mut current_heading {
-                    heading.title.push_str(&text);
+                    heading
+                        .title
+                        .push_str(&text);
                 }
             }
 

@@ -78,8 +78,9 @@ pub fn resolve_selected_date(
         DateSelection::On(date) => Ok(Some(date)),
 
         DateSelection::Yesterday => {
-            let yesterday =
-                today.pred_opt().ok_or_else(|| miette!("failed to determine yesterday's date"))?;
+            let yesterday = today
+                .pred_opt()
+                .ok_or_else(|| miette!("failed to determine yesterday's date"))?;
 
             Ok(Some(yesterday))
         }
@@ -101,7 +102,11 @@ pub fn resolve_monday_date(week_selection: WeekSelection, today: NaiveDate) -> R
 }
 
 fn get_last_friday(today: NaiveDate) -> Result<NaiveDate> {
-    let days_since_friday = i64::from(today.weekday().days_since(Weekday::Fri));
+    let days_since_friday = i64::from(
+        today
+            .weekday()
+            .days_since(Weekday::Fri),
+    );
 
     let days_back = if days_since_friday == 0 { DAYS_IN_WEEK } else { days_since_friday };
 
@@ -111,7 +116,11 @@ fn get_last_friday(today: NaiveDate) -> Result<NaiveDate> {
 }
 
 fn get_monday_of_current_week(today: NaiveDate) -> Result<NaiveDate> {
-    let days_since_monday = i64::from(today.weekday().num_days_from_monday());
+    let days_since_monday = i64::from(
+        today
+            .weekday()
+            .num_days_from_monday(),
+    );
 
     today
         .checked_sub_signed(Duration::days(days_since_monday))

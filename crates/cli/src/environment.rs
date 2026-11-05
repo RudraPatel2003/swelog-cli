@@ -34,20 +34,26 @@ pub struct Environment {
 }
 
 pub fn resolve_environment(global_args: GlobalArgs) -> Result<Environment> {
-    let config_file_path =
-        global_args.config_file_path.map_or_else(get_default_config_file_path, Ok)?;
+    let config_file_path = global_args
+        .config_file_path
+        .map_or_else(get_default_config_file_path, Ok)?;
 
-    let cache_directory =
-        global_args.cache_directory.map_or_else(get_default_cache_directory, Ok)?;
+    let cache_directory = global_args
+        .cache_directory
+        .map_or_else(get_default_cache_directory, Ok)?;
 
-    let credential_store = global_args.credential_store.unwrap_or(CredentialStore::Keyring);
+    let credential_store = global_args
+        .credential_store
+        .unwrap_or(CredentialStore::Keyring);
 
     let google_oauth_application_overrides = GoogleOAuthApplicationOverrides {
         client_id: global_args.google_client_id,
         client_secret: global_args.google_client_secret,
     };
 
-    let today = global_args.today.unwrap_or_else(|| Local::now().date_naive());
+    let today = global_args
+        .today
+        .unwrap_or_else(|| Local::now().date_naive());
 
     Ok(Environment {
         config_file_path,

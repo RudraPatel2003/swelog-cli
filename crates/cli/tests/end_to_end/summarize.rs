@@ -100,7 +100,9 @@ fn summarize_day_writes_the_generated_summary_with_the_original_notes() {
         .stdout(contains("Summarizing day with provider Anthropic and model claude-sonnet-4-5..."))
         .stdout(contains(format!(
             "Successfully summarized your daily work into {}",
-            sandbox.daily_log_file(ACTIVITY_DATE).display()
+            sandbox
+                .daily_log_file(ACTIVITY_DATE)
+                .display()
         )));
 
     messages.assert();
@@ -176,11 +178,19 @@ fn summarize_day_can_be_undone() {
         .assert()
         .success();
 
-    sandbox.swelog().arg("undo").assert().success();
+    sandbox
+        .swelog()
+        .arg("undo")
+        .assert()
+        .success();
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 
-    assert!(!sandbox.daily_log_file(ACTIVITY_DATE).exists());
+    assert!(
+        !sandbox
+            .daily_log_file(ACTIVITY_DATE)
+            .exists()
+    );
 }
 
 #[test]
@@ -206,7 +216,9 @@ fn summarize_week_writes_the_generated_weekly_log() {
         .stdout(contains("Summarizing week with provider Anthropic and model claude-sonnet-4-5..."))
         .stdout(contains(format!(
             "Successfully summarized your weekly work into {}",
-            sandbox.weekly_log_file(MONDAY_DATE).display()
+            sandbox
+                .weekly_log_file(MONDAY_DATE)
+                .display()
         )));
 
     messages.assert();
@@ -238,7 +250,11 @@ fn summarize_week_accepts_a_work_file_at_the_previous_default() {
         .assert()
         .success();
 
-    assert!(sandbox.weekly_log_file(MONDAY_DATE).is_file());
+    assert!(
+        sandbox
+            .weekly_log_file(MONDAY_DATE)
+            .is_file()
+    );
 }
 
 #[test]
@@ -256,7 +272,11 @@ fn summarize_fails_when_no_provider_is_configured() {
         .failure()
         .stderr(contains("summarization is not configured"));
 
-    assert!(!sandbox.daily_log_file(ACTIVITY_DATE).exists());
+    assert!(
+        !sandbox
+            .daily_log_file(ACTIVITY_DATE)
+            .exists()
+    );
 }
 
 #[test]

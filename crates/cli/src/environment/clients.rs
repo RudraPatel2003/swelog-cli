@@ -26,7 +26,10 @@ impl Environment {
         let github_token =
             get_or_prompt_for_credential(&self.credential_store, Credential::Github)?;
 
-        let github_api_endpoint = self.endpoints.github_api.clone();
+        let github_api_endpoint = self
+            .endpoints
+            .github_api
+            .clone();
 
         let github_client = GitHubClient::new(github_api_endpoint, github_token);
 
@@ -36,11 +39,19 @@ impl Environment {
     pub fn build_google_calendar_client(&self) -> Result<GoogleCalendarClient> {
         let application = get_oauth_application(&self.google_oauth_application_overrides)?;
 
-        let google_token = self.endpoints.google_token.clone();
+        let google_token = self
+            .endpoints
+            .google_token
+            .clone();
 
-        let google_calendar_api_endpoint = self.endpoints.google_calendar_api.clone();
+        let google_calendar_api_endpoint = self
+            .endpoints
+            .google_calendar_api
+            .clone();
 
-        let credential_store = self.credential_store.clone();
+        let credential_store = self
+            .credential_store
+            .clone();
 
         let authorization = GoogleAuthorization::new(application, google_token, credential_store);
 
@@ -52,14 +63,23 @@ impl Environment {
 
     #[must_use]
     pub fn build_linear_client(&self) -> LinearClient {
-        LinearClient::new(self.endpoints.linear_mcp.clone(), self.credential_store.clone())
+        LinearClient::new(
+            self.endpoints
+                .linear_mcp
+                .clone(),
+            self.credential_store
+                .clone(),
+        )
     }
 
     pub fn build_sentry_client(&self) -> Result<SentryClient> {
         let sentry_token =
             get_or_prompt_for_credential(&self.credential_store, Credential::Sentry)?;
 
-        let sentry_api_endpoint = self.endpoints.sentry_api.clone();
+        let sentry_api_endpoint = self
+            .endpoints
+            .sentry_api
+            .clone();
 
         let sentry_client = SentryClient::new(sentry_api_endpoint, sentry_token);
 
@@ -70,7 +90,9 @@ impl Environment {
         &self,
         summarization_settings: &SummarizationSettings,
     ) -> Result<Box<dyn LanguageModel>> {
-        let language_model_endpoints = self.endpoints.language_model_endpoints();
+        let language_model_endpoints = self
+            .endpoints
+            .language_model_endpoints();
 
         get_language_model(
             summarization_settings,

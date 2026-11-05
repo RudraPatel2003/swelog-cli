@@ -67,7 +67,10 @@ impl LinearArgs {
 }
 
 pub fn describe_missing_linear_configuration(swelog_config: &SwelogConfig) -> Option<&'static str> {
-    if swelog_config.get_linear_username().is_some() {
+    if swelog_config
+        .get_linear_username()
+        .is_some()
+    {
         return None;
     }
 
@@ -92,7 +95,9 @@ pub async fn collect_linear_issues(
     swelog_config: &SwelogConfig,
     date_selection: DateSelection,
 ) -> Result<FetchOutcome> {
-    let linear_username = swelog_config.get_linear_username().ok_or(MissingLinearUsername)?;
+    let linear_username = swelog_config
+        .get_linear_username()
+        .ok_or(MissingLinearUsername)?;
 
     let linear_client = environment.build_linear_client();
 
@@ -100,7 +105,9 @@ pub async fn collect_linear_issues(
 
     let issues = match activity_date {
         Some(activity_date) => {
-            linear_client.get_assigned_issues_on_date(linear_username, &activity_date).await?
+            linear_client
+                .get_assigned_issues_on_date(linear_username, &activity_date)
+                .await?
         }
 
         None => {

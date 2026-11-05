@@ -74,13 +74,23 @@ fn fetch_linear_records_the_days_issues_grouped_by_status() {
         .stdout(contains("Fetching Linear issues..."))
         .stdout(contains("Added 2 Linear issues from 07-04-2026 to your work file."));
 
-    linear_mocks.initialize.assert();
+    linear_mocks
+        .initialize
+        .assert();
 
-    linear_mocks.initialized.assert();
+    linear_mocks
+        .initialized
+        .assert();
 
-    linear_mocks.list_issues.assert();
+    linear_mocks
+        .list_issues
+        .assert();
 
-    assert!(sandbox.read_work_file().contains(LINEAR_SECTION_FOR_THE_DAY));
+    assert!(
+        sandbox
+            .read_work_file()
+            .contains(LINEAR_SECTION_FOR_THE_DAY)
+    );
 
     assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_LINEAR_SECTION_FOR_THE_DAY);
 }
@@ -101,9 +111,15 @@ fn fetch_linear_without_a_date_records_the_active_issues() {
         .success()
         .stdout(contains("Added 2 active Linear issues to your work file."));
 
-    linear_mocks.list_issues.assert();
+    linear_mocks
+        .list_issues
+        .assert();
 
-    assert!(sandbox.read_work_file().contains(LINEAR_SECTION_FOR_ACTIVE_ISSUES));
+    assert!(
+        sandbox
+            .read_work_file()
+            .contains(LINEAR_SECTION_FOR_ACTIVE_ISSUES)
+    );
 }
 
 #[test]
@@ -128,7 +144,12 @@ fn fetch_linear_fails_when_the_username_is_not_configured() {
         .failure()
         .stderr(contains("Linear username is not configured"));
 
-    assert_eq!(linear_mocks.initialize.calls(), 0);
+    assert_eq!(
+        linear_mocks
+            .initialize
+            .calls(),
+        0
+    );
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 }

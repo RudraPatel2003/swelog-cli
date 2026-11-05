@@ -24,12 +24,16 @@ pub struct ActivityWindow {
 impl ActivityWindow {
     #[must_use]
     pub fn format_start(&self) -> String {
-        self.start.format(SENTRY_FILTER_DATETIME_FORMAT).to_string()
+        self.start
+            .format(SENTRY_FILTER_DATETIME_FORMAT)
+            .to_string()
     }
 
     #[must_use]
     pub fn format_end(&self) -> String {
-        self.end.format(SENTRY_FILTER_DATETIME_FORMAT).to_string()
+        self.end
+            .format(SENTRY_FILTER_DATETIME_FORMAT)
+            .to_string()
     }
 }
 

@@ -81,15 +81,17 @@ fn mock_initialize(server: &MockServer) -> Mock<'_> {
             .header("authorization", format!("Bearer {LINEAR_ACCESS_TOKEN}"))
             .json_body_includes(r#"{ "method": "initialize" }"#);
 
-        then.status(200).header("content-type", "application/json").json_body(json!({
-            "jsonrpc": "2.0",
-            "id": INITIALIZE_REQUEST_ID,
-            "result": {
-                "protocolVersion": "2025-06-18",
-                "capabilities": { "tools": {} },
-                "serverInfo": { "name": "fake-linear", "version": "0.0.0" }
-            }
-        }));
+        then.status(200)
+            .header("content-type", "application/json")
+            .json_body(json!({
+                "jsonrpc": "2.0",
+                "id": INITIALIZE_REQUEST_ID,
+                "result": {
+                    "protocolVersion": "2025-06-18",
+                    "capabilities": { "tools": {} },
+                    "serverInfo": { "name": "fake-linear", "version": "0.0.0" }
+                }
+            }));
     })
 }
 
