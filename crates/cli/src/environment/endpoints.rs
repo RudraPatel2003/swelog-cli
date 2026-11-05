@@ -13,6 +13,7 @@ use llm::{
     open_ai_language_model::DEFAULT_OPEN_AI_BASE_URL,
     open_router_language_model::DEFAULT_OPEN_ROUTER_BASE_URL,
 };
+use sentry::client::DEFAULT_SENTRY_API_BASE_URL;
 use updates::registry::DEFAULT_NPM_REGISTRY_BASE_URL;
 use url::Url;
 
@@ -100,6 +101,16 @@ pub struct ServiceEndpoints {
     pub linear_mcp: Url,
 
     #[arg(
+        long = "sentry-api-url",
+        global = true,
+        env = "SWELOG_SENTRY_API_URL",
+        default_value = DEFAULT_SENTRY_API_BASE_URL,
+        value_name = "URL",
+        hide = true
+    )]
+    pub sentry_api: BaseUrl,
+
+    #[arg(
         long = "npm-registry-url",
         global = true,
         env = "SWELOG_NPM_REGISTRY_URL",
@@ -114,10 +125,14 @@ impl ServiceEndpoints {
     #[must_use]
     pub fn language_model_endpoints(&self) -> LanguageModelEndpoints {
         LanguageModelEndpoints {
-            anthropic_base_url: self.anthropic.clone(),
+            anthropic_base_url: self
+                .anthropic
+                .clone(),
             ollama_base_url: self.ollama.clone(),
             open_ai_base_url: self.open_ai.clone(),
-            open_router_base_url: self.open_router.clone(),
+            open_router_base_url: self
+                .open_router
+                .clone(),
         }
     }
 }

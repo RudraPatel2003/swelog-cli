@@ -50,7 +50,12 @@ pub async fn exchange_authorization_code(
 
     form.push(("code", authorization_code.to_string()));
 
-    form.push(("code_verifier", pkce_verifier.secret().clone()));
+    form.push((
+        "code_verifier",
+        pkce_verifier
+            .secret()
+            .clone(),
+    ));
 
     form.push(("redirect_uri", redirect_uri.to_string()));
 
@@ -66,9 +71,12 @@ pub async fn exchange_authorization_code(
 
     let token_response = parse_token_response(&response_text)?;
 
-    let refresh_token = token_response.refresh_token.clone().ok_or_else(|| {
-        GoogleAuthorizationFailed { message: "Google did not return a refresh token".to_string() }
-    })?;
+    let refresh_token = token_response
+        .refresh_token
+        .clone()
+        .ok_or_else(|| GoogleAuthorizationFailed {
+            message: "Google did not return a refresh token".to_string(),
+        })?;
 
     Ok(token_response.into_credentials(refresh_token, get_current_epoch_seconds()))
 }
@@ -103,13 +111,26 @@ pub async fn refresh_access_token(
 }
 
 fn get_refresh_token_to_store(token_response: &TokenResponse, refresh_token: &str) -> String {
-    token_response.refresh_token.clone().unwrap_or_else(|| refresh_token.to_string())
+    token_response
+        .refresh_token
+        .clone()
+        .unwrap_or_else(|| refresh_token.to_string())
 }
 
 fn get_client_form_fields(application: &GoogleOAuthApplication) -> Vec<(&'static str, String)> {
     vec![
-        ("client_id", application.client_id.clone()),
-        ("client_secret", application.client_secret.clone()),
+        (
+            "client_id",
+            application
+                .client_id
+                .clone(),
+        ),
+        (
+            "client_secret",
+            application
+                .client_secret
+                .clone(),
+        ),
     ]
 }
 
@@ -129,9 +150,12 @@ async fn post_token_request(
 
     let status_code = response.status();
 
-    let response_text = response.text().await.map_err(|error| GoogleAuthorizationFailed {
-        message: format!("failed to read the Google token response: {error}"),
-    })?;
+    let response_text = response
+        .text()
+        .await
+        .map_err(|error| GoogleAuthorizationFailed {
+            message: format!("failed to read the Google token response: {error}"),
+        })?;
 
     if status_code.is_success() {
         return Ok(TokenRequestOutcome::Succeeded(response_text));
@@ -139,7 +163,10 @@ async fn post_token_request(
 
     let token_error = parse_token_error_response(&response_text);
 
-    if token_error.as_ref().is_some_and(|token_error| token_error.error == INVALID_GRANT_ERROR) {
+    if token_error
+        .as_ref()
+        .is_some_and(|token_error| token_error.error == INVALID_GRANT_ERROR)
+    {
         return Ok(TokenRequestOutcome::InvalidGrant);
     }
 
@@ -155,10 +182,17 @@ fn describe_token_error(token_error: Option<&TokenErrorResponse>, response_text:
         return response_text.to_string();
     };
 
-    token_error.error_description.as_ref().map_or_else(
-        || token_error.error.clone(),
-        |error_description| format!("{} ({error_description})", token_error.error),
-    )
+    token_error
+        .error_description
+        .as_ref()
+        .map_or_else(
+            || {
+                token_error
+                    .error
+                    .clone()
+            },
+            |error_description| format!("{} ({error_description})", token_error.error),
+        )
 }
 
 fn parse_token_error_response(response_text: &str) -> Option<TokenErrorResponse> {

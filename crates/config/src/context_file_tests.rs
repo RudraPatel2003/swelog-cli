@@ -10,7 +10,9 @@ const CONTEXT_FILE_CONTENT: &str = "backend engineer on platform team";
 fn get_context_file_content_returns_none_when_the_file_is_missing() {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
-    let context_file = temporary_directory.path().join(CONTEXT_FILE_NAME);
+    let context_file = temporary_directory
+        .path()
+        .join(CONTEXT_FILE_NAME);
 
     let context_file_content = get_context_file_content(&context_file)
         .expect("missing context file should not be an error");
@@ -24,7 +26,9 @@ fn get_context_file_content_returns_none_when_the_file_is_missing() {
 fn get_context_file_content_returns_the_contents_when_the_file_exists() {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
-    let context_file = temporary_directory.path().join(CONTEXT_FILE_NAME);
+    let context_file = temporary_directory
+        .path()
+        .join(CONTEXT_FILE_NAME);
 
     fs::write(&context_file, CONTEXT_FILE_CONTENT).expect("context file should be written");
 

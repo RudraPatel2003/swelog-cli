@@ -72,7 +72,11 @@ fn fetch_google_calendar_records_the_days_timed_meetings() {
 
     events.assert();
 
-    assert!(sandbox.read_work_file().contains(GOOGLE_CALENDAR_SECTION));
+    assert!(
+        sandbox
+            .read_work_file()
+            .contains(GOOGLE_CALENDAR_SECTION)
+    );
 
     assert_eq!(sandbox.read_work_file(), WORK_FILE_WITH_GOOGLE_CALENDAR_SECTION);
 }

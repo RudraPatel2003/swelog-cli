@@ -20,6 +20,12 @@ use crate::support::{
         SwelogSandbox,
         WRITTEN_WORK_FILE_CONTENT,
     },
+    sentry::{
+        SENTRY_AUTH_TOKEN,
+        SENTRY_ORGANIZATION,
+        SENTRY_SECTION,
+        mock_sentry_with_issues_on,
+    },
 };
 
 #[test]
@@ -44,9 +50,15 @@ fn fetch_all_runs_only_the_sources_with_a_credential() {
         .stdout(contains("Running the fetch commands you have configured: GitHub."))
         .stdout(contains("Recorded 4 GitHub PRs in your work file."));
 
-    github_mocks.user.assert();
+    github_mocks
+        .user
+        .assert();
 
-    assert!(sandbox.read_work_file().contains(GITHUB_SECTION));
+    assert!(
+        sandbox
+            .read_work_file()
+            .contains(GITHUB_SECTION)
+    );
 }
 
 #[test]
@@ -55,6 +67,7 @@ fn fetch_all_runs_every_configured_source_and_records_each_section() {
 
     sandbox.write_config(&SwelogConfig {
         linear_username: Some(String::from(LINEAR_USERNAME)),
+        sentry_organization: Some(String::from(SENTRY_ORGANIZATION)),
         ..sandbox.default_config()
     });
 
@@ -72,27 +85,42 @@ fn fetch_all_runs_every_configured_source_and_records_each_section() {
 
     let linear_mocks = mock_linear_mcp(&linear);
 
+    let sentry = MockServer::start();
+
+    let sentry_mocks = mock_sentry_with_issues_on(&sentry, ACTIVITY_DATE);
+
     sandbox
         .swelog()
         .env("GITHUB_TOKEN", GITHUB_TOKEN)
         .env("SWELOG_GITHUB_API_URL", github.base_url())
         .env("SWELOG_LINEAR_MCP_URL", linear_mcp_url(&linear))
+        .env("SENTRY_AUTH_TOKEN", SENTRY_AUTH_TOKEN)
+        .env("SWELOG_SENTRY_API_URL", sentry.base_url())
         .args(["fetch", "all", "--date", ACTIVITY_DATE])
         .assert()
         .success()
-        .stdout(contains("Running the fetch commands you have configured: GitHub, Linear."))
+        .stdout(contains("Running the fetch commands you have configured: GitHub, Linear, Sentry."))
         .stdout(contains("Recorded 4 GitHub PRs in your work file."))
-        .stdout(contains("Added 2 Linear issues from 07-04-2026 to your work file."));
+        .stdout(contains("Added 2 Linear issues from 07-04-2026 to your work file."))
+        .stdout(contains("Added 3 Sentry issues from 07-04-2026 to your work file."));
 
-    github_mocks.user.assert();
+    github_mocks
+        .user
+        .assert();
 
-    linear_mocks.list_issues.assert();
+    linear_mocks
+        .list_issues
+        .assert();
+
+    sentry_mocks.assert_every_endpoint_was_called();
 
     let work_file_content = sandbox.read_work_file();
 
     assert!(work_file_content.contains(GITHUB_SECTION));
 
     assert!(work_file_content.contains(LINEAR_SECTION_FOR_THE_DAY));
+
+    assert!(work_file_content.contains(SENTRY_SECTION));
 
     assert!(
         work_file_content
@@ -129,7 +157,21 @@ fn fetch_status_explains_what_each_source_still_needs() {
         .stdout(contains("Linear              not included, Linear authorization is not stored"))
         .stdout(contains(
             "Google Calendar     not included, Google Calendar authorization is not stored",
-        ));
+        ))
+        .stdout(contains("Sentry              not included, Sentry auth token is not stored"));
+}
+
+#[test]
+fn fetch_status_reports_missing_sentry_configuration_once_authorized() {
+    let sandbox = SwelogSandbox::new();
+
+    sandbox
+        .swelog()
+        .env("SENTRY_AUTH_TOKEN", SENTRY_AUTH_TOKEN)
+        .args(["fetch", "status"])
+        .assert()
+        .success()
+        .stdout(contains("Sentry              not included, sentryOrganization is not configured"));
 }
 
 #[test]

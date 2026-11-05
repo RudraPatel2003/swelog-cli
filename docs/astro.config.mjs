@@ -1,5 +1,6 @@
 // @ts-check
 import starlight from "@astrojs/starlight";
+import starlightLlmTools from "@wave-rf/starlight-llm-tools";
 import { defineConfig } from "astro/config";
 import starlightLinksValidator from "starlight-links-validator";
 import starlightThemeNext from "starlight-theme-next";
@@ -12,6 +13,7 @@ export default defineConfig({
       plugins: [
         starlightThemeNext(),
         starlightLinksValidator({ sameSitePolicy: "validate" }),
+        starlightLlmTools(),
       ],
       title: "swelog",
       description: "A Rust CLI for tracking daily accomplishments in Obsidian.",
@@ -48,6 +50,7 @@ export default defineConfig({
               slug: "integrations/google-calendar",
             },
             { label: "Linear", slug: "integrations/linear" },
+            { label: "Sentry", slug: "integrations/sentry" },
           ],
         },
         {

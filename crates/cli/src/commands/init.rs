@@ -4,7 +4,7 @@ use config::{
     overwrite::Overwrite,
     swelog_config::SwelogConfig,
 };
-use highlight::stdout::path_link;
+use highlight::stdout::stdout_path_link;
 use miette::Result;
 
 use crate::environment::Environment;
@@ -26,7 +26,7 @@ impl InitArgs {
             Overwrite::from_force_flag(self.overwrite_existing_config),
         )?;
 
-        println!("Created swelog config at {}", path_link(&environment.config_file_path));
+        println!("Created swelog config at {}", stdout_path_link(&environment.config_file_path));
 
         Ok(())
     }

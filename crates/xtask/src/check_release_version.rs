@@ -45,7 +45,9 @@ fn read_versioned_files() -> Result<Vec<VersionedFile>> {
 
     for manifest_path in list_crate_manifest_paths()? {
         versioned_files.push(VersionedFile {
-            path: manifest_path.display().to_string(),
+            path: manifest_path
+                .display()
+                .to_string(),
             version: read_crate_version(&manifest_path)?,
         });
     }

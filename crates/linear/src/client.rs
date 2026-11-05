@@ -62,7 +62,9 @@ impl LinearClient {
         username: &str,
         today: &NaiveDate,
     ) -> Result<Vec<LinearIssue>> {
-        let client = self.connect_to_linear_mcp().await?;
+        let client = self
+            .connect_to_linear_mcp()
+            .await?;
 
         let mut issues = fetch_all_issues(&client, username, None).await?;
 
@@ -80,7 +82,9 @@ impl LinearClient {
     ) -> Result<Vec<LinearIssue>> {
         let updated_after = get_updated_after_filter(*date)?;
 
-        let client = self.connect_to_linear_mcp().await?;
+        let client = self
+            .connect_to_linear_mcp()
+            .await?;
 
         let mut issues = fetch_all_issues(&client, username, Some(&updated_after)).await?;
 
@@ -95,14 +99,21 @@ impl LinearClient {
         let mut reauthorization_attempted = false;
 
         loop {
-            let authorization_manager =
-                get_authorization_manager(self.mcp_url.as_str(), &self.credential_store).await?;
+            let authorization_manager = get_authorization_manager(
+                self.mcp_url
+                    .as_str(),
+                &self.credential_store,
+            )
+            .await?;
 
             let authorized_client = AuthClient::new(Client::new(), authorization_manager);
 
             let transport = StreamableHttpClientTransport::with_client(
                 authorized_client,
-                StreamableHttpClientTransportConfig::with_uri(self.mcp_url.as_str()),
+                StreamableHttpClientTransportConfig::with_uri(
+                    self.mcp_url
+                        .as_str(),
+                ),
             );
 
             match ().serve(transport).await {
@@ -126,7 +137,10 @@ impl LinearClient {
 }
 
 async fn disconnect_from_linear_mcp(client: RunningService<RoleClient, ()>) -> Result<()> {
-    client.cancel().await.map_err(|error| LinearMcpRequestFailed { message: error.to_string() })?;
+    client
+        .cancel()
+        .await
+        .map_err(|error| LinearMcpRequestFailed { message: error.to_string() })?;
 
     Ok(())
 }
@@ -221,6 +235,9 @@ const ISSUE_FIELDS: [&str; 10] = [
 
 fn get_issue_fields_argument() -> Value {
     Value::Array(
-        ISSUE_FIELDS.iter().map(|field| Value::String((*field).to_string())).collect::<Vec<_>>(),
+        ISSUE_FIELDS
+            .iter()
+            .map(|field| Value::String((*field).to_string()))
+            .collect::<Vec<_>>(),
     )
 }

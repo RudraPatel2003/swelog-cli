@@ -36,5 +36,7 @@ pub fn write_package_json_version(path: &str, release_version: &str) -> Result<(
 }
 
 fn read_package_json(path: &str) -> Result<String> {
-    fs::read_to_string(path).into_diagnostic().wrap_err_with(|| format!("failed to read {path}"))
+    fs::read_to_string(path)
+        .into_diagnostic()
+        .wrap_err_with(|| format!("failed to read {path}"))
 }

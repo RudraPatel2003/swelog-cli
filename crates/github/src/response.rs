@@ -17,8 +17,11 @@ use crate::errors::{
 pub async fn read_successful_response_body(response: Response) -> Result<String> {
     let status_code = response.status();
 
-    let response_text =
-        response.text().await.into_diagnostic().wrap_err("failed to read GitHub response body")?;
+    let response_text = response
+        .text()
+        .await
+        .into_diagnostic()
+        .wrap_err("failed to read GitHub response body")?;
 
     if matches!(status_code, StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN) {
         let github_authorization_failed_error = GitHubAuthorizationFailed { status_code };

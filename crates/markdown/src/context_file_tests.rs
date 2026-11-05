@@ -19,7 +19,9 @@ const FORMATTED_CONTEXT_FILE_CONTENT: &str = r"# Engineer Context
 fn format_context_file_does_nothing_when_the_file_is_missing() {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
-    let context_file = temporary_directory.path().join(CONTEXT_FILE_NAME);
+    let context_file = temporary_directory
+        .path()
+        .join(CONTEXT_FILE_NAME);
 
     format_context_file(&context_file).expect("missing context file should not be an error");
 
@@ -32,7 +34,9 @@ fn format_context_file_does_nothing_when_the_file_is_missing() {
 fn format_context_file_formats_the_context_file_in_place() {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
-    let context_file = temporary_directory.path().join(CONTEXT_FILE_NAME);
+    let context_file = temporary_directory
+        .path()
+        .join(CONTEXT_FILE_NAME);
 
     fs::write(&context_file, UNFORMATTED_CONTEXT_FILE_CONTENT)
         .expect("context file should be written");

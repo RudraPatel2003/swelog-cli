@@ -6,7 +6,7 @@ use std::{
 };
 
 use hide_comments::has_hide_comments_flag;
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -28,9 +28,11 @@ use crate::{
 pub fn read_work_file(swelog_paths: &SwelogPaths) -> Result<String> {
     ensure_swelog_file_exists(&swelog_paths.work_file)?;
 
-    fs::read_to_string(&swelog_paths.work_file).into_diagnostic().wrap_err_with(|| {
-        format!("failed to read work file at {}", path_link(&swelog_paths.work_file))
-    })
+    fs::read_to_string(&swelog_paths.work_file)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to read work file at {}", stderr_path_link(&swelog_paths.work_file))
+        })
 }
 
 pub fn create_or_reset_work_file(
@@ -41,9 +43,11 @@ pub fn create_or_reset_work_file(
 
     let default_work_file_content = get_default_work_file_content(cache_directory);
 
-    fs::write(&swelog_paths.work_file, default_work_file_content).into_diagnostic().wrap_err_with(
-        || format!("failed to write work file at {}", path_link(&swelog_paths.work_file)),
-    )
+    fs::write(&swelog_paths.work_file, default_work_file_content)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to write work file at {}", stderr_path_link(&swelog_paths.work_file))
+        })
 }
 
 fn get_default_work_file_content(cache_directory: &Path) -> &'static str {

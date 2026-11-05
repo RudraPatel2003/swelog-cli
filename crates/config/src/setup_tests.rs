@@ -29,27 +29,34 @@ impl TestContext {
     }
 
     fn cache_directory(&self) -> PathBuf {
-        self.temporary_directory.path().join("cache")
+        self.temporary_directory
+            .path()
+            .join("cache")
     }
 
     fn swelog_directory(&self) -> PathBuf {
-        self.swelog_paths().swelog_directory
+        self.swelog_paths()
+            .swelog_directory
     }
 
     fn context_file(&self) -> PathBuf {
-        self.swelog_paths().context_file
+        self.swelog_paths()
+            .context_file
     }
 
     fn work_file(&self) -> PathBuf {
-        self.swelog_paths().work_file
+        self.swelog_paths()
+            .work_file
     }
 
     fn daily_log_directory(&self) -> PathBuf {
-        self.swelog_paths().daily_log_directory
+        self.swelog_paths()
+            .daily_log_directory
     }
 
     fn weekly_log_directory(&self) -> PathBuf {
-        self.swelog_paths().weekly_log_directory
+        self.swelog_paths()
+            .weekly_log_directory
     }
 }
 
@@ -57,7 +64,9 @@ fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
     let config = SwelogConfig {
-        obsidian_vault_path: temporary_directory.path().to_path_buf(),
+        obsidian_vault_path: temporary_directory
+            .path()
+            .to_path_buf(),
         ..SwelogConfig::get_default_config()
     };
 
@@ -82,11 +91,23 @@ fn setup_creates_swelog_files_and_directories() {
 
     assert!(is_default_work_file_content(&work_file_contents));
 
-    assert!(!test_context.context_file().exists());
+    assert!(
+        !test_context
+            .context_file()
+            .exists()
+    );
 
-    assert!(test_context.daily_log_directory().is_dir());
+    assert!(
+        test_context
+            .daily_log_directory()
+            .is_dir()
+    );
 
-    assert!(test_context.weekly_log_directory().is_dir());
+    assert!(
+        test_context
+            .weekly_log_directory()
+            .is_dir()
+    );
 
     drop(test_context.temporary_directory);
 }
@@ -96,7 +117,9 @@ fn setup_uses_configured_path_names() {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
     let config = SwelogConfig {
-        obsidian_vault_path: temporary_directory.path().to_path_buf(),
+        obsidian_vault_path: temporary_directory
+            .path()
+            .to_path_buf(),
         swelog_folder_name: String::from("accomplishments"),
         work_file_name: String::from("daily-work.md"),
         daily_log_folder_name: String::from("days"),
@@ -106,18 +129,32 @@ fn setup_uses_configured_path_names() {
 
     let swelog_paths = SwelogPaths::new(&config);
 
-    let cache_directory = temporary_directory.path().join("cache");
+    let cache_directory = temporary_directory
+        .path()
+        .join("cache");
 
     let overwrite_existing_files = Overwrite::No;
 
     setup_swelog_files_from_config(&config, &cache_directory, overwrite_existing_files)
         .expect("swelog files should be created");
 
-    assert!(swelog_paths.work_file.is_file());
+    assert!(
+        swelog_paths
+            .work_file
+            .is_file()
+    );
 
-    assert!(swelog_paths.daily_log_directory.is_dir());
+    assert!(
+        swelog_paths
+            .daily_log_directory
+            .is_dir()
+    );
 
-    assert!(swelog_paths.weekly_log_directory.is_dir());
+    assert!(
+        swelog_paths
+            .weekly_log_directory
+            .is_dir()
+    );
 
     drop(temporary_directory);
 }
@@ -234,9 +271,17 @@ fn setup_overwrites_existing_files_when_force_is_set() {
 
     assert!(is_default_work_file_content(&work_file_contents));
 
-    assert!(test_context.daily_log_directory().is_dir());
+    assert!(
+        test_context
+            .daily_log_directory()
+            .is_dir()
+    );
 
-    assert!(test_context.weekly_log_directory().is_dir());
+    assert!(
+        test_context
+            .weekly_log_directory()
+            .is_dir()
+    );
 
     drop(test_context.temporary_directory);
 }
@@ -260,11 +305,23 @@ fn setup_accepts_existing_log_directories_when_force_is_set() {
     )
     .expect("existing log directories should be accepted");
 
-    assert!(test_context.work_file().is_file());
+    assert!(
+        test_context
+            .work_file()
+            .is_file()
+    );
 
-    assert!(test_context.daily_log_directory().is_dir());
+    assert!(
+        test_context
+            .daily_log_directory()
+            .is_dir()
+    );
 
-    assert!(test_context.weekly_log_directory().is_dir());
+    assert!(
+        test_context
+            .weekly_log_directory()
+            .is_dir()
+    );
 
     drop(test_context.temporary_directory);
 }

@@ -88,7 +88,10 @@ async fn read_request(stream: &mut TcpStream) -> Result<String> {
 
         request.extend_from_slice(chunk);
 
-        if request.windows(4).any(|window| window == b"\r\n\r\n") {
+        if request
+            .windows(4)
+            .any(|window| window == b"\r\n\r\n")
+        {
             break;
         }
     }
@@ -101,7 +104,11 @@ fn parse_request_target(request: &str) -> Result<&str> {
     request
         .lines()
         .next()
-        .and_then(|request_line| request_line.split_whitespace().nth(1))
+        .and_then(|request_line| {
+            request_line
+                .split_whitespace()
+                .nth(1)
+        })
         .ok_or_else(|| miette!("OAuth callback did not contain a request target"))
 }
 

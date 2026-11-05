@@ -4,7 +4,7 @@ use std::{
 };
 
 use config::context_file::get_context_file_content;
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -26,7 +26,9 @@ pub fn format_context_file(context_file: &Path) -> Result<()> {
 
     fs::write(context_file, formatted_context_file_content)
         .into_diagnostic()
-        .wrap_err_with(|| format!("failed to write context file at {}", path_link(context_file)))
+        .wrap_err_with(|| {
+            format!("failed to write context file at {}", stderr_path_link(context_file))
+        })
 }
 
 #[cfg(test)]

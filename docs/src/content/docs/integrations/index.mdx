@@ -25,6 +25,11 @@ Integrations are optional. Use them to fetch external data.
     href="/integrations/linear/"
     description="Record the issues assigned to you, grouped by status."
   />
+  <LinkCard
+    title="Sentry"
+    href="/integrations/sentry/"
+    description="Record the unresolved Sentry issues assigned to you, grouped by substatus."
+  />
 </CardGrid>
 
 ## Quickly fetch all configured integrations
@@ -47,6 +52,7 @@ The default work file contains only `## Priorities` and `## Log`. Running any in
 swelog fetch github # creates "## GitHub"
 swelog fetch google-calendar # creates "## Google Calendar"
 swelog fetch linear # creates "## Linear"
+swelog fetch sentry # creates "## Sentry"
 ```
 
 :::caution[Integration sections are managed data]

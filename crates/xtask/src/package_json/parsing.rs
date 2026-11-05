@@ -13,7 +13,10 @@ use serde_json::Value;
 pub fn parse_package_json_version(package_json: &str) -> Result<String> {
     let package_json = parse_package_json(package_json)?;
 
-    let Some(version) = package_json.get("version").and_then(Value::as_str) else {
+    let Some(version) = package_json
+        .get("version")
+        .and_then(Value::as_str)
+    else {
         return Err(miette!("no version found"));
     };
 
@@ -39,5 +42,7 @@ pub fn replace_package_json_version(package_json: &str, release_version: &str) -
 }
 
 fn parse_package_json(package_json: &str) -> Result<Value> {
-    serde_json::from_str(package_json).into_diagnostic().wrap_err("failed to parse")
+    serde_json::from_str(package_json)
+        .into_diagnostic()
+        .wrap_err("failed to parse")
 }

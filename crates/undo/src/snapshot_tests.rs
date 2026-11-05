@@ -17,7 +17,11 @@ struct TestContext {
 fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
-    let undo_snapshot_file = get_undo_snapshot_file_path(&temporary_directory.path().join("cache"));
+    let undo_snapshot_file = get_undo_snapshot_file_path(
+        &temporary_directory
+            .path()
+            .join("cache"),
+    );
 
     TestContext { temporary_directory, undo_snapshot_file }
 }
@@ -85,7 +89,9 @@ fn read_undo_snapshot_fails_when_the_snapshot_is_missing() {
 
     let error = read_undo_snapshot(&undo_snapshot_file).expect_err("missing snapshot should fail");
 
-    error.downcast_ref::<NoUndoSnapshot>().expect("error should be NoUndoSnapshot");
+    error
+        .downcast_ref::<NoUndoSnapshot>()
+        .expect("error should be NoUndoSnapshot");
 
     drop(temporary_directory);
 }
@@ -94,8 +100,9 @@ fn read_undo_snapshot_fails_when_the_snapshot_is_missing() {
 fn read_undo_snapshot_fails_when_the_snapshot_is_not_valid_json() {
     let TestContext { temporary_directory, undo_snapshot_file } = get_test_context();
 
-    let cache_directory =
-        undo_snapshot_file.parent().expect("undo snapshot should have a parent directory");
+    let cache_directory = undo_snapshot_file
+        .parent()
+        .expect("undo snapshot should have a parent directory");
 
     fs::create_dir_all(cache_directory).expect("cache directory should be created");
 
@@ -104,7 +111,11 @@ fn read_undo_snapshot_fails_when_the_snapshot_is_not_valid_json() {
 
     let error = read_undo_snapshot(&undo_snapshot_file).expect_err("invalid snapshot should fail");
 
-    assert!(error.to_string().contains("failed to parse the undo snapshot"));
+    assert!(
+        error
+            .to_string()
+            .contains("failed to parse the undo snapshot")
+    );
 
     drop(temporary_directory);
 }

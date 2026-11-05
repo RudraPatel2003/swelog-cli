@@ -28,11 +28,13 @@ impl TestContext {
     }
 
     fn swelog_directory(&self) -> PathBuf {
-        self.swelog_paths().swelog_directory
+        self.swelog_paths()
+            .swelog_directory
     }
 
     fn work_file(&self) -> PathBuf {
-        self.swelog_paths().work_file
+        self.swelog_paths()
+            .work_file
     }
 
     fn write_work_file(&self, content: &str) {
@@ -43,7 +45,9 @@ impl TestContext {
 }
 
 fn make_read_only(file: &Path) {
-    let mut permissions = fs::metadata(file).expect("file should have metadata").permissions();
+    let mut permissions = fs::metadata(file)
+        .expect("file should have metadata")
+        .permissions();
 
     permissions.set_readonly(true);
 
@@ -54,7 +58,9 @@ fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
     let config = SwelogConfig {
-        obsidian_vault_path: temporary_directory.path().to_path_buf(),
+        obsidian_vault_path: temporary_directory
+            .path()
+            .to_path_buf(),
         ..SwelogConfig::get_default_config()
     };
 
@@ -189,8 +195,9 @@ fn format_work_file_fails_when_work_file_is_missing() {
     let error =
         format_work_file(&test_context.work_file()).expect_err("missing work file should fail");
 
-    let error =
-        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+    let error = error
+        .downcast_ref::<SwelogFileNotFound>()
+        .expect("error should be SwelogFileNotFound");
 
     assert_eq!(error.swelog_path, test_context.work_file());
 
@@ -211,8 +218,9 @@ fn upsert_work_file_section_fails_when_work_file_is_missing() {
     )
     .expect_err("missing work file should fail");
 
-    let error =
-        error.downcast_ref::<SwelogFileNotFound>().expect("error should be SwelogFileNotFound");
+    let error = error
+        .downcast_ref::<SwelogFileNotFound>()
+        .expect("error should be SwelogFileNotFound");
 
     assert_eq!(error.swelog_path, test_context.work_file());
 

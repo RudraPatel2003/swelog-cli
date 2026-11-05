@@ -61,7 +61,8 @@ pub struct DailyLogArgs {
 
 impl DailyLogArgs {
     pub fn resolve_log_date(&self, today: NaiveDate) -> Result<NaiveDate> {
-        self.date_args.resolve_log_date(today)
+        self.date_args
+            .resolve_log_date(today)
     }
 
     #[must_use]

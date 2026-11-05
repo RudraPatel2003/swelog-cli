@@ -52,7 +52,10 @@ pub fn is_issue_active_or_finished_today(
     today: NaiveDate,
     timezone: &impl TimeZone,
 ) -> bool {
-    issue.status_type.is_active() || was_issue_finished_on(issue, today, timezone)
+    issue
+        .status_type
+        .is_active()
+        || was_issue_finished_on(issue, today, timezone)
 }
 
 fn was_issue_finished_on(issue: &LinearIssue, date: NaiveDate, timezone: &impl TimeZone) -> bool {
@@ -65,7 +68,10 @@ fn was_issue_finished_on(issue: &LinearIssue, date: NaiveDate, timezone: &impl T
 }
 
 fn falls_on_date(instant: DateTime<Utc>, date: NaiveDate, timezone: &impl TimeZone) -> bool {
-    instant.with_timezone(timezone).date_naive() == date
+    instant
+        .with_timezone(timezone)
+        .date_naive()
+        == date
 }
 
 #[cfg(test)]

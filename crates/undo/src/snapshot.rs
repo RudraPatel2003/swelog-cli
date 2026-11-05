@@ -7,7 +7,7 @@ use std::{
     process,
 };
 
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -42,9 +42,10 @@ pub fn read_undo_snapshot(undo_snapshot_file: &Path) -> Result<UndoSnapshot> {
         return Err(no_undo_snapshot_error.into());
     }
 
-    let undo_snapshot_contents =
-        fs::read_to_string(undo_snapshot_file).into_diagnostic().wrap_err_with(|| {
-            format!("failed to read the undo snapshot at {}", path_link(undo_snapshot_file))
+    let undo_snapshot_contents = fs::read_to_string(undo_snapshot_file)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to read the undo snapshot at {}", stderr_path_link(undo_snapshot_file))
         })?;
 
     let undo_snapshot = serde_json::from_str(&undo_snapshot_contents)
@@ -56,9 +57,14 @@ pub fn read_undo_snapshot(undo_snapshot_file: &Path) -> Result<UndoSnapshot> {
 
 pub fn write_undo_snapshot(undo_snapshot_file: &Path, undo_snapshot: &UndoSnapshot) -> Result<()> {
     if let Some(parent) = undo_snapshot_file.parent() {
-        fs::create_dir_all(parent).into_diagnostic().wrap_err_with(|| {
-            format!("failed to create the swelog cache directory at {}", path_link(parent))
-        })?;
+        fs::create_dir_all(parent)
+            .into_diagnostic()
+            .wrap_err_with(|| {
+                format!(
+                    "failed to create the swelog cache directory at {}",
+                    stderr_path_link(parent)
+                )
+            })?;
     }
 
     let json = serde_json::to_string(undo_snapshot)
@@ -67,13 +73,20 @@ pub fn write_undo_snapshot(undo_snapshot_file: &Path, undo_snapshot: &UndoSnapsh
 
     let temporary_file_path = undo_snapshot_file.with_extension(format!("{}.tmp", process::id()));
 
-    fs::write(&temporary_file_path, json).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write the undo snapshot at {}", path_link(&temporary_file_path))
-    })?;
+    fs::write(&temporary_file_path, json)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!(
+                "failed to write the undo snapshot at {}",
+                stderr_path_link(&temporary_file_path)
+            )
+        })?;
 
-    fs::rename(&temporary_file_path, undo_snapshot_file).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write the undo snapshot at {}", path_link(undo_snapshot_file))
-    })?;
+    fs::rename(&temporary_file_path, undo_snapshot_file)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to write the undo snapshot at {}", stderr_path_link(undo_snapshot_file))
+        })?;
 
     Ok(())
 }
@@ -83,9 +96,14 @@ pub fn remove_undo_snapshot(undo_snapshot_file: &Path) -> Result<()> {
         return Ok(());
     }
 
-    fs::remove_file(undo_snapshot_file).into_diagnostic().wrap_err_with(|| {
-        format!("failed to remove the undo snapshot at {}", path_link(undo_snapshot_file))
-    })
+    fs::remove_file(undo_snapshot_file)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!(
+                "failed to remove the undo snapshot at {}",
+                stderr_path_link(undo_snapshot_file)
+            )
+        })
 }
 
 #[cfg(test)]

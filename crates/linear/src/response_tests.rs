@@ -31,7 +31,10 @@ fn parse_issue_page_reads_linear_mcp_issue_shape() {
 
     let page = parse_issue_page(result).expect("Linear MCP issue page should parse");
 
-    let issue = page.issues.first().expect("page should contain one issue");
+    let issue = page
+        .issues
+        .first()
+        .expect("page should contain one issue");
 
     let expected_issue = LinearIssue {
         identifier: "ISWF-3270".to_string(),
@@ -41,8 +44,16 @@ fn parse_issue_page_reads_linear_mcp_issue_shape() {
         status_name: "In Review".to_string(),
         status_type: LinearStatusType::Started,
         timestamps: LinearIssueTimestamps {
-            started_at: Some("2026-08-11T20:25:10.197Z".parse().expect("timestamp should parse")),
-            updated_at: Some("2026-08-13T18:22:28.096Z".parse().expect("timestamp should parse")),
+            started_at: Some(
+                "2026-08-11T20:25:10.197Z"
+                    .parse()
+                    .expect("timestamp should parse"),
+            ),
+            updated_at: Some(
+                "2026-08-13T18:22:28.096Z"
+                    .parse()
+                    .expect("timestamp should parse"),
+            ),
             ..LinearIssueTimestamps::default()
         },
     };
@@ -64,7 +75,10 @@ fn parse_issue_page_reads_unrecognized_status_type_as_other() {
 
     let page = parse_issue_page(result).expect("unknown status types should parse");
 
-    let issue = page.issues.first().expect("page should contain one issue");
+    let issue = page
+        .issues
+        .first()
+        .expect("page should contain one issue");
 
     assert_eq!(issue.status_type, LinearStatusType::Other);
 }
@@ -79,7 +93,11 @@ fn take_next_cursor_returns_cursor_when_more_pages_remain() {
 
     let mut page = parse_issue_page(result).expect("issue page should parse");
 
-    assert_eq!(page.take_next_cursor().as_deref(), Some("next-page"));
+    assert_eq!(
+        page.take_next_cursor()
+            .as_deref(),
+        Some("next-page")
+    );
 }
 
 #[test]
@@ -92,7 +110,11 @@ fn take_next_cursor_reads_the_cursor_the_linear_mcp_server_returns() {
 
     let mut page = parse_issue_page(result).expect("issue page should parse");
 
-    assert_eq!(page.take_next_cursor().as_deref(), Some("next-page"));
+    assert_eq!(
+        page.take_next_cursor()
+            .as_deref(),
+        Some("next-page")
+    );
 }
 
 #[test]
@@ -123,5 +145,9 @@ fn parse_issue_page_reports_tool_errors() {
 
     let error = parse_issue_page(result).expect_err("tool errors should fail");
 
-    assert!(error.to_string().contains("rate limited"));
+    assert!(
+        error
+            .to_string()
+            .contains("rate limited")
+    );
 }

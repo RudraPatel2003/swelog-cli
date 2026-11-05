@@ -24,7 +24,8 @@ impl GitHubClient {
     ) -> Result<Vec<Issue>> {
         let search_query = get_merged_prs_search_query(github_username, *activity_date);
 
-        self.search_issues(&search_query).await
+        self.search_issues(&search_query)
+            .await
     }
 
     pub async fn get_opened_prs(
@@ -34,7 +35,8 @@ impl GitHubClient {
     ) -> Result<Vec<Issue>> {
         let search_query = get_opened_prs_search_query(github_username, *activity_date);
 
-        self.search_issues(&search_query).await
+        self.search_issues(&search_query)
+            .await
     }
 
     pub async fn get_closed_prs(
@@ -44,14 +46,16 @@ impl GitHubClient {
     ) -> Result<Vec<Issue>> {
         let search_query = get_closed_prs_search_query(github_username, *activity_date);
 
-        self.search_issues(&search_query).await
+        self.search_issues(&search_query)
+            .await
     }
 
     pub(crate) async fn search_issues(&self, search_query: &str) -> Result<Vec<Issue>> {
         let query_parameters = get_search_query_parameters(search_query);
 
-        let response_text =
-            self.get_json_text(SEARCH_ISSUES_ENDPOINT_PATH, &query_parameters).await?;
+        let response_text = self
+            .get_json_text(SEARCH_ISSUES_ENDPOINT_PATH, &query_parameters)
+            .await?;
 
         parse_search_issues_response_text(&response_text)
     }

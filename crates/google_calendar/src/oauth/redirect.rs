@@ -14,7 +14,10 @@ pub fn parse_authorization_code(callback_url: &str, expected_state: &str) -> Res
         message: format!("the Google redirect was not a valid URL: {error}"),
     })?;
 
-    let query_parameters = callback_url.query_pairs().into_owned().collect::<Vec<_>>();
+    let query_parameters = callback_url
+        .query_pairs()
+        .into_owned()
+        .collect::<Vec<_>>();
 
     if let Some(reason) = find_query_parameter(&query_parameters, "error") {
         let google_authorization_denied_error = GoogleAuthorizationDenied { reason };

@@ -14,7 +14,9 @@ use crate::errors::DailyLogAlreadyExists;
 pub fn get_daily_log_file_path(swelog_paths: &SwelogPaths, log_date: &NaiveDate) -> PathBuf {
     let daily_log_file_name = get_daily_log_file_name(*log_date);
 
-    swelog_paths.daily_log_directory.join(daily_log_file_name)
+    swelog_paths
+        .daily_log_directory
+        .join(daily_log_file_name)
 }
 
 pub fn resolve_daily_log_file(

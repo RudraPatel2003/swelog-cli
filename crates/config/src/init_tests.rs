@@ -21,7 +21,9 @@ struct TestContext {
 fn get_test_context() -> TestContext {
     let temporary_directory = tempdir().expect("temp directory should be created");
 
-    let config_file_path = temporary_directory.path().join(CONFIG_FILE_NAME);
+    let config_file_path = temporary_directory
+        .path()
+        .join(CONFIG_FILE_NAME);
 
     let config = SwelogConfig::get_default_config();
 
@@ -61,8 +63,9 @@ fn write_config_fails_when_file_exists_without_force() {
 
     let error = result.expect_err("existing config should not be overwritten without force");
 
-    let error =
-        error.downcast_ref::<ConfigAlreadyExists>().expect("error should be ConfigAlreadyExists");
+    let error = error
+        .downcast_ref::<ConfigAlreadyExists>()
+        .expect("error should be ConfigAlreadyExists");
 
     assert_eq!(error.config_file_path, config_file_path);
 

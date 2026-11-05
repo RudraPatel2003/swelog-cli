@@ -1,0 +1,99 @@
+---
+title: Sentry
+description: Record the unresolved Sentry issues assigned to you, grouped by substatus.
+---
+
+Record the unresolved Sentry issues assigned to you into your work file.
+
+## Setup
+
+Set the slug of your Sentry organization in `swelog.json`. It is the first path
+segment of your organization's URL, such as `acme` for `https://acme.sentry.io`.
+See [Configuration](/getting-started/configuration/) for more information.
+
+```json
+{
+  "sentryOrganization": "acme"
+}
+```
+
+## Usage
+
+Run the fetch command:
+
+```sh
+swelog fetch sentry
+```
+
+The first run asks for a
+[Sentry user auth token](https://sentry.io/settings/account/api/auth-tokens/)
+with the `event:read` scope and stores it in your operating system keyring. Set
+`SENTRY_AUTH_TOKEN` to use a token without storing it.
+
+## Backfilling
+
+To backfill a previous date, provide `MM-DD-YYYY`:
+
+```sh
+swelog fetch sentry --date 08-17-2026
+```
+
+This records the unresolved issues assigned to you that received events on
+that date.
+
+`--yesterday` does the same for the day before:
+
+```sh
+swelog fetch sentry --yesterday
+```
+
+For last Friday, use `--last-friday` instead of working out the date:
+
+```sh
+swelog fetch sentry --last-friday
+```
+
+## What gets recorded
+
+Swelog searches Sentry for issues that fall under the filter `assigned:me is:unresolved`
+
+Without a date, swelog records every unresolved issue assigned to you that received an event in the last 90 days
+
+With `--date`, `--yesterday`, or `--last-friday`, swelog records the unresolved
+issues assigned to you that received an event on that date. Dates are read in
+your local time zone.
+
+## Output
+
+The generated section groups issues by Sentry's substatus, with the ones that
+need attention first:
+
+```markdown
+## Sentry
+
+### Escalating
+
+- [BACKEND-123](https://acme.sentry.io/issues/123/) TypeError: cannot read properties of undefined
+
+### Regressed
+
+- [BACKEND-120](https://acme.sentry.io/issues/120/) ConnectionError: database unreachable
+
+### New
+
+- [BACKEND-130](https://acme.sentry.io/issues/130/) ValueError: invalid date
+
+### Ongoing
+
+- [BACKEND-98](https://acme.sentry.io/issues/98/) DeprecationWarning: the config key moved
+```
+
+## Switching accounts or organizations
+
+Update `sentryOrganization` when needed, clear the stored token, and fetch
+again:
+
+```sh
+swelog auth clear sentry
+swelog fetch sentry
+```

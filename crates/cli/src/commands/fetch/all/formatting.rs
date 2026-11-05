@@ -8,7 +8,11 @@ pub fn format_running_notice(fetch_sources: &[FetchSource]) -> String {
 }
 
 pub fn format_fetch_source_labels(fetch_sources: &[FetchSource]) -> String {
-    fetch_sources.iter().map(|fetch_source| fetch_source.label()).collect::<Vec<_>>().join(", ")
+    fetch_sources
+        .iter()
+        .map(|fetch_source| fetch_source.label())
+        .collect::<Vec<_>>()
+        .join(", ")
 }
 
 #[cfg(test)]

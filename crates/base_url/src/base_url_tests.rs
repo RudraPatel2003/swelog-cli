@@ -18,7 +18,9 @@ fn parse_keeps_an_existing_trailing_slash() {
 fn join_appends_the_endpoint_path_to_a_nested_base() {
     let base_url = BaseUrl::parse("http://127.0.0.1:5555/api").expect("base URL should parse");
 
-    let endpoint_url = base_url.join("v1/responses").expect("endpoint should join");
+    let endpoint_url = base_url
+        .join("v1/responses")
+        .expect("endpoint should join");
 
     assert_eq!(endpoint_url.as_str(), "http://127.0.0.1:5555/api/v1/responses");
 }
@@ -27,7 +29,9 @@ fn join_appends_the_endpoint_path_to_a_nested_base() {
 fn join_appends_the_endpoint_path_to_a_root_base() {
     let base_url = BaseUrl::parse("http://127.0.0.1:5555").expect("base URL should parse");
 
-    let endpoint_url = base_url.join("search/issues").expect("endpoint should join");
+    let endpoint_url = base_url
+        .join("search/issues")
+        .expect("endpoint should join");
 
     assert_eq!(endpoint_url.as_str(), "http://127.0.0.1:5555/search/issues");
 }
@@ -43,5 +47,9 @@ fn parse_fails_for_a_relative_value() {
 fn parse_fails_for_a_url_that_cannot_be_a_base() {
     let error = BaseUrl::parse("mailto:someone@example.com").expect_err("mailto should fail");
 
-    assert!(error.message.contains("cannot have paths joined"));
+    assert!(
+        error
+            .message
+            .contains("cannot have paths joined")
+    );
 }

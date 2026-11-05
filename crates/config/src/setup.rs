@@ -6,7 +6,7 @@ use std::{
     path::Path,
 };
 
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -32,32 +32,34 @@ pub fn setup_swelog_files_from_config(
         fail_if_swelog_paths_exist(&swelog_paths)?;
     }
 
-    fs::create_dir_all(&swelog_paths.swelog_directory).into_diagnostic().wrap_err_with(|| {
-        format!(
-            "failed to create swelog directory at {}",
-            path_link(&swelog_paths.swelog_directory)
-        )
-    })?;
+    fs::create_dir_all(&swelog_paths.swelog_directory)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!(
+                "failed to create swelog directory at {}",
+                stderr_path_link(&swelog_paths.swelog_directory)
+            )
+        })?;
 
     create_or_reset_work_file(swelog_config, cache_directory)?;
 
-    fs::create_dir_all(&swelog_paths.daily_log_directory).into_diagnostic().wrap_err_with(
-        || {
+    fs::create_dir_all(&swelog_paths.daily_log_directory)
+        .into_diagnostic()
+        .wrap_err_with(|| {
             format!(
                 "failed to create daily log directory at {}",
-                path_link(&swelog_paths.daily_log_directory)
+                stderr_path_link(&swelog_paths.daily_log_directory)
             )
-        },
-    )?;
+        })?;
 
-    fs::create_dir_all(&swelog_paths.weekly_log_directory).into_diagnostic().wrap_err_with(
-        || {
+    fs::create_dir_all(&swelog_paths.weekly_log_directory)
+        .into_diagnostic()
+        .wrap_err_with(|| {
             format!(
                 "failed to create weekly log directory at {}",
-                path_link(&swelog_paths.weekly_log_directory)
+                stderr_path_link(&swelog_paths.weekly_log_directory)
             )
-        },
-    )?;
+        })?;
 
     Ok(())
 }

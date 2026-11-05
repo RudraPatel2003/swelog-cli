@@ -3,6 +3,7 @@ mod github;
 mod google_calendar;
 mod linear;
 mod outcome;
+mod sentry;
 mod sources;
 mod status;
 
@@ -15,6 +16,7 @@ use github::GithubArgs;
 use google_calendar::GoogleCalendarArgs;
 use linear::LinearArgs;
 use miette::Result;
+use sentry::SentryArgs;
 use status::StatusArgs;
 
 use crate::environment::Environment;
@@ -39,6 +41,9 @@ enum FetchCommands {
     /// Fetch the meetings on your Google Calendar for a date
     GoogleCalendar(GoogleCalendarArgs),
 
+    /// Fetch the unresolved Sentry issues assigned to you
+    Sentry(SentryArgs),
+
     /// Show which fetch commands `swelog fetch all` will run
     Status(StatusArgs),
 }
@@ -46,14 +51,34 @@ enum FetchCommands {
 impl FetchArgs {
     pub async fn run(self, environment: &Environment) -> Result<()> {
         match self.command {
-            FetchCommands::All(all_args) => all_args.run(environment).await,
+            FetchCommands::All(all_args) => {
+                all_args
+                    .run(environment)
+                    .await
+            }
 
-            FetchCommands::Github(github_args) => github_args.run(environment).await,
+            FetchCommands::Github(github_args) => {
+                github_args
+                    .run(environment)
+                    .await
+            }
 
-            FetchCommands::Linear(linear_args) => linear_args.run(environment).await,
+            FetchCommands::Linear(linear_args) => {
+                linear_args
+                    .run(environment)
+                    .await
+            }
 
             FetchCommands::GoogleCalendar(google_calendar_args) => {
-                google_calendar_args.run(environment).await
+                google_calendar_args
+                    .run(environment)
+                    .await
+            }
+
+            FetchCommands::Sentry(sentry_args) => {
+                sentry_args
+                    .run(environment)
+                    .await
             }
 
             FetchCommands::Status(status_args) => status_args.run(environment),

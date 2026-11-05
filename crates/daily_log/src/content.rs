@@ -19,7 +19,11 @@ fn format_daily_log_heading(log_date: NaiveDate) -> String {
 }
 
 fn replace_leading_heading(markdown: &str, heading: &str) -> String {
-    let rest = markdown.lines().skip(1).collect::<Vec<_>>().join("\n");
+    let rest = markdown
+        .lines()
+        .skip(1)
+        .collect::<Vec<_>>()
+        .join("\n");
 
     format!("{heading}\n{rest}")
 }

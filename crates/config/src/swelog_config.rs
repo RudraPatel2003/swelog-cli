@@ -53,6 +53,9 @@ pub struct SwelogConfig {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub linear_username: Option<String>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sentry_organization: Option<String>,
 }
 
 impl SwelogConfig {
@@ -67,6 +70,7 @@ impl SwelogConfig {
             language_model_provider: None,
             language_model: None,
             linear_username: None,
+            sentry_organization: None,
         }
     }
 
@@ -76,5 +80,13 @@ impl SwelogConfig {
             .as_deref()
             .map(str::trim)
             .filter(|linear_username| !linear_username.is_empty())
+    }
+
+    #[must_use]
+    pub fn get_sentry_organization(&self) -> Option<&str> {
+        self.sentry_organization
+            .as_deref()
+            .map(str::trim)
+            .filter(|sentry_organization| !sentry_organization.is_empty())
     }
 }

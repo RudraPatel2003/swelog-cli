@@ -32,7 +32,9 @@ pub struct GoogleCredentials {
 
 impl GoogleCredentials {
     pub const fn is_expiring(&self, now: u64) -> bool {
-        self.expires_at.saturating_sub(now) < REFRESH_BUFFER_SECONDS
+        self.expires_at
+            .saturating_sub(now)
+            < REFRESH_BUFFER_SECONDS
     }
 }
 
@@ -71,5 +73,7 @@ pub fn clear_google_credentials(credential_store: &CredentialStore) -> Result<()
 }
 
 pub fn get_current_epoch_seconds() -> u64 {
-    SystemTime::now().duration_since(UNIX_EPOCH).map_or(0, |elapsed| elapsed.as_secs())
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |elapsed| elapsed.as_secs())
 }

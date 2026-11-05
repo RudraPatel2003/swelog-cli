@@ -83,7 +83,9 @@ pub async fn collect_github_activity(
 ) -> Result<FetchOutcome> {
     let github_client = environment.build_github_client()?;
 
-    let github_username = github_client.get_username().await?;
+    let github_username = github_client
+        .get_username()
+        .await?;
 
     let activity_date =
         resolve_selected_date(date_selection, environment.today)?.unwrap_or(environment.today);

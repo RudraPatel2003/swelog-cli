@@ -41,7 +41,9 @@ impl GitHubClient {
         endpoint_path: &str,
         query_parameters: &(impl Serialize + Sync),
     ) -> Result<String> {
-        let endpoint_url = self.api_base_url.join(endpoint_path)?;
+        let endpoint_url = self
+            .api_base_url
+            .join(endpoint_path)?;
 
         let response = self
             .http_client

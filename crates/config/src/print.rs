@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use highlight::stdout::path_link;
+use highlight::stdout::stdout_path_link;
 
 use crate::swelog_config::{
     LanguageModelProvider,
@@ -24,7 +24,7 @@ struct ConfigRow {
 pub fn print_config(config_file_path: &Path, config: &SwelogConfig) {
     let formatted_config = format_config(config);
 
-    println!("Displaying config at {}:", path_link(config_file_path));
+    println!("Displaying config at {}:", stdout_path_link(config_file_path));
 
     println!();
 
@@ -34,7 +34,11 @@ pub fn print_config(config_file_path: &Path, config: &SwelogConfig) {
 fn format_config(config: &SwelogConfig) -> String {
     let sections = collect_config_sections(config);
 
-    sections.iter().map(format_config_section).collect::<Vec<_>>().join("\n")
+    sections
+        .iter()
+        .map(format_config_section)
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 fn collect_config_sections(config: &SwelogConfig) -> Vec<ConfigSection> {
@@ -44,25 +48,39 @@ fn collect_config_sections(config: &SwelogConfig) -> Vec<ConfigSection> {
             rows: vec![
                 ConfigRow {
                     label: "Obsidian vault path",
-                    value: path_link(&config.obsidian_vault_path),
+                    value: stdout_path_link(&config.obsidian_vault_path),
                 },
-                ConfigRow { label: "Swelog folder name", value: config.swelog_folder_name.clone() },
+                ConfigRow {
+                    label: "Swelog folder name",
+                    value: config
+                        .swelog_folder_name
+                        .clone(),
+                },
             ],
         },
         ConfigSection {
             title: "Files",
-            rows: vec![ConfigRow { label: "Work file", value: config.work_file_name.clone() }],
+            rows: vec![ConfigRow {
+                label: "Work file",
+                value: config
+                    .work_file_name
+                    .clone(),
+            }],
         },
         ConfigSection {
             title: "Logs",
             rows: vec![
                 ConfigRow {
                     label: "Daily log folder",
-                    value: config.daily_log_folder_name.clone(),
+                    value: config
+                        .daily_log_folder_name
+                        .clone(),
                 },
                 ConfigRow {
                     label: "Weekly log folder",
-                    value: config.weekly_log_folder_name.clone(),
+                    value: config
+                        .weekly_log_folder_name
+                        .clone(),
                 },
             ],
         },
@@ -76,22 +94,44 @@ fn collect_config_sections(config: &SwelogConfig) -> Vec<ConfigSection> {
                 },
                 ConfigRow {
                     label: "Model",
-                    value: config.language_model.as_deref().unwrap_or(NOT_CONFIGURED).to_string(),
+                    value: config
+                        .language_model
+                        .as_deref()
+                        .unwrap_or(NOT_CONFIGURED)
+                        .to_string(),
                 },
             ],
         },
         ConfigSection {
             title: "Integrations",
-            rows: vec![ConfigRow {
-                label: "Linear username",
-                value: config.linear_username.as_deref().unwrap_or(NOT_CONFIGURED).to_string(),
-            }],
+            rows: vec![
+                ConfigRow {
+                    label: "Linear username",
+                    value: config
+                        .linear_username
+                        .as_deref()
+                        .unwrap_or(NOT_CONFIGURED)
+                        .to_string(),
+                },
+                ConfigRow {
+                    label: "Sentry organization",
+                    value: config
+                        .sentry_organization
+                        .as_deref()
+                        .unwrap_or(NOT_CONFIGURED)
+                        .to_string(),
+                },
+            ],
         },
     ]
 }
 
 fn format_config_section(section: &ConfigSection) -> String {
-    let formatted_rows = section.rows.iter().map(format_config_row).collect::<String>();
+    let formatted_rows = section
+        .rows
+        .iter()
+        .map(format_config_row)
+        .collect::<String>();
 
     format!("{}\n{formatted_rows}", section.title)
 }

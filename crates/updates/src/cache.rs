@@ -12,7 +12,7 @@ use chrono::{
     TimeDelta,
     Utc,
 };
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -40,9 +40,10 @@ pub fn get_version_cache_file_path(cache_directory: &Path) -> PathBuf {
 }
 
 pub fn read_version_cache(cache_file_path: &Path) -> Result<VersionCache> {
-    let cache_file_contents =
-        fs::read_to_string(cache_file_path).into_diagnostic().wrap_err_with(|| {
-            format!("failed to read the version cache at {}", path_link(cache_file_path))
+    let cache_file_contents = fs::read_to_string(cache_file_path)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to read the version cache at {}", stderr_path_link(cache_file_path))
         })?;
 
     let version_cache = serde_json::from_str(&cache_file_contents)
@@ -54,9 +55,14 @@ pub fn read_version_cache(cache_file_path: &Path) -> Result<VersionCache> {
 
 pub fn write_version_cache(cache_file_path: &Path, version_cache: &VersionCache) -> Result<()> {
     if let Some(parent) = cache_file_path.parent() {
-        fs::create_dir_all(parent).into_diagnostic().wrap_err_with(|| {
-            format!("failed to create the version cache directory at {}", path_link(parent))
-        })?;
+        fs::create_dir_all(parent)
+            .into_diagnostic()
+            .wrap_err_with(|| {
+                format!(
+                    "failed to create the version cache directory at {}",
+                    stderr_path_link(parent)
+                )
+            })?;
     }
 
     let json = serde_json::to_string(version_cache)
@@ -65,13 +71,20 @@ pub fn write_version_cache(cache_file_path: &Path, version_cache: &VersionCache)
 
     let temporary_file_path = cache_file_path.with_extension(format!("{}.tmp", process::id()));
 
-    fs::write(&temporary_file_path, json).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write the version cache at {}", path_link(&temporary_file_path))
-    })?;
+    fs::write(&temporary_file_path, json)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!(
+                "failed to write the version cache at {}",
+                stderr_path_link(&temporary_file_path)
+            )
+        })?;
 
-    fs::rename(&temporary_file_path, cache_file_path).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write the version cache at {}", path_link(cache_file_path))
-    })?;
+    fs::rename(&temporary_file_path, cache_file_path)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to write the version cache at {}", stderr_path_link(cache_file_path))
+        })?;
 
     Ok(())
 }

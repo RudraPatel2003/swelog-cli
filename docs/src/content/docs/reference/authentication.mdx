@@ -17,6 +17,7 @@ Swelog stores every credential in your operating system's credential store
 | Anthropic API key             | `swelog summarize` with `"llm": "anthropic"`  | Prompted on first use      |
 | Linear authorization          | `swelog fetch linear`                         | Browser OAuth on first use |
 | Google Calendar authorization | `swelog fetch google-calendar`                | Browser OAuth on first use |
+| Sentry auth token             | `swelog fetch sentry`                         | Prompted on first use      |
 
 ## Inspecting stored credentials
 
@@ -37,12 +38,12 @@ swelog auth clear --all
 ```
 
 `swelog auth clear` accepts `github`, `open-ai`, `open-router`, `anthropic`,
-`linear`, and `google-calendar`.
+`linear`, `google-calendar`, and `sentry`.
 
 ## Environment variable overrides
 
-`GITHUB_TOKEN`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, and `ANTHROPIC_API_KEY`
-take precedence over the keyring when set. When one of these is set, `swelog auth status` reports it instead of the stored
+`GITHUB_TOKEN`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, and
+`SENTRY_AUTH_TOKEN` take precedence over the keyring when set. When one of these is set, `swelog auth status` reports it instead of the stored
 value.
 
 Linear and Google Calendar are authorized through the browser and have no

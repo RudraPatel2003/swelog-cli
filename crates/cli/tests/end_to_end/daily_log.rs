@@ -38,9 +38,17 @@ fn get_sandbox_with_written_work_file() -> SwelogSandbox {
 fn log_writes_the_work_file_into_a_dated_daily_log_and_resets_the_work_file() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox.swelog().args(["log", "--date", ACTIVITY_DATE]).assert().success().stdout(contains(
-        format!("Logged your work into {}", sandbox.daily_log_file(ACTIVITY_DATE).display()),
-    ));
+    sandbox
+        .swelog()
+        .args(["log", "--date", ACTIVITY_DATE])
+        .assert()
+        .success()
+        .stdout(contains(format!(
+            "Logged your work into {}",
+            sandbox
+                .daily_log_file(ACTIVITY_DATE)
+                .display()
+        )));
 
     assert_eq!(sandbox.read_daily_log(ACTIVITY_DATE), EXPECTED_DAILY_LOG_CONTENT);
 
@@ -57,7 +65,11 @@ fn log_formats_the_work_file_before_writing_the_daily_log() {
 
     sandbox.write_work_file(UNFORMATTED_WORK_FILE_CONTENT);
 
-    sandbox.swelog().args(["log", "--keep", "--date", ACTIVITY_DATE]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--keep", "--date", ACTIVITY_DATE])
+        .assert()
+        .success();
 
     assert_eq!(sandbox.read_daily_log(ACTIVITY_DATE), EXPECTED_DAILY_LOG_CONTENT);
 
@@ -68,22 +80,46 @@ fn log_formats_the_work_file_before_writing_the_daily_log() {
 fn log_defaults_to_today_and_yesterday_is_relative_to_it() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox.swelog().args(["log", "--keep"]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--keep"])
+        .assert()
+        .success();
 
-    sandbox.swelog().args(["log", "--keep", "--yesterday"]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--keep", "--yesterday"])
+        .assert()
+        .success();
 
-    assert!(sandbox.daily_log_file(TODAY).is_file());
+    assert!(
+        sandbox
+            .daily_log_file(TODAY)
+            .is_file()
+    );
 
-    assert!(sandbox.daily_log_file(ACTIVITY_DATE).is_file());
+    assert!(
+        sandbox
+            .daily_log_file(ACTIVITY_DATE)
+            .is_file()
+    );
 }
 
 #[test]
 fn log_writes_the_daily_log_for_last_friday() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox.swelog().args(["log", "--keep", "--last-friday"]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--keep", "--last-friday"])
+        .assert()
+        .success();
 
-    assert!(sandbox.daily_log_file(LAST_FRIDAY).is_file());
+    assert!(
+        sandbox
+            .daily_log_file(LAST_FRIDAY)
+            .is_file()
+    );
 }
 
 #[test]
@@ -109,7 +145,11 @@ fn log_rejects_last_friday_alongside_another_date_flag() {
 fn log_keeps_the_work_file_with_keep() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox.swelog().args(["log", "--date", ACTIVITY_DATE, "--keep"]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--date", ACTIVITY_DATE, "--keep"])
+        .assert()
+        .success();
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 }
@@ -127,14 +167,22 @@ fn log_fails_when_the_work_file_is_untouched() {
         .failure()
         .stderr(contains("work file not updated"));
 
-    assert!(!sandbox.daily_log_file(ACTIVITY_DATE).exists());
+    assert!(
+        !sandbox
+            .daily_log_file(ACTIVITY_DATE)
+            .exists()
+    );
 }
 
 #[test]
 fn log_fails_when_the_daily_log_exists_without_force() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox.swelog().args(["log", "--date", ACTIVITY_DATE, "--keep"]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--date", ACTIVITY_DATE, "--keep"])
+        .assert()
+        .success();
 
     sandbox.write_work_file("# Today's Work\n\n## Log\n- Second attempt\n");
 
@@ -147,7 +195,11 @@ fn log_fails_when_the_daily_log_exists_without_force() {
 
     assert_eq!(sandbox.read_daily_log(ACTIVITY_DATE), EXPECTED_DAILY_LOG_CONTENT);
 
-    sandbox.swelog().args(["log", "--date", ACTIVITY_DATE, "--force"]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--date", ACTIVITY_DATE, "--force"])
+        .assert()
+        .success();
 
     assert_eq!(
         sandbox.read_daily_log(ACTIVITY_DATE),
@@ -159,7 +211,11 @@ fn log_fails_when_the_daily_log_exists_without_force() {
 fn undo_restores_the_work_file_and_deletes_the_daily_log() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox.swelog().args(["log", "--date", ACTIVITY_DATE]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--date", ACTIVITY_DATE])
+        .assert()
+        .success();
 
     sandbox
         .swelog()
@@ -167,24 +223,47 @@ fn undo_restores_the_work_file_and_deletes_the_daily_log() {
         .assert()
         .success()
         .stdout(contains("Restored your work file at"))
-        .stdout(contains(format!("Deleted {}", sandbox.daily_log_file(ACTIVITY_DATE).display())));
+        .stdout(contains(format!(
+            "Deleted {}",
+            sandbox
+                .daily_log_file(ACTIVITY_DATE)
+                .display()
+        )));
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 
-    assert!(!sandbox.daily_log_file(ACTIVITY_DATE).exists());
+    assert!(
+        !sandbox
+            .daily_log_file(ACTIVITY_DATE)
+            .exists()
+    );
 
-    sandbox.swelog().arg("undo").assert().failure().stderr(contains("nothing to undo"));
+    sandbox
+        .swelog()
+        .arg("undo")
+        .assert()
+        .failure()
+        .stderr(contains("nothing to undo"));
 }
 
 #[test]
 fn reset_restores_the_default_work_file_and_can_be_undone() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox.swelog().arg("reset").assert().success().stdout(contains("Reset work file at"));
+    sandbox
+        .swelog()
+        .arg("reset")
+        .assert()
+        .success()
+        .stdout(contains("Reset work file at"));
 
     assert_eq!(sandbox.read_work_file(), DEFAULT_WORK_FILE_CONTENT);
 
-    sandbox.swelog().arg("undo").assert().success();
+    sandbox
+        .swelog()
+        .arg("undo")
+        .assert()
+        .success();
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 }
@@ -193,11 +272,19 @@ fn reset_restores_the_default_work_file_and_can_be_undone() {
 fn work_file_comments_stay_hidden_once_a_log_has_been_written() {
     let sandbox = get_sandbox_with_written_work_file();
 
-    sandbox.swelog().args(["log", "--date", ACTIVITY_DATE]).assert().success();
+    sandbox
+        .swelog()
+        .args(["log", "--date", ACTIVITY_DATE])
+        .assert()
+        .success();
 
     sandbox.write_work_file(WRITTEN_WORK_FILE_CONTENT);
 
-    sandbox.swelog().arg("reset").assert().success();
+    sandbox
+        .swelog()
+        .arg("reset")
+        .assert()
+        .success();
 
     assert_eq!(sandbox.read_work_file(), DEFAULT_WORK_FILE_CONTENT_WITHOUT_COMMENTS);
 }

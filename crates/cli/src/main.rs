@@ -45,7 +45,10 @@ fn start_update_check(environment: &Environment) -> PendingUpdateNotice {
         UpdateCheck::On => start_version_check(
             cargo_package_version,
             &environment.cache_directory,
-            environment.endpoints.npm_registry.clone(),
+            environment
+                .endpoints
+                .npm_registry
+                .clone(),
         ),
 
         UpdateCheck::Off => PendingUpdateNotice::skipped(),
@@ -58,7 +61,11 @@ async fn run_command(command: Commands, environment: &Environment) -> Result<()>
 
         Commands::Setup(setup_args) => setup_args.run(environment),
 
-        Commands::Summarize(summarize_args) => summarize_args.run(environment).await,
+        Commands::Summarize(summarize_args) => {
+            summarize_args
+                .run(environment)
+                .await
+        }
 
         Commands::Log(log_args) => log_args.run(environment),
 
@@ -66,7 +73,11 @@ async fn run_command(command: Commands, environment: &Environment) -> Result<()>
 
         Commands::Undo(undo_args) => undo_args.run(environment),
 
-        Commands::Fetch(fetch_args) => fetch_args.run(environment).await,
+        Commands::Fetch(fetch_args) => {
+            fetch_args
+                .run(environment)
+                .await
+        }
 
         Commands::Config(config_args) => config_args.run(environment),
 

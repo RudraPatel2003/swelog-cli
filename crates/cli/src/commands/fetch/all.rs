@@ -33,6 +33,7 @@ use crate::{
             FetchOutcome,
             record_fetch_outcome,
         },
+        sentry::collect_sentry_issues,
         sources::{
             FetchSource,
             collect_included_fetch_sources,
@@ -128,9 +129,11 @@ async fn collect_fetch_outcomes(
     swelog_config: &SwelogConfig,
     date_selection: DateSelection,
 ) -> Vec<Result<FetchOutcome>> {
-    let fetches = fetch_sources.iter().map(|fetch_source| {
-        collect_fetch_outcome(*fetch_source, environment, swelog_config, date_selection)
-    });
+    let fetches = fetch_sources
+        .iter()
+        .map(|fetch_source| {
+            collect_fetch_outcome(*fetch_source, environment, swelog_config, date_selection)
+        });
 
     join_all(fetches).await
 }
@@ -151,6 +154,10 @@ async fn collect_fetch_outcome(
         FetchSource::GoogleCalendar => {
             collect_google_calendar_meetings(environment, date_selection).await
         }
+
+        FetchSource::Sentry => {
+            collect_sentry_issues(environment, swelog_config, date_selection).await
+        }
     }
 }
 
@@ -161,7 +168,11 @@ fn record_fetch_results(
 ) -> Vec<FetchSource> {
     let mut failed_fetch_sources = Vec::new();
 
-    for (fetch_source, fetch_result) in fetch_sources.iter().copied().zip(fetch_results) {
+    for (fetch_source, fetch_result) in fetch_sources
+        .iter()
+        .copied()
+        .zip(fetch_results)
+    {
         let record_result = fetch_result
             .and_then(|fetch_outcome| record_fetch_outcome(swelog_config, fetch_outcome));
 

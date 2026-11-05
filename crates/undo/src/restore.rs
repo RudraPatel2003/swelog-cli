@@ -7,7 +7,7 @@ use config::{
     setup::swelog_paths::SwelogPaths,
     swelog_config::SwelogConfig,
 };
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -25,10 +25,14 @@ pub fn restore_undo_snapshot(
     fs::write(&swelog_paths.work_file, &undo_snapshot.work_file_content)
         .into_diagnostic()
         .wrap_err_with(|| {
-            format!("failed to write work file at {}", path_link(&swelog_paths.work_file))
+            format!("failed to write work file at {}", stderr_path_link(&swelog_paths.work_file))
         })?;
 
-    delete_created_file(undo_snapshot.created_file.as_deref())
+    delete_created_file(
+        undo_snapshot
+            .created_file
+            .as_deref(),
+    )
 }
 
 fn delete_created_file(created_file: Option<&Path>) -> Result<()> {
@@ -42,7 +46,7 @@ fn delete_created_file(created_file: Option<&Path>) -> Result<()> {
 
     fs::remove_file(created_file)
         .into_diagnostic()
-        .wrap_err_with(|| format!("failed to delete {}", path_link(created_file)))
+        .wrap_err_with(|| format!("failed to delete {}", stderr_path_link(created_file)))
 }
 
 #[cfg(test)]

@@ -25,7 +25,9 @@ pub fn read_file_credential(
 
     let storage_key = credential.storage_key();
 
-    let secret = stored_secrets.get(storage_key).cloned();
+    let secret = stored_secrets
+        .get(storage_key)
+        .cloned();
 
     Ok(secret)
 }
@@ -37,7 +39,12 @@ pub fn write_file_credential(
 ) -> Result<()> {
     let mut stored_secrets = read_stored_secrets(credential_file)?;
 
-    stored_secrets.insert(credential.storage_key().to_string(), secret.to_string());
+    stored_secrets.insert(
+        credential
+            .storage_key()
+            .to_string(),
+        secret.to_string(),
+    );
 
     write_stored_secrets(credential_file, &stored_secrets)
 }
@@ -45,7 +52,9 @@ pub fn write_file_credential(
 pub fn clear_file_credential(credential_file: &Path, credential: Credential) -> Result<bool> {
     let mut stored_secrets = read_stored_secrets(credential_file)?;
 
-    let was_stored = stored_secrets.remove(credential.storage_key()).is_some();
+    let was_stored = stored_secrets
+        .remove(credential.storage_key())
+        .is_some();
 
     if was_stored {
         write_stored_secrets(credential_file, &stored_secrets)?;

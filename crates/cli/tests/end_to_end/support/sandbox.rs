@@ -100,8 +100,12 @@ impl SwelogSandbox {
 
         let config_file_path = self.config_file_path();
 
-        fs::create_dir_all(config_file_path.parent().expect("config file should have a parent"))
-            .expect("config directory should be created");
+        fs::create_dir_all(
+            config_file_path
+                .parent()
+                .expect("config file should have a parent"),
+        )
+        .expect("config directory should be created");
 
         fs::write(config_file_path, config_json).expect("config file should be written");
     }
@@ -114,19 +118,28 @@ impl SwelogSandbox {
     }
 
     pub fn vault_directory(&self) -> PathBuf {
-        self.root.path().join("vault")
+        self.root
+            .path()
+            .join("vault")
     }
 
     pub fn config_file_path(&self) -> PathBuf {
-        self.root.path().join("config").join("swelog.json")
+        self.root
+            .path()
+            .join("config")
+            .join("swelog.json")
     }
 
     pub fn cache_directory(&self) -> PathBuf {
-        self.root.path().join("cache")
+        self.root
+            .path()
+            .join("cache")
     }
 
     pub fn credential_file(&self) -> PathBuf {
-        self.root.path().join("credentials.json")
+        self.root
+            .path()
+            .join("credentials.json")
     }
 
     pub fn swelog_paths(&self) -> SwelogPaths {
@@ -134,11 +147,13 @@ impl SwelogSandbox {
     }
 
     pub fn work_file(&self) -> PathBuf {
-        self.swelog_paths().work_file
+        self.swelog_paths()
+            .work_file
     }
 
     pub fn context_file(&self) -> PathBuf {
-        self.swelog_paths().context_file
+        self.swelog_paths()
+            .context_file
     }
 
     pub fn daily_log_file(&self, date: &str) -> PathBuf {
@@ -192,7 +207,11 @@ impl SwelogSandbox {
             .with_env("SWELOG_CACHE_DIRECTORY", self.cache_directory())
             .with_env(
                 "SWELOG_CREDENTIAL_STORE",
-                format!("file:{}", self.credential_file().display()),
+                format!(
+                    "file:{}",
+                    self.credential_file()
+                        .display()
+                ),
             )
             .with_env("SWELOG_UPDATE_CHECK", "off")
             .with_env("SWELOG_TODAY", TODAY)
@@ -207,7 +226,10 @@ impl SwelogSandbox {
     }
 
     pub fn setup(&self) {
-        self.swelog().arg("setup").assert().success();
+        self.swelog()
+            .arg("setup")
+            .assert()
+            .success();
     }
 }
 

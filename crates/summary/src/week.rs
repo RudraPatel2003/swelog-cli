@@ -29,7 +29,7 @@ use errors::{
     WeeklyLogAlreadyExists,
     WorkFileNotDefault,
 };
-use highlight::stderr::path_link;
+use highlight::stderr::stderr_path_link;
 use llm::{
     code_fence::strip_markdown_code_fence,
     language_model::LanguageModel,
@@ -65,9 +65,10 @@ pub async fn summarize_weekly_work_from_config(
         return Err(weekly_log_already_exists_error.into());
     }
 
-    let work_file_content =
-        fs::read_to_string(&swelog_paths.work_file).into_diagnostic().wrap_err_with(|| {
-            format!("failed to read work file at {}", path_link(&swelog_paths.work_file))
+    let work_file_content = fs::read_to_string(&swelog_paths.work_file)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to read work file at {}", stderr_path_link(&swelog_paths.work_file))
         })?;
 
     if !is_default_work_file_content(&work_file_content) {
@@ -86,15 +87,19 @@ pub async fn summarize_weekly_work_from_config(
 
     let prompt = get_weekly_log_prompt(&daily_logs, context_file_content, monday_date);
 
-    let language_model_response = language_model.generate_response(&prompt).await?;
+    let language_model_response = language_model
+        .generate_response(&prompt)
+        .await?;
 
     let generated_weekly_log_content = strip_markdown_code_fence(&language_model_response);
 
     let weekly_log_content = format_markdown(generated_weekly_log_content);
 
-    fs::write(&weekly_log_file, weekly_log_content).into_diagnostic().wrap_err_with(|| {
-        format!("failed to write weekly log file at {}", path_link(&weekly_log_file))
-    })?;
+    fs::write(&weekly_log_file, weekly_log_content)
+        .into_diagnostic()
+        .wrap_err_with(|| {
+            format!("failed to write weekly log file at {}", stderr_path_link(&weekly_log_file))
+        })?;
 
     Ok(())
 }
@@ -109,7 +114,9 @@ fn get_weekly_log_file_name(monday_date: NaiveDate) -> String {
 pub fn get_weekly_log_file_path(swelog_paths: &SwelogPaths, monday_date: &NaiveDate) -> PathBuf {
     let weekly_log_file_name = get_weekly_log_file_name(*monday_date);
 
-    swelog_paths.weekly_log_directory.join(weekly_log_file_name)
+    swelog_paths
+        .weekly_log_directory
+        .join(weekly_log_file_name)
 }
 
 fn collect_weekday_daily_logs(
@@ -129,9 +136,10 @@ fn collect_weekday_daily_logs(
             continue;
         }
 
-        let daily_log_content =
-            fs::read_to_string(&daily_log_file).into_diagnostic().wrap_err_with(|| {
-                format!("failed to read daily log file at {}", path_link(&daily_log_file))
+        let daily_log_content = fs::read_to_string(&daily_log_file)
+            .into_diagnostic()
+            .wrap_err_with(|| {
+                format!("failed to read daily log file at {}", stderr_path_link(&daily_log_file))
             })?;
 
         daily_logs.push(daily_log_content);

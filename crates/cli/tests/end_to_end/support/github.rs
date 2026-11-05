@@ -161,21 +161,28 @@ impl GitHubMocks<'_> {
     pub fn assert_every_endpoint_was_called(&self) {
         self.user.assert();
 
-        self.opened_prs.assert();
+        self.opened_prs
+            .assert();
 
-        self.merged_prs.assert();
+        self.merged_prs
+            .assert();
 
-        self.closed_prs.assert();
+        self.closed_prs
+            .assert();
 
-        self.reviewed_pr_candidates.assert();
+        self.reviewed_pr_candidates
+            .assert();
 
-        self.pull_request_reviews.iter().for_each(Mock::assert);
+        self.pull_request_reviews
+            .iter()
+            .for_each(Mock::assert);
     }
 }
 
 pub fn mock_github_rejecting_the_token(server: &MockServer) -> Mock<'_> {
     server.mock(|when, then| {
-        when.method(GET).path("/user");
+        when.method(GET)
+            .path("/user");
 
         then.status(401)
             .header("content-type", "application/json")
@@ -185,9 +192,13 @@ pub fn mock_github_rejecting_the_token(server: &MockServer) -> Mock<'_> {
 
 fn mock_user(server: &MockServer) -> Mock<'_> {
     server.mock(|when, then| {
-        when.method(GET).path("/user").header("authorization", format!("Bearer {GITHUB_TOKEN}"));
+        when.method(GET)
+            .path("/user")
+            .header("authorization", format!("Bearer {GITHUB_TOKEN}"));
 
-        then.status(200).header("content-type", "application/json").body(USER_RESPONSE);
+        then.status(200)
+            .header("content-type", "application/json")
+            .body(USER_RESPONSE);
     })
 }
 
@@ -202,7 +213,9 @@ fn mock_search<'server>(
             .query_param("q", search_query)
             .header("authorization", format!("Bearer {GITHUB_TOKEN}"));
 
-        then.status(200).header("content-type", "application/json").body(response);
+        then.status(200)
+            .header("content-type", "application/json")
+            .body(response);
     })
 }
 
@@ -216,7 +229,9 @@ fn mock_pull_request_reviews<'server>(
             .path(format!("/repos/example/swelog/pulls/{pull_request_number}/reviews"))
             .header("authorization", format!("Bearer {GITHUB_TOKEN}"));
 
-        then.status(200).header("content-type", "application/json").body(response);
+        then.status(200)
+            .header("content-type", "application/json")
+            .body(response);
     })
 }
 
@@ -253,5 +268,7 @@ fn reviewed_candidates_query(activity_date: &str) -> String {
 }
 
 fn to_iso_date(date: &str) -> String {
-    crate::support::sandbox::parse_date(date).format("%Y-%m-%d").to_string()
+    crate::support::sandbox::parse_date(date)
+        .format("%Y-%m-%d")
+        .to_string()
 }

@@ -3,7 +3,7 @@ use config::{
     config_file::read_config_file,
     setup::swelog_paths::SwelogPaths,
 };
-use highlight::stdout::path_link;
+use highlight::stdout::stdout_path_link;
 use miette::Result;
 use undo::{
     restore::restore_undo_snapshot,
@@ -41,9 +41,9 @@ impl UndoArgs {
 }
 
 fn print_undone_changes(swelog_paths: &SwelogPaths, undo_snapshot: &UndoSnapshot) {
-    println!("Restored your work file at {}", path_link(&swelog_paths.work_file));
+    println!("Restored your work file at {}", stdout_path_link(&swelog_paths.work_file));
 
     if let Some(created_file) = &undo_snapshot.created_file {
-        println!("Deleted {}", path_link(created_file));
+        println!("Deleted {}", stdout_path_link(created_file));
     }
 }

@@ -62,7 +62,9 @@ impl GoogleCalendarClient {
     ) -> Result<Vec<Meeting>> {
         let day_window = get_day_window(*date, &Local)?;
 
-        let events = self.fetch_all_events(&day_window).await?;
+        let events = self
+            .fetch_all_events(&day_window)
+            .await?;
 
         let meetings = collect_meetings(&events);
 
@@ -75,7 +77,9 @@ impl GoogleCalendarClient {
         let mut page_token: Option<String> = None;
 
         loop {
-            let mut page = self.fetch_event_page(day_window, page_token.as_deref()).await?;
+            let mut page = self
+                .fetch_event_page(day_window, page_token.as_deref())
+                .await?;
 
             events.append(&mut page.items);
 
@@ -101,8 +105,9 @@ impl GoogleCalendarClient {
         day_window: &DayWindow,
         page_token: Option<&str>,
     ) -> Result<CalendarEventPage> {
-        let response_text =
-            self.request_event_page_reauthorizing_once(day_window, page_token).await?;
+        let response_text = self
+            .request_event_page_reauthorizing_once(day_window, page_token)
+            .await?;
 
         parse_event_page(&response_text)
     }
@@ -115,13 +120,18 @@ impl GoogleCalendarClient {
         let mut reauthorization_attempted = false;
 
         loop {
-            let access_token = self.authorization.get_access_token_authorizing_if_needed().await?;
+            let access_token = self
+                .authorization
+                .get_access_token_authorizing_if_needed()
+                .await?;
 
-            let response =
-                self.send_event_page_request(day_window, page_token, &access_token).await?;
+            let response = self
+                .send_event_page_request(day_window, page_token, &access_token)
+                .await?;
 
             if response.status() == StatusCode::UNAUTHORIZED && !reauthorization_attempted {
-                self.authorization.clear()?;
+                self.authorization
+                    .clear()?;
 
                 reauthorization_attempted = true;
 
@@ -138,7 +148,9 @@ impl GoogleCalendarClient {
         page_token: Option<&str>,
         access_token: &str,
     ) -> Result<Response> {
-        let events_url = self.api_base_url.join(PRIMARY_CALENDAR_EVENTS_ENDPOINT_PATH)?;
+        let events_url = self
+            .api_base_url
+            .join(PRIMARY_CALENDAR_EVENTS_ENDPOINT_PATH)?;
 
         self.http_client
             .get(events_url)
@@ -165,8 +177,18 @@ fn get_event_page_query_parameters(
     page_token: Option<&str>,
 ) -> Vec<(&'static str, String)> {
     let mut query_parameters = vec![
-        ("timeMin", day_window.time_minimum.clone()),
-        ("timeMax", day_window.time_maximum.clone()),
+        (
+            "timeMin",
+            day_window
+                .time_minimum
+                .clone(),
+        ),
+        (
+            "timeMax",
+            day_window
+                .time_maximum
+                .clone(),
+        ),
         // Ensure recurring meetings are returned as instances rather than recurrence rules
         ("singleEvents", "true".to_string()),
         ("orderBy", "startTime".to_string()),

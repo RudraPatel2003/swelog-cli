@@ -22,14 +22,21 @@ pub struct GoogleOAuthApplicationOverrides {
 pub fn get_oauth_application(
     overrides: &GoogleOAuthApplicationOverrides,
 ) -> Result<GoogleOAuthApplication> {
-    let Some(client_id) = resolve_value(overrides.client_id.as_deref(), COMPILED_IN_CLIENT_ID)
-    else {
+    let Some(client_id) = resolve_value(
+        overrides
+            .client_id
+            .as_deref(),
+        COMPILED_IN_CLIENT_ID,
+    ) else {
         return Err(GoogleOAuthApplicationMissing.into());
     };
 
-    let Some(client_secret) =
-        resolve_value(overrides.client_secret.as_deref(), COMPILED_IN_CLIENT_SECRET)
-    else {
+    let Some(client_secret) = resolve_value(
+        overrides
+            .client_secret
+            .as_deref(),
+        COMPILED_IN_CLIENT_SECRET,
+    ) else {
         return Err(GoogleOAuthApplicationMissing.into());
     };
 
@@ -45,7 +52,9 @@ fn resolve_value(override_value: Option<&str>, compiled_in_value: Option<&str>) 
 }
 
 fn get_non_empty_value(value: Option<&str>) -> Option<&str> {
-    value.map(str::trim).filter(|value| !value.is_empty())
+    value
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
 }
 
 #[cfg(not(debug_assertions))]
