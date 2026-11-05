@@ -1,0 +1,27 @@
+[package]
+name = "sentry"
+version = "0.29.0"
+publish = false
+authors = { workspace = true }
+edition = { workspace = true }
+description = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+readme = { workspace = true }
+license = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+base_url = { path = "../base_url" }
+chrono = { workspace = true }
+dates = { path = "../dates" }
+miette = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+url = { workspace = true }

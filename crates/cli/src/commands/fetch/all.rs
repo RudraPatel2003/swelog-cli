@@ -33,6 +33,7 @@ use crate::{
             FetchOutcome,
             record_fetch_outcome,
         },
+        sentry::collect_sentry_issues,
         sources::{
             FetchSource,
             collect_included_fetch_sources,
@@ -150,6 +151,10 @@ async fn collect_fetch_outcome(
 
         FetchSource::GoogleCalendar => {
             collect_google_calendar_meetings(environment, date_selection).await
+        }
+
+        FetchSource::Sentry => {
+            collect_sentry_issues(environment, swelog_config, date_selection).await
         }
     }
 }

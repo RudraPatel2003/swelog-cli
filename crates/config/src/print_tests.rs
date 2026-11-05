@@ -35,6 +35,8 @@ fn format_config_groups_fields_under_section_headings() {
     assert!(output.contains("Model                llama3.2\n"));
 
     assert!(output.contains("Linear username      Not configured\n"));
+
+    assert!(output.contains("Sentry organization  Not configured\n"));
 }
 
 #[test]

@@ -82,10 +82,20 @@ fn collect_config_sections(config: &SwelogConfig) -> Vec<ConfigSection> {
         },
         ConfigSection {
             title: "Integrations",
-            rows: vec![ConfigRow {
-                label: "Linear username",
-                value: config.linear_username.as_deref().unwrap_or(NOT_CONFIGURED).to_string(),
-            }],
+            rows: vec![
+                ConfigRow {
+                    label: "Linear username",
+                    value: config.linear_username.as_deref().unwrap_or(NOT_CONFIGURED).to_string(),
+                },
+                ConfigRow {
+                    label: "Sentry organization",
+                    value: config
+                        .sentry_organization
+                        .as_deref()
+                        .unwrap_or(NOT_CONFIGURED)
+                        .to_string(),
+                },
+            ],
         },
     ]
 }

@@ -103,3 +103,59 @@ fn get_fetch_source_availability_ignores_the_linear_username_for_google_calendar
 
     assert_eq!(availability, FetchSourceAvailability::Included);
 }
+
+fn get_config_with_sentry_organization(sentry_organization: Option<&str>) -> SwelogConfig {
+    SwelogConfig {
+        sentry_organization: sentry_organization.map(str::to_string),
+        ..SwelogConfig::get_default_config()
+    }
+}
+
+#[test]
+fn get_fetch_source_availability_includes_sentry_when_authorized_and_configured() {
+    let swelog_config = get_config_with_sentry_organization(Some("acme"));
+
+    let availability = get_fetch_source_availability(
+        FetchSource::Sentry,
+        &swelog_config,
+        AuthorizationPresence::Present,
+    );
+
+    assert_eq!(availability, FetchSourceAvailability::Included);
+}
+
+#[test]
+fn get_fetch_source_availability_excludes_sentry_without_an_organization() {
+    let swelog_config = get_config_with_sentry_organization(None);
+
+    let availability = get_fetch_source_availability(
+        FetchSource::Sentry,
+        &swelog_config,
+        AuthorizationPresence::Present,
+    );
+
+    assert_eq!(
+        availability,
+        FetchSourceAvailability::MissingConfiguration {
+            reason: "sentryOrganization is not configured"
+        }
+    );
+}
+
+#[test]
+fn get_fetch_source_availability_excludes_sentry_when_the_organization_is_blank() {
+    let swelog_config = get_config_with_sentry_organization(Some("   "));
+
+    let availability = get_fetch_source_availability(
+        FetchSource::Sentry,
+        &swelog_config,
+        AuthorizationPresence::Present,
+    );
+
+    assert_eq!(
+        availability,
+        FetchSourceAvailability::MissingConfiguration {
+            reason: "sentryOrganization is not configured"
+        }
+    );
+}

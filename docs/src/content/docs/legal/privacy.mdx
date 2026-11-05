@@ -5,7 +5,7 @@ description:
   connect.
 ---
 
-_Last updated: August 26, 2026_
+_Last updated: November 2, 2026_
 
 The privacy of your data — and it is your data, not ours! — is a big deal to us.
 This policy lays out what swelog stores, what it sends over the network, and
@@ -57,6 +57,9 @@ reads:
 - **`swelog fetch google-calendar`** contacts `accounts.google.com`,
   `oauth2.googleapis.com`, and `www.googleapis.com` to read events on your
   primary calendar. See [Google user data](#google-user-data) below.
+- **`swelog fetch sentry`** contacts `sentry.io` with your user auth token to
+  read the unresolved issues assigned to you in the organization you
+  configured.
 
 ### Summarization
 
@@ -127,8 +130,8 @@ cooperation to exercise any right over it:
 - **Restriction.** Every integration is opt-in. Not running a command means that
   service is never contacted.
 
-Data you have already sent to GitHub, Linear, Google, or a language model
-provider is held by them under their own policies, and rights over that data are
+Data you have already sent to GitHub, Linear, Google, Sentry, or a language
+model provider is held by them under their own policies, and rights over that data are
 exercised with them directly.
 
 ## How your data is secured

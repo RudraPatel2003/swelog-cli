@@ -12,5 +12,6 @@ mod fetch_all;
 mod fetch_github;
 mod fetch_google_calendar;
 mod fetch_linear;
+mod fetch_sentry;
 mod summarize;
 mod update_check;

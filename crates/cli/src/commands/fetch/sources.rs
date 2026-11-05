@@ -6,13 +6,17 @@ use credentials::{
 };
 use miette::Result;
 
-use crate::commands::fetch::linear::describe_missing_linear_configuration;
+use crate::commands::fetch::{
+    linear::describe_missing_linear_configuration,
+    sentry::describe_missing_sentry_configuration,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum FetchSource {
     Github,
     Linear,
     GoogleCalendar,
+    Sentry,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -29,22 +33,31 @@ pub enum FetchSourceAvailability {
 }
 
 impl FetchSource {
-    pub const ALL_FETCH_SOURCES: [Self; 3] = [Self::Github, Self::Linear, Self::GoogleCalendar];
+    pub const ALL_FETCH_SOURCES: [Self; 4] =
+        [Self::Github, Self::Linear, Self::GoogleCalendar, Self::Sentry];
 
     #[must_use]
     pub const fn label(self) -> &'static str {
         match self {
             Self::Github => "GitHub",
+
             Self::Linear => "Linear",
+
             Self::GoogleCalendar => "Google Calendar",
+
+            Self::Sentry => "Sentry",
         }
     }
 
     const fn fetching_notice(self) -> &'static str {
         match self {
             Self::Github => "Fetching GitHub PRs...",
+
             Self::Linear => "Fetching Linear issues...",
+
             Self::GoogleCalendar => "Fetching Google Calendar events...",
+
+            Self::Sentry => "Fetching Sentry issues...",
         }
     }
 
@@ -52,14 +65,20 @@ impl FetchSource {
     pub const fn credential(self) -> Credential {
         match self {
             Self::Github => Credential::Github,
+
             Self::Linear => Credential::Linear,
+
             Self::GoogleCalendar => Credential::GoogleCalendar,
+
+            Self::Sentry => Credential::Sentry,
         }
     }
 
     fn describe_missing_configuration(self, swelog_config: &SwelogConfig) -> Option<&'static str> {
         match self {
             Self::Linear => describe_missing_linear_configuration(swelog_config),
+
+            Self::Sentry => describe_missing_sentry_configuration(swelog_config),
 
             Self::Github | Self::GoogleCalendar => None,
         }

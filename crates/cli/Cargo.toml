@@ -34,6 +34,7 @@ llm = { path = "../llm" }
 linear = { path = "../linear" }
 markdown = { path = "../markdown" }
 miette = { workspace = true, features = ["fancy"] }
+sentry = { path = "../sentry" }
 summary = { path = "../summary" }
 thiserror = { workspace = true }
 time = { path = "../time" }

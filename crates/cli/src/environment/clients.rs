@@ -17,6 +17,7 @@ use llm::{
     summarization_settings::SummarizationSettings,
 };
 use miette::Result;
+use sentry::client::SentryClient;
 
 use crate::environment::Environment;
 
@@ -52,6 +53,17 @@ impl Environment {
     #[must_use]
     pub fn build_linear_client(&self) -> LinearClient {
         LinearClient::new(self.endpoints.linear_mcp.clone(), self.credential_store.clone())
+    }
+
+    pub fn build_sentry_client(&self) -> Result<SentryClient> {
+        let sentry_token =
+            get_or_prompt_for_credential(&self.credential_store, Credential::Sentry)?;
+
+        let sentry_api_endpoint = self.endpoints.sentry_api.clone();
+
+        let sentry_client = SentryClient::new(sentry_api_endpoint, sentry_token);
+
+        Ok(sentry_client)
     }
 
     pub fn build_language_model(

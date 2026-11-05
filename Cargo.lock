@@ -578,6 +578,7 @@ dependencies = [
  "markdown",
  "miette",
  "predicates",
+ "sentry",
  "serde_json",
  "summary",
  "tempfile",
@@ -2946,6 +2947,21 @@ name = "semver"
 version = "1.0.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a7852d02fc848982e0c167ef163aaff9cd91dc640ba85e263cb1ce46fae51cd"
+
+[[package]]
+name = "sentry"
+version = "0.29.0"
+dependencies = [
+ "base_url",
+ "chrono",
+ "dates",
+ "miette",
+ "reqwest 0.13.5",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "url",
+]
 
 [[package]]
 name = "serde"

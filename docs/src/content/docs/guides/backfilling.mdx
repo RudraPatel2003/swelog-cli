@@ -20,6 +20,7 @@ swelog reset
 swelog fetch github --yesterday
 swelog fetch google-calendar --yesterday
 swelog fetch linear --yesterday
+swelog fetch sentry --yesterday
 
 # option 1: log the day
 swelog log --yesterday
@@ -38,6 +39,7 @@ For any other day, use `--last-friday` or `--date MM-DD-YYYY` as below.
 | `swelog fetch github`          | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
 | `swelog fetch google-calendar` | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
 | `swelog fetch linear`          | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
+| `swelog fetch sentry`          | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
 | `swelog summarize day`         | `--date MM-DD-YYYY` | `--yesterday`, `--last-friday` |
 
 ## Backfilling a week
