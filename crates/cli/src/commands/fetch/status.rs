@@ -1,5 +1,6 @@
 use clap::Args;
 use config::config_file::read_config_file;
+use credentials::credential::Credential;
 use highlight::stdout::{
     highlight_stdout_dimmed,
     highlight_stdout_green,
@@ -7,10 +8,9 @@ use highlight::stdout::{
 use miette::Result;
 
 use crate::{
-    commands::fetch::sources::{
-        FetchSource,
-        FetchSourceAvailability,
-        collect_fetch_source_availabilities,
+    commands::fetch::integrations::{
+        IntegrationAvailability,
+        collect_integration_availabilities,
     },
     environment::Environment,
 };
@@ -31,13 +31,15 @@ impl StatusArgs {
         println!();
 
         let availabilities =
-            collect_fetch_source_availabilities(&swelog_config, &environment.credential_store)?;
+            collect_integration_availabilities(&swelog_config, &environment.credential_store)?;
 
-        for (fetch_source, availability) in availabilities {
+        for (integration, availability) in availabilities {
+            let integration_spec = integration.spec();
+
             println!(
                 "{:LABEL_WIDTH$}{}",
-                fetch_source.label(),
-                describe_fetch_source_availability(fetch_source, availability)
+                integration_spec.label,
+                describe_integration_availability(integration_spec.credential, availability)
             );
         }
 
@@ -49,22 +51,22 @@ impl StatusArgs {
     }
 }
 
-fn describe_fetch_source_availability(
-    fetch_source: FetchSource,
-    availability: FetchSourceAvailability,
+fn describe_integration_availability(
+    credential: Credential,
+    availability: IntegrationAvailability,
 ) -> String {
     match availability {
-        FetchSourceAvailability::Included => highlight_stdout_green("included"),
+        IntegrationAvailability::Included => highlight_stdout_green("included"),
 
-        FetchSourceAvailability::MissingAuthorization => highlight_stdout_dimmed(format!(
-            "not included, {} is not stored",
-            fetch_source
-                .credential()
-                .label()
-        )),
+        IntegrationAvailability::MissingAuthorization => {
+            highlight_stdout_dimmed(format!("not included, {} is not stored", credential.label()))
+        }
 
-        FetchSourceAvailability::MissingConfiguration { reason } => {
-            highlight_stdout_dimmed(format!("not included, {reason}"))
+        IntegrationAvailability::MissingConfiguration(missing_configuration) => {
+            highlight_stdout_dimmed(format!(
+                "not included, {} is not configured",
+                missing_configuration.config_key
+            ))
         }
     }
 }

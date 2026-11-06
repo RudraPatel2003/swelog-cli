@@ -1,43 +1,49 @@
 use super::*;
+use crate::commands::fetch::{
+    github::GithubIntegration,
+    google_calendar::GoogleCalendarIntegration,
+    linear::LinearIntegration,
+};
 
 #[test]
-fn format_fetch_source_labels_is_empty_when_there_are_no_sources() {
-    assert_eq!(format_fetch_source_labels(&[]), "");
+fn format_integration_labels_is_empty_when_there_are_no_integrations() {
+    assert_eq!(format_integration_labels(&[]), "");
 }
 
 #[test]
-fn format_fetch_source_labels_names_a_single_source() {
-    assert_eq!(format_fetch_source_labels(&[FetchSource::GoogleCalendar]), "Google Calendar");
+fn format_integration_labels_names_a_single_integration() {
+    assert_eq!(format_integration_labels(&[&GoogleCalendarIntegration]), "Google Calendar");
 }
 
 #[test]
-fn format_fetch_source_labels_separates_sources_with_commas() {
-    let fetch_sources = [FetchSource::Github, FetchSource::Linear, FetchSource::GoogleCalendar];
+fn format_integration_labels_separates_integrations_with_commas() {
+    let integrations: [&dyn Integration; 3] =
+        [&GithubIntegration, &LinearIntegration, &GoogleCalendarIntegration];
 
-    assert_eq!(format_fetch_source_labels(&fetch_sources), "GitHub, Linear, Google Calendar");
+    assert_eq!(format_integration_labels(&integrations), "GitHub, Linear, Google Calendar");
 }
 
 #[test]
-fn format_fetch_source_labels_keeps_the_order_it_is_given() {
-    let fetch_sources = [FetchSource::Linear, FetchSource::Github];
+fn format_integration_labels_keeps_the_order_it_is_given() {
+    let integrations: [&dyn Integration; 2] = [&LinearIntegration, &GithubIntegration];
 
-    assert_eq!(format_fetch_source_labels(&fetch_sources), "Linear, GitHub");
+    assert_eq!(format_integration_labels(&integrations), "Linear, GitHub");
 }
 
 #[test]
-fn format_running_notice_lists_every_source_it_will_run() {
-    let fetch_sources = [FetchSource::Github, FetchSource::GoogleCalendar];
+fn format_running_notice_lists_every_integration_it_will_run() {
+    let integrations: [&dyn Integration; 2] = [&GithubIntegration, &GoogleCalendarIntegration];
 
     assert_eq!(
-        format_running_notice(&fetch_sources),
+        format_running_notice(&integrations),
         "Running the fetch commands you have configured: GitHub, Google Calendar."
     );
 }
 
 #[test]
-fn format_running_notice_names_a_single_source() {
+fn format_running_notice_names_a_single_integration() {
     assert_eq!(
-        format_running_notice(&[FetchSource::Linear]),
+        format_running_notice(&[&LinearIntegration]),
         "Running the fetch commands you have configured: Linear."
     );
 }

@@ -17,21 +17,15 @@ use crate::{
                 NoConfiguredFetchSources,
             },
             formatting::{
-                format_fetch_source_labels,
+                format_integration_labels,
                 format_running_notice,
             },
         },
-        github::collect_github_activity,
-        google_calendar::collect_google_calendar_meetings,
-        linear::collect_linear_issues,
+        integration::Integration,
+        integrations::collect_included_integrations,
         outcome::{
             FetchOutcome,
             record_fetch_outcome,
-        },
-        sentry::collect_sentry_issues,
-        sources::{
-            FetchSource,
-            collect_included_fetch_sources,
         },
         window::FetchWindow,
     },
@@ -52,16 +46,16 @@ impl AllArgs {
     pub async fn run(self, environment: &Environment) -> Result<()> {
         let swelog_config = read_config_file(&environment.config_file_path)?;
 
-        let included_fetch_sources =
-            collect_included_fetch_sources(&swelog_config, &environment.credential_store)?;
+        let included_integrations =
+            collect_included_integrations(&swelog_config, &environment.credential_store)?;
 
-        if included_fetch_sources.is_empty() {
+        if included_integrations.is_empty() {
             let no_configured_fetch_sources_error = NoConfiguredFetchSources;
 
             return Err(no_configured_fetch_sources_error.into());
         }
 
-        println!("{}", format_running_notice(&included_fetch_sources));
+        println!("{}", format_running_notice(&included_integrations));
 
         println!();
 
@@ -69,103 +63,90 @@ impl AllArgs {
 
         let fetch_window = FetchWindow::from_date_selection(date_selection, environment.today)?;
 
-        let failed_fetch_sources =
-            run_fetch_sources(&included_fetch_sources, environment, &swelog_config, fetch_window)
+        let failed_integrations =
+            run_integrations(&included_integrations, environment, &swelog_config, fetch_window)
                 .await;
 
-        if failed_fetch_sources.is_empty() {
+        if failed_integrations.is_empty() {
             return Ok(());
         }
 
         let fetch_sources_failed_error = FetchSourcesFailed {
-            failed_source_labels: format_fetch_source_labels(&failed_fetch_sources),
+            failed_source_labels: format_integration_labels(&failed_integrations),
         };
 
         Err(fetch_sources_failed_error.into())
     }
 }
 
-async fn run_fetch_sources(
-    fetch_sources: &[FetchSource],
+async fn run_integrations(
+    integrations: &[&'static dyn Integration],
     environment: &Environment,
     swelog_config: &SwelogConfig,
     fetch_window: FetchWindow,
-) -> Vec<FetchSource> {
-    print_fetching_notices(fetch_sources);
+) -> Vec<&'static dyn Integration> {
+    print_fetching_notices(integrations);
 
     let fetch_results =
-        collect_fetch_outcomes(fetch_sources, environment, swelog_config, fetch_window).await;
+        collect_fetch_outcomes(integrations, environment, swelog_config, fetch_window).await;
 
     println!();
 
-    record_fetch_results(fetch_sources, swelog_config, fetch_results)
+    record_fetch_results(integrations, swelog_config, fetch_results)
 }
 
-fn print_fetching_notices(fetch_sources: &[FetchSource]) {
-    for fetch_source in fetch_sources {
-        fetch_source.print_fetching_notice();
+fn print_fetching_notices(integrations: &[&dyn Integration]) {
+    for integration in integrations {
+        println!(
+            "{}",
+            integration
+                .spec()
+                .fetching_notice
+        );
     }
 }
 
 async fn collect_fetch_outcomes(
-    fetch_sources: &[FetchSource],
+    integrations: &[&dyn Integration],
     environment: &Environment,
     swelog_config: &SwelogConfig,
     fetch_window: FetchWindow,
 ) -> Vec<Result<FetchOutcome>> {
-    let fetches = fetch_sources
+    let fetches = integrations
         .iter()
-        .map(|fetch_source| {
-            collect_fetch_outcome(*fetch_source, environment, swelog_config, fetch_window)
+        .map(|integration| {
+            integration.collect_fetch_outcome(environment, swelog_config, fetch_window)
         });
 
     join_all(fetches).await
 }
 
-async fn collect_fetch_outcome(
-    fetch_source: FetchSource,
-    environment: &Environment,
-    swelog_config: &SwelogConfig,
-    fetch_window: FetchWindow,
-) -> Result<FetchOutcome> {
-    match fetch_source {
-        FetchSource::Github => collect_github_activity(environment, fetch_window).await,
-
-        FetchSource::Linear => {
-            collect_linear_issues(environment, swelog_config, fetch_window).await
-        }
-
-        FetchSource::GoogleCalendar => {
-            collect_google_calendar_meetings(environment, fetch_window).await
-        }
-
-        FetchSource::Sentry => {
-            collect_sentry_issues(environment, swelog_config, fetch_window).await
-        }
-    }
-}
-
 fn record_fetch_results(
-    fetch_sources: &[FetchSource],
+    integrations: &[&'static dyn Integration],
     swelog_config: &SwelogConfig,
     fetch_results: Vec<Result<FetchOutcome>>,
-) -> Vec<FetchSource> {
-    let mut failed_fetch_sources = Vec::new();
+) -> Vec<&'static dyn Integration> {
+    let mut failed_integrations = Vec::new();
 
-    for (fetch_source, fetch_result) in fetch_sources
+    for (integration, fetch_result) in integrations
         .iter()
         .copied()
         .zip(fetch_results)
     {
-        let record_result = fetch_result
-            .and_then(|fetch_outcome| record_fetch_outcome(swelog_config, fetch_outcome));
+        let section_title = integration
+            .spec()
+            .section_title;
+
+        let record_result = fetch_result.and_then(|fetch_outcome| {
+            record_fetch_outcome(swelog_config, section_title, fetch_outcome)
+        });
 
         if let Err(error) = record_result {
             eprintln!("{error:?}");
 
-            failed_fetch_sources.push(fetch_source);
+            failed_integrations.push(integration);
         }
     }
 
-    failed_fetch_sources
+    failed_integrations
 }

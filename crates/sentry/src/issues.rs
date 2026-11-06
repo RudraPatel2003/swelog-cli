@@ -90,7 +90,8 @@ impl SentryClient {
 
         let resolved_issue_ids = resolved_issues
             .iter()
-            .map(|issue| issue.id.as_str());
+            .map(|issue| issue.id.clone())
+            .collect();
 
         let issue_activities = self
             .get_issue_activities(organization, resolved_issue_ids)

@@ -28,10 +28,12 @@ const COLLAPSED_ISSUE_DETAILS: [(&str, &str); 3] =
     [("collapse", "release"), ("collapse", "stats"), ("collapse", "tags")];
 
 impl SentryClient {
+    /// Owned issue IDs keep the returned future `Send`. Borrowed IDs in the stream closure hit
+    /// rust-lang/rust#102211
     pub(crate) async fn get_issue_activities(
         &self,
         organization: &str,
-        issue_ids: impl IntoIterator<Item = &str>,
+        issue_ids: Vec<String>,
     ) -> Result<Vec<Vec<SentryActivityEntry>>> {
         stream::iter(issue_ids)
             .map(|issue_id| self.get_issue_activity(organization, issue_id))
@@ -43,9 +45,9 @@ impl SentryClient {
     async fn get_issue_activity(
         &self,
         organization: &str,
-        issue_id: &str,
+        issue_id: String,
     ) -> Result<Vec<SentryActivityEntry>> {
-        let endpoint_path = get_issue_details_endpoint_path(organization, issue_id);
+        let endpoint_path = get_issue_details_endpoint_path(organization, &issue_id);
 
         let page = self
             .get_json_page(&endpoint_path, &COLLAPSED_ISSUE_DETAILS)
