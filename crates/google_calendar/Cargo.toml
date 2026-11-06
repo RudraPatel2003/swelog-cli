@@ -20,6 +20,7 @@ base_url = { path = "../base_url" }
 chrono = { workspace = true }
 credentials = { path = "../credentials" }
 dates = { path = "../dates" }
+http_api = { path = "../http_api" }
 miette = { workspace = true }
 oauth = { path = "../oauth" }
 oauth2 = { workspace = true }

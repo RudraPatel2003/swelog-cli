@@ -1,5 +1,4 @@
 use miette::Diagnostic;
-use reqwest::StatusCode;
 use thiserror::Error;
 
 #[derive(Debug, Diagnostic, Error)]
@@ -57,26 +56,6 @@ pub struct GoogleCallbackStateMismatch;
     help("check your network connection and try again")
 )]
 pub struct FailedToSendGoogleCalendarRequest;
-
-#[derive(Debug, Diagnostic, Error)]
-#[error("Google rejected your authorization with status {status_code}")]
-#[diagnostic(
-    code(swelog::google_calendar::authorization_rejected),
-    help(
-        "run `swelog auth clear google-calendar` and run the command again to authorize, or check that the Google Calendar API is enabled for the swelog OAuth client"
-    )
-)]
-pub struct GoogleCalendarAuthorizationRejected {
-    pub status_code: StatusCode,
-}
-
-#[derive(Debug, Diagnostic, Error)]
-#[error("Unsuccessful Google Calendar response with status {status_code} and body {response_text}")]
-#[diagnostic(code(swelog::google_calendar::unsuccessful_response))]
-pub struct UnsuccessfulGoogleCalendarResponse {
-    pub status_code: StatusCode,
-    pub response_text: String,
-}
 
 #[derive(Debug, Diagnostic, Error)]
 #[error("Google Calendar returned an unsupported response: {message}")]

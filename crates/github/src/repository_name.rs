@@ -1,7 +1,3 @@
-pub const GITHUB_ACCEPT_HEADER: &str = "application/vnd.github.v3+json";
-
-pub const SWELOG_USER_AGENT: &str = "RudraPatel2003/swelog-cli";
-
 const GITHUB_REPOS_API_URL: &str = "https://api.github.com/repos/";
 
 /// ```

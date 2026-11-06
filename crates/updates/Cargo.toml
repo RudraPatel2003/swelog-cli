@@ -19,6 +19,7 @@ workspace = true
 base_url = { path = "../base_url" }
 chrono = { workspace = true }
 highlight = { path = "../highlight" }
+http_api = { path = "../http_api" }
 miette = { workspace = true }
 reqwest = { workspace = true }
 semver = { workspace = true }

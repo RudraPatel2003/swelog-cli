@@ -1,37 +1,35 @@
 use base_url::base_url::BaseUrl;
-use miette::{
-    IntoDiagnostic,
-    Result,
-    WrapErr,
+use http_api::{
+    api_service::ApiService,
+    client::ApiClient,
 };
-use reqwest::{
-    Client,
-    header::USER_AGENT,
-};
+use miette::Result;
 use serde::Serialize;
 
-use crate::{
-    errors::FailedToSendSentryRequest,
-    response::{
-        ResponsePage,
-        read_successful_response_page,
-    },
+use crate::response::{
+    ResponsePage,
+    read_next_cursor,
 };
 
 pub const DEFAULT_SENTRY_API_BASE_URL: &str = "https://sentry.io/api/0/";
 
-const SWELOG_USER_AGENT: &str = "RudraPatel2003/swelog-cli";
+const SENTRY_API_SERVICE: ApiService = ApiService {
+    label: "Sentry",
+    credential_name: "auth token",
+    credential_command_name: "sentry",
+    authorization_hint: "check that your token has the `event:read` scope",
+    accept_header: None,
+};
 
 pub struct SentryClient {
-    http_client: Client,
-    api_base_url: BaseUrl,
+    api_client: ApiClient,
     token: String,
 }
 
 impl SentryClient {
     #[must_use]
     pub fn new(api_base_url: BaseUrl, token: String) -> Self {
-        Self { http_client: Client::new(), api_base_url, token }
+        Self { api_client: ApiClient::new(api_base_url, SENTRY_API_SERVICE), token }
     }
 
     pub(crate) async fn get_json_page(
@@ -39,21 +37,18 @@ impl SentryClient {
         endpoint_path: &str,
         query_parameters: &(impl Serialize + Sync),
     ) -> Result<ResponsePage> {
-        let endpoint_url = self
-            .api_base_url
-            .join(endpoint_path)?;
-
         let response = self
-            .http_client
-            .get(endpoint_url)
-            .query(query_parameters)
-            .bearer_auth(&self.token)
-            .header(USER_AGENT, SWELOG_USER_AGENT)
-            .send()
-            .await
-            .into_diagnostic()
-            .wrap_err_with(|| FailedToSendSentryRequest)?;
+            .api_client
+            .send_get_request(endpoint_path, query_parameters, &self.token)
+            .await?;
 
-        read_successful_response_page(response).await
+        let next_cursor = read_next_cursor(&response);
+
+        let body = self
+            .api_client
+            .read_successful_response_body(response)
+            .await?;
+
+        Ok(ResponsePage { body, next_cursor })
     }
 }

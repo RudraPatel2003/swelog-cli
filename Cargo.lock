@@ -1159,11 +1159,10 @@ dependencies = [
  "base_url",
  "chrono",
  "futures",
+ "http_api",
  "miette",
- "reqwest 0.13.5",
  "serde",
  "serde_json",
- "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -1174,6 +1173,7 @@ dependencies = [
  "chrono",
  "credentials",
  "dates",
+ "http_api",
  "miette",
  "oauth",
  "oauth2",
@@ -1322,6 +1322,17 @@ dependencies = [
  "http",
  "http-body",
  "pin-project-lite",
+]
+
+[[package]]
+name = "http_api"
+version = "0.30.0"
+dependencies = [
+ "base_url",
+ "miette",
+ "reqwest 0.13.5",
+ "serde",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -2956,6 +2967,7 @@ dependencies = [
  "chrono",
  "dates",
  "futures",
+ "http_api",
  "miette",
  "reqwest 0.13.5",
  "serde",
@@ -3697,6 +3709,7 @@ dependencies = [
  "base_url",
  "chrono",
  "highlight",
+ "http_api",
  "miette",
  "reqwest 0.13.5",
  "semver",
