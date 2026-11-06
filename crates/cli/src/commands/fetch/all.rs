@@ -1,15 +1,10 @@
 mod errors;
 mod formatting;
 
-use chrono::NaiveDate;
 use clap::Args;
 use config::{
     config_file::read_config_file,
     swelog_config::SwelogConfig,
-};
-use dates::{
-    date_format::DATE_VALUE_NAME,
-    parsing::parse_date,
 };
 use futures::future::join_all;
 use miette::Result;
@@ -47,19 +42,9 @@ use crate::{
 };
 
 #[derive(Debug, Args)]
-#[group(multiple = false)]
 pub struct AllArgs {
-    /// Date to fetch activity for in the format MM-DD-YYYY.
-    #[arg(long, value_name = DATE_VALUE_NAME, value_parser = parse_date)]
-    date: Option<NaiveDate>,
-
-    /// Fetch activity for yesterday instead of today.
-    #[arg(long = "yesterday")]
-    use_yesterday: bool,
-
-    /// Fetch activity for last Friday instead of today.
-    #[arg(long = "last-friday")]
-    use_last_friday: bool,
+    #[command(flatten)]
+    date_flags: DateFlags,
 }
 
 impl AllArgs {
@@ -79,11 +64,7 @@ impl AllArgs {
 
         println!();
 
-        let date_selection = DateSelection::from_date_flags(DateFlags {
-            date: self.date,
-            use_yesterday: self.use_yesterday,
-            use_last_friday: self.use_last_friday,
-        });
+        let date_selection = DateSelection::from_date_flags(self.date_flags);
 
         let failed_fetch_sources =
             run_fetch_sources(&included_fetch_sources, environment, &swelog_config, date_selection)

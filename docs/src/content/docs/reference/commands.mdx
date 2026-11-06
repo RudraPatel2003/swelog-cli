@@ -74,14 +74,14 @@ swelog summarize [OPTIONS] [COMMAND]
 | `week`  | Summarize the past week of daily logs into a weekly log              |
 | `help`  | Print this message or the help of the given subcommand(s)            |
 
-| Flag                  | Description                                                                 |
-| --------------------- | --------------------------------------------------------------------------- |
-| `--date <MM-DD-YYYY>` | Date to write the daily log for in the format MM-DD-YYYY. Defaults to today |
-| `--yesterday`         | Write the daily log for yesterday instead of today                          |
-| `--last-friday`       | Write the daily log for last Friday instead of today                        |
-| `--force`             | Overwrite existing daily log file                                           |
-| `--keep`              | Keep the current contents of the configured work file                       |
-| `-h`, `--help`        | Print help                                                                  |
+| Flag                  | Description                                           |
+| --------------------- | ----------------------------------------------------- |
+| `--date <MM-DD-YYYY>` | Use the given date in the format MM-DD-YYYY           |
+| `--yesterday`         | Use yesterday's date                                  |
+| `--last-friday`       | Use last Friday's date                                |
+| `--force`             | Overwrite existing daily log file                     |
+| `--keep`              | Keep the current contents of the configured work file |
+| `-h`, `--help`        | Print help                                            |
 
 ### `swelog summarize day`
 
@@ -91,14 +91,14 @@ Summarize your configured work file and log it into the daily folder.
 swelog summarize day [OPTIONS]
 ```
 
-| Flag                  | Description                                                                 |
-| --------------------- | --------------------------------------------------------------------------- |
-| `--date <MM-DD-YYYY>` | Date to write the daily log for in the format MM-DD-YYYY. Defaults to today |
-| `--yesterday`         | Write the daily log for yesterday instead of today                          |
-| `--last-friday`       | Write the daily log for last Friday instead of today                        |
-| `--force`             | Overwrite existing daily log file                                           |
-| `--keep`              | Keep the current contents of the configured work file                       |
-| `-h`, `--help`        | Print help                                                                  |
+| Flag                  | Description                                           |
+| --------------------- | ----------------------------------------------------- |
+| `--date <MM-DD-YYYY>` | Use the given date in the format MM-DD-YYYY           |
+| `--yesterday`         | Use yesterday's date                                  |
+| `--last-friday`       | Use last Friday's date                                |
+| `--force`             | Overwrite existing daily log file                     |
+| `--keep`              | Keep the current contents of the configured work file |
+| `-h`, `--help`        | Print help                                            |
 
 ### `swelog summarize week`
 
@@ -123,14 +123,14 @@ Write your work file into a dated daily log.
 swelog log [OPTIONS]
 ```
 
-| Flag                  | Description                                                                 |
-| --------------------- | --------------------------------------------------------------------------- |
-| `--date <MM-DD-YYYY>` | Date to write the daily log for in the format MM-DD-YYYY. Defaults to today |
-| `--yesterday`         | Write the daily log for yesterday instead of today                          |
-| `--last-friday`       | Write the daily log for last Friday instead of today                        |
-| `--force`             | Overwrite existing daily log file                                           |
-| `--keep`              | Keep the current contents of the configured work file                       |
-| `-h`, `--help`        | Print help                                                                  |
+| Flag                  | Description                                           |
+| --------------------- | ----------------------------------------------------- |
+| `--date <MM-DD-YYYY>` | Use the given date in the format MM-DD-YYYY           |
+| `--yesterday`         | Use yesterday's date                                  |
+| `--last-friday`       | Use last Friday's date                                |
+| `--force`             | Overwrite existing daily log file                     |
+| `--keep`              | Keep the current contents of the configured work file |
+| `-h`, `--help`        | Print help                                            |
 
 ## `swelog reset`
 
@@ -186,12 +186,12 @@ Run every fetch command you have configured a credential for. The sources are fe
 swelog fetch all [OPTIONS]
 ```
 
-| Flag                  | Description                                         |
-| --------------------- | --------------------------------------------------- |
-| `--date <MM-DD-YYYY>` | Date to fetch activity for in the format MM-DD-YYYY |
-| `--yesterday`         | Fetch activity for yesterday instead of today       |
-| `--last-friday`       | Fetch activity for last Friday instead of today     |
-| `-h`, `--help`        | Print help                                          |
+| Flag                  | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `--date <MM-DD-YYYY>` | Use the given date in the format MM-DD-YYYY |
+| `--yesterday`         | Use yesterday's date                        |
+| `--last-friday`       | Use last Friday's date                      |
+| `-h`, `--help`        | Print help                                  |
 
 ### `swelog fetch github`
 
@@ -201,12 +201,12 @@ Fetch the PRs you opened, merged, closed, and reviewed on a date in GitHub.
 swelog fetch github [OPTIONS]
 ```
 
-| Flag                  | Description                                                |
-| --------------------- | ---------------------------------------------------------- |
-| `--date <MM-DD-YYYY>` | Date to fetch GitHub activity for in the format MM-DD-YYYY |
-| `--yesterday`         | Fetch GitHub activity for yesterday instead of today       |
-| `--last-friday`       | Fetch GitHub activity for last Friday instead of today     |
-| `-h`, `--help`        | Print help                                                 |
+| Flag                  | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `--date <MM-DD-YYYY>` | Use the given date in the format MM-DD-YYYY |
+| `--yesterday`         | Use yesterday's date                        |
+| `--last-friday`       | Use last Friday's date                      |
+| `-h`, `--help`        | Print help                                  |
 
 ### `swelog fetch linear`
 
@@ -216,12 +216,12 @@ Fetch the Linear issues assigned to your configured Linear username.
 swelog fetch linear [OPTIONS]
 ```
 
-| Flag                  | Description                                                |
-| --------------------- | ---------------------------------------------------------- |
-| `--date <MM-DD-YYYY>` | Date to fetch Linear activity for in the format MM-DD-YYYY |
-| `--yesterday`         | Fetch the Linear issues you worked on yesterday            |
-| `--last-friday`       | Fetch the Linear issues you worked on last Friday          |
-| `-h`, `--help`        | Print help                                                 |
+| Flag                  | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `--date <MM-DD-YYYY>` | Use the given date in the format MM-DD-YYYY |
+| `--yesterday`         | Use yesterday's date                        |
+| `--last-friday`       | Use last Friday's date                      |
+| `-h`, `--help`        | Print help                                  |
 
 ### `swelog fetch google-calendar`
 
@@ -231,12 +231,12 @@ Fetch the meetings on your Google Calendar for a date.
 swelog fetch google-calendar [OPTIONS]
 ```
 
-| Flag                  | Description                                                         |
-| --------------------- | ------------------------------------------------------------------- |
-| `--date <MM-DD-YYYY>` | Date to fetch Google Calendar meetings for in the format MM-DD-YYYY |
-| `--yesterday`         | Fetch the meetings you had yesterday                                |
-| `--last-friday`       | Fetch the meetings you had last Friday                              |
-| `-h`, `--help`        | Print help                                                          |
+| Flag                  | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `--date <MM-DD-YYYY>` | Use the given date in the format MM-DD-YYYY |
+| `--yesterday`         | Use yesterday's date                        |
+| `--last-friday`       | Use last Friday's date                      |
+| `-h`, `--help`        | Print help                                  |
 
 ### `swelog fetch sentry`
 
@@ -246,12 +246,12 @@ Fetch the Sentry issues assigned to you.
 swelog fetch sentry [OPTIONS]
 ```
 
-| Flag                  | Description                                                               |
-| --------------------- | ------------------------------------------------------------------------- |
-| `--date <MM-DD-YYYY>` | Date to fetch Sentry activity for in the format MM-DD-YYYY                |
-| `--yesterday`         | Fetch the Sentry issues that received events or were resolved yesterday   |
-| `--last-friday`       | Fetch the Sentry issues that received events or were resolved last Friday |
-| `-h`, `--help`        | Print help                                                                |
+| Flag                  | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `--date <MM-DD-YYYY>` | Use the given date in the format MM-DD-YYYY |
+| `--yesterday`         | Use yesterday's date                        |
+| `--last-friday`       | Use last Friday's date                      |
+| `-h`, `--help`        | Print help                                  |
 
 ### `swelog fetch status`
 

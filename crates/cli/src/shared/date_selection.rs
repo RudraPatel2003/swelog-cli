@@ -4,6 +4,11 @@ use chrono::{
     NaiveDate,
     Weekday,
 };
+use clap::Args;
+use dates::{
+    date_format::DATE_VALUE_NAME,
+    parsing::parse_date,
+};
 use miette::{
     Result,
     miette,
@@ -11,12 +16,20 @@ use miette::{
 
 const DAYS_IN_WEEK: i64 = 7;
 
-/// The day flags a command was invoked with, before they are resolved into a day.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Args)]
+#[group(multiple = false)]
 pub struct DateFlags {
-    pub date: Option<NaiveDate>,
-    pub use_yesterday: bool,
-    pub use_last_friday: bool,
+    /// Use the given date in the format MM-DD-YYYY.
+    #[arg(long, value_name = DATE_VALUE_NAME, value_parser = parse_date)]
+    date: Option<NaiveDate>,
+
+    /// Use yesterday's date.
+    #[arg(long = "yesterday")]
+    use_yesterday: bool,
+
+    /// Use last Friday's date.
+    #[arg(long = "last-friday")]
+    use_last_friday: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
