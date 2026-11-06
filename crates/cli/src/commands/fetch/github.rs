@@ -20,12 +20,12 @@ use crate::{
             record_fetch_outcome,
         },
         sources::FetchSource,
+        window::FetchWindow,
     },
     environment::Environment,
     shared::date_selection::{
         DateFlags,
         DateSelection,
-        resolve_selected_date,
     },
 };
 
@@ -41,26 +41,28 @@ impl GithubArgs {
     pub async fn run(self, environment: &Environment) -> Result<()> {
         let date_selection = DateSelection::from_date_flags(self.date_flags);
 
-        fetch_github_activity(environment, date_selection).await
+        let fetch_window = FetchWindow::from_date_selection(date_selection, environment.today)?;
+
+        fetch_github_activity(environment, fetch_window).await
     }
 }
 
 pub async fn fetch_github_activity(
     environment: &Environment,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Result<()> {
     let swelog_config = read_config_file(&environment.config_file_path)?;
 
     FetchSource::Github.print_fetching_notice();
 
-    let fetch_outcome = collect_github_activity(environment, date_selection).await?;
+    let fetch_outcome = collect_github_activity(environment, fetch_window).await?;
 
     record_fetch_outcome(&swelog_config, fetch_outcome)
 }
 
 pub async fn collect_github_activity(
     environment: &Environment,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Result<FetchOutcome> {
     let github_client = environment.build_github_client()?;
 
@@ -68,8 +70,7 @@ pub async fn collect_github_activity(
         .get_username()
         .await?;
 
-    let activity_date =
-        resolve_selected_date(date_selection, environment.today)?.unwrap_or(environment.today);
+    let activity_date = fetch_window.date_or_today(environment.today);
 
     let github_activity =
         get_github_activity(&github_client, &github_username, &activity_date).await?;

@@ -2,7 +2,6 @@ mod activity;
 mod errors;
 mod formatting;
 
-use chrono::NaiveDate;
 use clap::Args;
 use config::{
     config_file::read_config_file,
@@ -27,12 +26,12 @@ use crate::{
             formatting::format_sentry_activity,
         },
         sources::FetchSource,
+        window::FetchWindow,
     },
     environment::Environment,
     shared::date_selection::{
         DateFlags,
         DateSelection,
-        resolve_selected_date,
     },
 };
 
@@ -48,7 +47,9 @@ impl SentryArgs {
     pub async fn run(self, environment: &Environment) -> Result<()> {
         let date_selection = DateSelection::from_date_flags(self.date_flags);
 
-        fetch_sentry_issues(environment, date_selection).await
+        let fetch_window = FetchWindow::from_date_selection(date_selection, environment.today)?;
+
+        fetch_sentry_issues(environment, fetch_window).await
     }
 }
 
@@ -65,13 +66,13 @@ pub fn describe_missing_sentry_configuration(swelog_config: &SwelogConfig) -> Op
 
 pub async fn fetch_sentry_issues(
     environment: &Environment,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Result<()> {
     let swelog_config = read_config_file(&environment.config_file_path)?;
 
     FetchSource::Sentry.print_fetching_notice();
 
-    let fetch_outcome = collect_sentry_issues(environment, &swelog_config, date_selection).await?;
+    let fetch_outcome = collect_sentry_issues(environment, &swelog_config, fetch_window).await?;
 
     record_fetch_outcome(&swelog_config, fetch_outcome)
 }
@@ -79,7 +80,7 @@ pub async fn fetch_sentry_issues(
 pub async fn collect_sentry_issues(
     environment: &Environment,
     swelog_config: &SwelogConfig,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Result<FetchOutcome> {
     let sentry_organization = swelog_config
         .get_sentry_organization()
@@ -87,29 +88,23 @@ pub async fn collect_sentry_issues(
 
     let sentry_client = environment.build_sentry_client()?;
 
-    let activity_date = resolve_selected_date(date_selection, environment.today)?;
+    let sentry_activity =
+        get_sentry_activity(&sentry_client, sentry_organization, fetch_window, environment.today)
+            .await?;
 
-    let sentry_activity = get_sentry_activity(
-        &sentry_client,
-        sentry_organization,
-        activity_date.as_ref(),
-        &environment.today,
-    )
-    .await?;
-
-    let sentry_fetch_outcome = get_sentry_fetch_outcome(&sentry_activity, activity_date.as_ref());
+    let sentry_fetch_outcome = get_sentry_fetch_outcome(&sentry_activity, fetch_window);
 
     Ok(sentry_fetch_outcome)
 }
 
 fn get_sentry_fetch_outcome(
     sentry_activity: &SentryActivity,
-    activity_date: Option<&NaiveDate>,
+    fetch_window: FetchWindow,
 ) -> FetchOutcome {
     if sentry_activity.is_empty() {
         return FetchOutcome {
             work_file_change: WorkFileChange::RemoveSection { section_title: SENTRY_SECTION_TITLE },
-            summary: format_empty_message(activity_date),
+            summary: format_empty_message(fetch_window),
         };
     }
 
@@ -118,25 +113,27 @@ fn get_sentry_fetch_outcome(
             section_title: SENTRY_SECTION_TITLE,
             content: format_sentry_activity(sentry_activity),
         },
-        summary: format_recorded_message(sentry_activity.count_issues(), activity_date),
+        summary: format_recorded_message(sentry_activity.count_issues(), fetch_window),
     }
 }
 
-fn format_empty_message(activity_date: Option<&NaiveDate>) -> String {
-    activity_date.map_or_else(
-        || "No Sentry issues found.".to_string(),
-        |activity_date| format!("No Sentry activity found for {}.", format_date(activity_date)),
-    )
+fn format_empty_message(fetch_window: FetchWindow) -> String {
+    match fetch_window {
+        FetchWindow::Date(activity_date) => {
+            format!("No Sentry activity found for {}.", format_date(&activity_date))
+        }
+
+        FetchWindow::Current => "No Sentry issues found.".to_string(),
+    }
 }
 
-fn format_recorded_message(issue_count: usize, activity_date: Option<&NaiveDate>) -> String {
-    activity_date.map_or_else(
-        || format!("Added {issue_count} Sentry issues to your work file."),
-        |activity_date| {
-            format!(
-                "Added {issue_count} Sentry issues from {} to your work file.",
-                format_date(activity_date)
-            )
-        },
-    )
+fn format_recorded_message(issue_count: usize, fetch_window: FetchWindow) -> String {
+    match fetch_window {
+        FetchWindow::Date(activity_date) => format!(
+            "Added {issue_count} Sentry issues from {} to your work file.",
+            format_date(&activity_date)
+        ),
+
+        FetchWindow::Current => format!("Added {issue_count} Sentry issues to your work file."),
+    }
 }

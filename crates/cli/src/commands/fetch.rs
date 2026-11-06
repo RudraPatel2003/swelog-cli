@@ -6,6 +6,7 @@ mod outcome;
 mod sentry;
 mod sources;
 mod status;
+mod window;
 
 use all::AllArgs;
 use clap::{

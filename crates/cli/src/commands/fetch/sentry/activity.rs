@@ -5,6 +5,8 @@ use sentry::{
     issues::structs::SentryIssue,
 };
 
+use crate::commands::fetch::window::FetchWindow;
+
 pub struct SentryActivity {
     pub unresolved: Vec<SentryIssue>,
 
@@ -28,21 +30,21 @@ impl SentryActivity {
     }
 }
 
-/// Without a date, the unresolved issues cover the last 90 days and the resolved
-/// issues cover today.
+/// In the current window, the unresolved issues cover the last 90 days and the
+/// resolved issues cover today.
 pub async fn get_sentry_activity(
     sentry_client: &SentryClient,
     sentry_organization: &str,
-    activity_date: Option<&NaiveDate>,
-    today: &NaiveDate,
+    fetch_window: FetchWindow,
+    today: NaiveDate,
 ) -> Result<SentryActivity> {
-    let resolution_date = activity_date.unwrap_or(today);
+    let resolution_date = fetch_window.date_or_today(today);
 
     let get_unresolved_issues_future =
-        get_unresolved_issues(sentry_client, sentry_organization, activity_date);
+        get_unresolved_issues(sentry_client, sentry_organization, fetch_window);
 
     let get_resolved_issues_future =
-        sentry_client.get_assigned_issues_resolved_on_date(sentry_organization, resolution_date);
+        sentry_client.get_assigned_issues_resolved_on_date(sentry_organization, &resolution_date);
 
     let (unresolved, resolved) =
         tokio::try_join!(get_unresolved_issues_future, get_resolved_issues_future)?;
@@ -53,16 +55,16 @@ pub async fn get_sentry_activity(
 async fn get_unresolved_issues(
     sentry_client: &SentryClient,
     sentry_organization: &str,
-    activity_date: Option<&NaiveDate>,
+    fetch_window: FetchWindow,
 ) -> Result<Vec<SentryIssue>> {
-    match activity_date {
-        Some(activity_date) => {
+    match fetch_window {
+        FetchWindow::Date(activity_date) => {
             sentry_client
-                .get_assigned_issues_on_date(sentry_organization, activity_date)
+                .get_assigned_issues_on_date(sentry_organization, &activity_date)
                 .await
         }
 
-        None => {
+        FetchWindow::Current => {
             sentry_client
                 .get_current_assigned_issues(sentry_organization)
                 .await

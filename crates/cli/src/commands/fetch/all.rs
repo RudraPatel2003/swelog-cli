@@ -33,6 +33,7 @@ use crate::{
             FetchSource,
             collect_included_fetch_sources,
         },
+        window::FetchWindow,
     },
     environment::Environment,
     shared::date_selection::{
@@ -66,8 +67,10 @@ impl AllArgs {
 
         let date_selection = DateSelection::from_date_flags(self.date_flags);
 
+        let fetch_window = FetchWindow::from_date_selection(date_selection, environment.today)?;
+
         let failed_fetch_sources =
-            run_fetch_sources(&included_fetch_sources, environment, &swelog_config, date_selection)
+            run_fetch_sources(&included_fetch_sources, environment, &swelog_config, fetch_window)
                 .await;
 
         if failed_fetch_sources.is_empty() {
@@ -86,12 +89,12 @@ async fn run_fetch_sources(
     fetch_sources: &[FetchSource],
     environment: &Environment,
     swelog_config: &SwelogConfig,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Vec<FetchSource> {
     print_fetching_notices(fetch_sources);
 
     let fetch_results =
-        collect_fetch_outcomes(fetch_sources, environment, swelog_config, date_selection).await;
+        collect_fetch_outcomes(fetch_sources, environment, swelog_config, fetch_window).await;
 
     println!();
 
@@ -108,12 +111,12 @@ async fn collect_fetch_outcomes(
     fetch_sources: &[FetchSource],
     environment: &Environment,
     swelog_config: &SwelogConfig,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Vec<Result<FetchOutcome>> {
     let fetches = fetch_sources
         .iter()
         .map(|fetch_source| {
-            collect_fetch_outcome(*fetch_source, environment, swelog_config, date_selection)
+            collect_fetch_outcome(*fetch_source, environment, swelog_config, fetch_window)
         });
 
     join_all(fetches).await
@@ -123,21 +126,21 @@ async fn collect_fetch_outcome(
     fetch_source: FetchSource,
     environment: &Environment,
     swelog_config: &SwelogConfig,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Result<FetchOutcome> {
     match fetch_source {
-        FetchSource::Github => collect_github_activity(environment, date_selection).await,
+        FetchSource::Github => collect_github_activity(environment, fetch_window).await,
 
         FetchSource::Linear => {
-            collect_linear_issues(environment, swelog_config, date_selection).await
+            collect_linear_issues(environment, swelog_config, fetch_window).await
         }
 
         FetchSource::GoogleCalendar => {
-            collect_google_calendar_meetings(environment, date_selection).await
+            collect_google_calendar_meetings(environment, fetch_window).await
         }
 
         FetchSource::Sentry => {
-            collect_sentry_issues(environment, swelog_config, date_selection).await
+            collect_sentry_issues(environment, swelog_config, fetch_window).await
         }
     }
 }

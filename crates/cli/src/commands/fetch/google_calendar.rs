@@ -16,12 +16,12 @@ use crate::{
             record_fetch_outcome,
         },
         sources::FetchSource,
+        window::FetchWindow,
     },
     environment::Environment,
     shared::date_selection::{
         DateFlags,
         DateSelection,
-        resolve_selected_date,
     },
 };
 
@@ -37,29 +37,30 @@ impl GoogleCalendarArgs {
     pub async fn run(self, environment: &Environment) -> Result<()> {
         let date_selection = DateSelection::from_date_flags(self.date_flags);
 
-        fetch_google_calendar_meetings(environment, date_selection).await
+        let fetch_window = FetchWindow::from_date_selection(date_selection, environment.today)?;
+
+        fetch_google_calendar_meetings(environment, fetch_window).await
     }
 }
 
 pub async fn fetch_google_calendar_meetings(
     environment: &Environment,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Result<()> {
     let swelog_config = read_config_file(&environment.config_file_path)?;
 
     FetchSource::GoogleCalendar.print_fetching_notice();
 
-    let fetch_outcome = collect_google_calendar_meetings(environment, date_selection).await?;
+    let fetch_outcome = collect_google_calendar_meetings(environment, fetch_window).await?;
 
     record_fetch_outcome(&swelog_config, fetch_outcome)
 }
 
 pub async fn collect_google_calendar_meetings(
     environment: &Environment,
-    date_selection: DateSelection,
+    fetch_window: FetchWindow,
 ) -> Result<FetchOutcome> {
-    let meeting_date =
-        resolve_selected_date(date_selection, environment.today)?.unwrap_or(environment.today);
+    let meeting_date = fetch_window.date_or_today(environment.today);
 
     let google_calendar_client = environment.build_google_calendar_client()?;
 
