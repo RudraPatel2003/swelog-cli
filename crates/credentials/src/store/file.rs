@@ -23,7 +23,9 @@ pub fn read_file_credential(
 ) -> Result<Option<String>> {
     let stored_secrets = read_stored_secrets(credential_file)?;
 
-    let storage_key = credential.storage_key();
+    let storage_key = credential
+        .spec()
+        .storage_key;
 
     let secret = stored_secrets
         .get(storage_key)
@@ -41,7 +43,8 @@ pub fn write_file_credential(
 
     stored_secrets.insert(
         credential
-            .storage_key()
+            .spec()
+            .storage_key
             .to_string(),
         secret.to_string(),
     );
@@ -53,7 +56,11 @@ pub fn clear_file_credential(credential_file: &Path, credential: Credential) -> 
     let mut stored_secrets = read_stored_secrets(credential_file)?;
 
     let was_stored = stored_secrets
-        .remove(credential.storage_key())
+        .remove(
+            credential
+                .spec()
+                .storage_key,
+        )
         .is_some();
 
     if was_stored {

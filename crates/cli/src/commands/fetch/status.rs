@@ -58,9 +58,12 @@ fn describe_integration_availability(
     match availability {
         IntegrationAvailability::Included => highlight_stdout_green("included"),
 
-        IntegrationAvailability::MissingAuthorization => {
-            highlight_stdout_dimmed(format!("not included, {} is not stored", credential.label()))
-        }
+        IntegrationAvailability::MissingAuthorization => highlight_stdout_dimmed(format!(
+            "not included, {} is not stored",
+            credential
+                .spec()
+                .label
+        )),
 
         IntegrationAvailability::MissingConfiguration(missing_configuration) => {
             highlight_stdout_dimmed(format!(

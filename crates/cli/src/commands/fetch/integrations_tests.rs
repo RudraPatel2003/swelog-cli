@@ -82,7 +82,8 @@ fn every_integration_uses_a_unique_credential() {
             integration
                 .spec()
                 .credential
-                .label()
+                .spec()
+                .label
         })
         .collect();
 

@@ -15,7 +15,10 @@ use miette::{
 };
 
 use crate::{
-    credential::Credential,
+    credential::{
+        Credential,
+        CredentialKind,
+    },
     errors::{
         MissingAuthorization,
         MissingCredential,
@@ -35,28 +38,29 @@ pub fn get_or_prompt_for_credential(
         return Ok(secret);
     }
 
-    let (Some(environment_variable), Some(instructions)) =
-        (credential.environment_variable(), credential.prompt_instructions())
+    let credential_spec = credential.spec();
+
+    let CredentialKind::Secret { environment_variable, prompt_instructions } = credential_spec.kind
     else {
         let missing_authorization_error = MissingAuthorization {
-            label: credential.label(),
-            command_name: credential.command_name(),
+            label: credential_spec.label,
+            command_name: credential_spec.command_name,
         };
 
         return Err(missing_authorization_error.into());
     };
 
     let missing_credential_error = MissingCredential {
-        label: credential.label(),
+        label: credential_spec.label,
         environment_variable,
-        command_name: credential.command_name(),
+        command_name: credential_spec.command_name,
     };
 
     if !stdin().is_terminal() {
         return Err(missing_credential_error.into());
     }
 
-    let secret = prompt_for_secret(credential.label(), instructions)?;
+    let secret = prompt_for_secret(credential_spec.label, prompt_instructions)?;
 
     if secret.is_empty() {
         return Err(missing_credential_error.into());
@@ -69,7 +73,9 @@ pub fn get_or_prompt_for_credential(
 
 #[must_use]
 pub fn read_credential_from_environment(credential: Credential) -> Option<String> {
-    let environment_variable = credential.environment_variable()?;
+    let environment_variable = credential
+        .spec()
+        .environment_variable()?;
 
     env::var(environment_variable)
         .ok()
