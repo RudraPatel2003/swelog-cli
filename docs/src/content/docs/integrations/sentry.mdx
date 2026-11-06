@@ -1,9 +1,10 @@
 ---
 title: Sentry
-description: Record the unresolved Sentry issues assigned to you, grouped by substatus.
+description: Record the Sentry issues assigned to you, grouped by substatus, and the ones resolved that day.
 ---
 
-Record the unresolved Sentry issues assigned to you into your work file.
+Record the unresolved Sentry issues assigned to you, and the ones resolved
+that day, into your work file.
 
 ## Setup
 
@@ -39,7 +40,7 @@ swelog fetch sentry --date 08-17-2026
 ```
 
 This records the unresolved issues assigned to you that received events on
-that date.
+that date, and the issues assigned to you that were resolved on that date.
 
 `--yesterday` does the same for the day before:
 
@@ -63,10 +64,17 @@ With `--date`, `--yesterday`, or `--last-friday`, swelog records the unresolved
 issues assigned to you that received an event on that date. Dates are read in
 your local time zone.
 
+### Resolved issues
+
+Swelog also searches Sentry for issues that fall under the filter
+`assigned:me is:resolved`, then reads each issue's activity. An issue is
+recorded under `### Resolved` when its activity shows it was resolved on the
+date, or today when no date is given.
+
 ## Output
 
-The generated section groups issues by Sentry's substatus, with the ones that
-need attention first:
+The generated section groups unresolved issues by Sentry's substatus, with the
+ones that need attention first, followed by the resolved issues:
 
 ```markdown
 ## Sentry
@@ -86,6 +94,10 @@ need attention first:
 ### Ongoing
 
 - [BACKEND-98](https://acme.sentry.io/issues/98/) DeprecationWarning: the config key moved
+
+### Resolved
+
+- [BACKEND-115](https://acme.sentry.io/issues/115/) KeyError: 'user_id'
 ```
 
 ## Switching accounts or organizations

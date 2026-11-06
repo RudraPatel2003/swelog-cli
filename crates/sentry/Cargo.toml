@@ -19,6 +19,7 @@ workspace = true
 base_url = { path = "../base_url" }
 chrono = { workspace = true }
 dates = { path = "../dates" }
+futures = { workspace = true }
 miette = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }

@@ -1,3 +1,4 @@
+mod activity;
 mod errors;
 mod formatting;
 
@@ -13,7 +14,6 @@ use dates::{
     parsing::parse_date,
 };
 use miette::Result;
-use sentry::issues::structs::SentryIssue;
 
 use crate::{
     commands::fetch::{
@@ -23,8 +23,12 @@ use crate::{
             record_fetch_outcome,
         },
         sentry::{
+            activity::{
+                SentryActivity,
+                get_sentry_activity,
+            },
             errors::MissingSentryOrganization,
-            formatting::format_sentry_issues,
+            formatting::format_sentry_activity,
         },
         sources::FetchSource,
     },
@@ -45,11 +49,11 @@ pub struct SentryArgs {
     #[arg(long, value_name = DATE_VALUE_NAME, value_parser = parse_date)]
     date: Option<NaiveDate>,
 
-    /// Fetch the Sentry issues that received events yesterday.
+    /// Fetch the Sentry issues that received events or were resolved yesterday.
     #[arg(long = "yesterday")]
     use_yesterday: bool,
 
-    /// Fetch the Sentry issues that received events last Friday.
+    /// Fetch the Sentry issues that received events or were resolved last Friday.
     #[arg(long = "last-friday")]
     use_last_friday: bool,
 }
@@ -103,30 +107,24 @@ pub async fn collect_sentry_issues(
 
     let activity_date = resolve_selected_date(date_selection, environment.today)?;
 
-    let issues = match activity_date {
-        Some(activity_date) => {
-            sentry_client
-                .get_assigned_issues_on_date(sentry_organization, &activity_date)
-                .await?
-        }
+    let sentry_activity = get_sentry_activity(
+        &sentry_client,
+        sentry_organization,
+        activity_date.as_ref(),
+        &environment.today,
+    )
+    .await?;
 
-        None => {
-            sentry_client
-                .get_current_assigned_issues(sentry_organization)
-                .await?
-        }
-    };
-
-    let sentry_fetch_outcome = get_sentry_fetch_outcome(&issues, activity_date.as_ref());
+    let sentry_fetch_outcome = get_sentry_fetch_outcome(&sentry_activity, activity_date.as_ref());
 
     Ok(sentry_fetch_outcome)
 }
 
 fn get_sentry_fetch_outcome(
-    issues: &[SentryIssue],
+    sentry_activity: &SentryActivity,
     activity_date: Option<&NaiveDate>,
 ) -> FetchOutcome {
-    if issues.is_empty() {
+    if sentry_activity.is_empty() {
         return FetchOutcome {
             work_file_change: WorkFileChange::RemoveSection { section_title: SENTRY_SECTION_TITLE },
             summary: format_empty_message(activity_date),
@@ -136,22 +134,22 @@ fn get_sentry_fetch_outcome(
     FetchOutcome {
         work_file_change: WorkFileChange::UpsertSection {
             section_title: SENTRY_SECTION_TITLE,
-            content: format_sentry_issues(issues),
+            content: format_sentry_activity(sentry_activity),
         },
-        summary: format_recorded_message(issues.len(), activity_date),
+        summary: format_recorded_message(sentry_activity.count_issues(), activity_date),
     }
 }
 
 fn format_empty_message(activity_date: Option<&NaiveDate>) -> String {
     activity_date.map_or_else(
-        || "No unresolved Sentry issues found.".to_string(),
+        || "No Sentry issues found.".to_string(),
         |activity_date| format!("No Sentry activity found for {}.", format_date(activity_date)),
     )
 }
 
 fn format_recorded_message(issue_count: usize, activity_date: Option<&NaiveDate>) -> String {
     activity_date.map_or_else(
-        || format!("Added {issue_count} unresolved Sentry issues to your work file."),
+        || format!("Added {issue_count} Sentry issues to your work file."),
         |activity_date| {
             format!(
                 "Added {issue_count} Sentry issues from {} to your work file.",

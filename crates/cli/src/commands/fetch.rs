@@ -41,7 +41,7 @@ enum FetchCommands {
     /// Fetch the meetings on your Google Calendar for a date
     GoogleCalendar(GoogleCalendarArgs),
 
-    /// Fetch the unresolved Sentry issues assigned to you
+    /// Fetch the Sentry issues assigned to you
     Sentry(SentryArgs),
 
     /// Show which fetch commands `swelog fetch all` will run

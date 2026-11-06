@@ -3,6 +3,8 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct SentryIssue {
+    pub id: String,
+
     pub short_id: String,
 
     pub title: String,

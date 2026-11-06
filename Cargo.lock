@@ -2955,6 +2955,7 @@ dependencies = [
  "base_url",
  "chrono",
  "dates",
+ "futures",
  "miette",
  "reqwest 0.13.5",
  "serde",

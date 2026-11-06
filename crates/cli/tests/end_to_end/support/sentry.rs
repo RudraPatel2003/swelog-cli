@@ -3,6 +3,7 @@ use httpmock::{
     Mock,
     MockServer,
 };
+use serde_json::json;
 
 use crate::support::sandbox::parse_date;
 
@@ -83,6 +84,27 @@ const SECOND_PAGE_RESPONSE: &str = r#"[
 
 const NO_ISSUES_RESPONSE: &str = "[]";
 
+/// Two resolved issues assigned to the user. Only `SWELOG-39` is resolved by
+/// hand on the date; Sentry resolves `SWELOG-38` by age.
+const RESOLVED_ISSUES_RESPONSE: &str = r#"[
+  {
+    "id": "39",
+    "shortId": "SWELOG-39",
+    "title": "KeyError: 'vault_path'",
+    "permalink": "https://example.sentry.io/issues/39/",
+    "status": "resolved",
+    "substatus": null
+  },
+  {
+    "id": "38",
+    "shortId": "SWELOG-38",
+    "title": "TimeoutError: the summary request timed out",
+    "permalink": "https://example.sentry.io/issues/38/",
+    "status": "resolved",
+    "substatus": null
+  }
+]"#;
+
 pub const SENTRY_SECTION: &str = "## Sentry
 
 ### Escalating
@@ -97,14 +119,34 @@ pub const SENTRY_SECTION: &str = "## Sentry
 
 - [SWELOG-40](https://example.sentry.io/issues/40/) DeprecationWarning: the llm config key moved";
 
+pub const SENTRY_SECTION_WITH_RESOLVED_ISSUES: &str = "## Sentry
+
+### Escalating
+
+- [SWELOG-42](https://example.sentry.io/issues/42/) TypeError: cannot read properties of undefined
+
+### Regressed
+
+- [SWELOG-41](https://example.sentry.io/issues/41/) ConnectionError: vault is unreachable
+
+### Ongoing
+
+- [SWELOG-40](https://example.sentry.io/issues/40/) DeprecationWarning: the llm config key moved
+
+### Resolved
+
+- [SWELOG-39](https://example.sentry.io/issues/39/) KeyError: 'vault_path'";
+
 pub struct SentryMocks<'server> {
     pub issue_pages: Vec<Mock<'server>>,
+    pub issue_activities: Vec<Mock<'server>>,
 }
 
 impl SentryMocks<'_> {
     pub fn assert_every_endpoint_was_called(&self) {
         self.issue_pages
             .iter()
+            .chain(&self.issue_activities)
             .for_each(Mock::assert);
     }
 }
@@ -113,32 +155,58 @@ pub fn mock_sentry_with_issues_on<'server>(
     server: &'server MockServer,
     activity_date: &str,
 ) -> SentryMocks<'server> {
-    SentryMocks { issue_pages: vec![mock_issues_on(server, activity_date, ISSUES_RESPONSE)] }
+    let unresolved_issues = mock_unresolved_issues_on(server, activity_date, ISSUES_RESPONSE);
+
+    let resolved_issues = mock_resolved_issues(server, NO_ISSUES_RESPONSE);
+
+    SentryMocks { issue_pages: vec![unresolved_issues, resolved_issues], issue_activities: vec![] }
+}
+
+pub fn mock_sentry_with_resolved_issues_on<'server>(
+    server: &'server MockServer,
+    activity_date: &str,
+) -> SentryMocks<'server> {
+    let unresolved_issues = mock_unresolved_issues_on(server, activity_date, ISSUES_RESPONSE);
+
+    let resolved_issues = mock_resolved_issues(server, RESOLVED_ISSUES_RESPONSE);
+
+    SentryMocks {
+        issue_pages: vec![unresolved_issues, resolved_issues],
+        issue_activities: mock_resolution_activities_on(server, activity_date),
+    }
 }
 
 pub fn mock_sentry_with_no_issues_on<'server>(
     server: &'server MockServer,
     activity_date: &str,
 ) -> SentryMocks<'server> {
-    SentryMocks { issue_pages: vec![mock_issues_on(server, activity_date, NO_ISSUES_RESPONSE)] }
+    let unresolved_issues = mock_unresolved_issues_on(server, activity_date, NO_ISSUES_RESPONSE);
+
+    let resolved_issues = mock_resolved_issues(server, NO_ISSUES_RESPONSE);
+
+    SentryMocks { issue_pages: vec![unresolved_issues, resolved_issues], issue_activities: vec![] }
 }
 
 pub fn mock_sentry_with_current_issues(server: &MockServer) -> SentryMocks<'_> {
-    let issues = server.mock(|when, then| {
-        when.method(GET)
-            .path(ISSUES_PATH)
-            .query_param("query", "assigned:me is:unresolved")
-            .query_param_missing("start")
-            .query_param_missing("end")
-            .query_param_missing("cursor")
-            .header("authorization", format!("Bearer {SENTRY_AUTH_TOKEN}"));
+    let unresolved_issues = mock_current_unresolved_issues(server);
 
-        then.status(200)
-            .header("content-type", "application/json")
-            .body(ISSUES_RESPONSE);
-    });
+    let resolved_issues = mock_resolved_issues(server, NO_ISSUES_RESPONSE);
 
-    SentryMocks { issue_pages: vec![issues] }
+    SentryMocks { issue_pages: vec![unresolved_issues, resolved_issues], issue_activities: vec![] }
+}
+
+pub fn mock_sentry_with_current_issues_and_resolutions_on<'server>(
+    server: &'server MockServer,
+    resolution_date: &str,
+) -> SentryMocks<'server> {
+    let unresolved_issues = mock_current_unresolved_issues(server);
+
+    let resolved_issues = mock_resolved_issues(server, RESOLVED_ISSUES_RESPONSE);
+
+    SentryMocks {
+        issue_pages: vec![unresolved_issues, resolved_issues],
+        issue_activities: mock_resolution_activities_on(server, resolution_date),
+    }
 }
 
 pub fn mock_sentry_with_two_pages_on<'server>(
@@ -165,6 +233,8 @@ pub fn mock_sentry_with_two_pages_on<'server>(
             .body(FIRST_PAGE_RESPONSE);
     });
 
+    let resolved_issues = mock_resolved_issues(server, NO_ISSUES_RESPONSE);
+
     let second_page = server.mock(|when, then| {
         when.method(GET)
             .path(ISSUES_PATH)
@@ -178,7 +248,10 @@ pub fn mock_sentry_with_two_pages_on<'server>(
             .body(SECOND_PAGE_RESPONSE);
     });
 
-    SentryMocks { issue_pages: vec![first_page, second_page] }
+    SentryMocks {
+        issue_pages: vec![first_page, second_page, resolved_issues],
+        issue_activities: vec![],
+    }
 }
 
 pub fn mock_sentry_rejecting_the_token(server: &MockServer) -> Mock<'_> {
@@ -192,7 +265,7 @@ pub fn mock_sentry_rejecting_the_token(server: &MockServer) -> Mock<'_> {
     })
 }
 
-fn mock_issues_on<'server>(
+fn mock_unresolved_issues_on<'server>(
     server: &'server MockServer,
     activity_date: &str,
     response: &str,
@@ -212,6 +285,119 @@ fn mock_issues_on<'server>(
         then.status(200)
             .header("content-type", "application/json")
             .header("link", last_page_link(server))
+            .body(response);
+    })
+}
+
+fn mock_current_unresolved_issues(server: &MockServer) -> Mock<'_> {
+    server.mock(|when, then| {
+        when.method(GET)
+            .path(ISSUES_PATH)
+            .query_param("query", "assigned:me is:unresolved")
+            .query_param_missing("start")
+            .query_param_missing("end")
+            .query_param_missing("cursor")
+            .header("authorization", format!("Bearer {SENTRY_AUTH_TOKEN}"));
+
+        then.status(200)
+            .header("content-type", "application/json")
+            .body(ISSUES_RESPONSE);
+    })
+}
+
+/// Sentry's date window only matches issues that received events in it, so the
+/// resolved issues are searched without one.
+fn mock_resolved_issues<'server>(server: &'server MockServer, response: &str) -> Mock<'server> {
+    server.mock(|when, then| {
+        when.method(GET)
+            .path(ISSUES_PATH)
+            .query_param("query", "assigned:me is:resolved")
+            .query_param("project", "-1")
+            .query_param("limit", "100")
+            .query_param("collapse", "stats")
+            .query_param_missing("start")
+            .query_param_missing("end")
+            .query_param_missing("cursor")
+            .header("authorization", format!("Bearer {SENTRY_AUTH_TOKEN}"));
+
+        then.status(200)
+            .header("content-type", "application/json")
+            .header("link", last_page_link(server))
+            .body(response);
+    })
+}
+
+fn mock_resolution_activities_on<'server>(
+    server: &'server MockServer,
+    resolution_date: &str,
+) -> Vec<Mock<'server>> {
+    let resolved_on = parse_date(resolution_date).format("%Y-%m-%d");
+
+    let resolved_by_hand_activity = json!({
+        "id": "39",
+        "shortId": "SWELOG-39",
+        "status": "resolved",
+        "activity": [
+            {
+                "id": "3",
+                "type": "set_resolved",
+                "user": { "id": "1", "name": "Swelog User" },
+                "data": {},
+                "dateCreated": format!("{resolved_on}T15:30:00.123456Z")
+            },
+            {
+                "id": "2",
+                "type": "assigned",
+                "user": { "id": "1", "name": "Swelog User" },
+                "data": { "assignee": "1", "assigneeType": "user" },
+                "dateCreated": "2026-06-30T10:00:00Z"
+            }
+        ]
+    });
+
+    let resolved_by_age_activity = json!({
+        "id": "38",
+        "shortId": "SWELOG-38",
+        "status": "resolved",
+        "activity": [
+            {
+                "id": "5",
+                "type": "set_resolved_by_age",
+                "user": null,
+                "data": { "age": 168 },
+                "dateCreated": format!("{resolved_on}T08:00:00Z")
+            },
+            {
+                "id": "4",
+                "type": "set_resolved",
+                "user": { "id": "1", "name": "Swelog User" },
+                "data": {},
+                "dateCreated": "2026-06-30T10:00:00Z"
+            }
+        ]
+    });
+
+    vec![
+        mock_issue_activity(server, "39", &resolved_by_hand_activity.to_string()),
+        mock_issue_activity(server, "38", &resolved_by_age_activity.to_string()),
+    ]
+}
+
+fn mock_issue_activity<'server>(
+    server: &'server MockServer,
+    issue_id: &str,
+    response: &str,
+) -> Mock<'server> {
+    server.mock(|when, then| {
+        when.method(GET)
+            .path(format!("{ISSUES_PATH}{issue_id}/"))
+            .query_param("collapse", "release")
+            .query_param("collapse", "stats")
+            .query_param("collapse", "tags")
+            .header("authorization", format!("Bearer {SENTRY_AUTH_TOKEN}"));
+
+        then.status(200)
+            .header("content-type", "application/json")
             .body(response);
     })
 }
