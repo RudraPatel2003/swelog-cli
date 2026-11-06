@@ -4,6 +4,11 @@ use std::path::{
 };
 
 use super::*;
+use crate::integrations_config::{
+    IntegrationsConfig,
+    LinearConfig,
+    SentryConfig,
+};
 
 #[test]
 fn format_config_groups_fields_under_section_headings() {
@@ -48,4 +53,21 @@ fn format_config_reports_summarization_as_not_configured_when_absent() {
     assert!(output.contains("Provider             Not configured\n"));
 
     assert!(output.contains("Model                Not configured\n"));
+}
+
+#[test]
+fn format_config_shows_configured_integrations() {
+    let config = SwelogConfig {
+        integrations: IntegrationsConfig {
+            linear: Some(LinearConfig { username: String::from("rudrapatel") }),
+            sentry: Some(SentryConfig { organization: String::from("acme") }),
+        },
+        ..SwelogConfig::get_default_config()
+    };
+
+    let output = format_config(&config);
+
+    assert!(output.contains("Linear username      rudrapatel\n"));
+
+    assert!(output.contains("Sentry organization  acme\n"));
 }

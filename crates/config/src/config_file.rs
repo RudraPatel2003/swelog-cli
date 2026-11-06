@@ -18,6 +18,7 @@ use crate::{
     errors::{
         ConfigNotFound,
         EmptyObsidianVaultPath,
+        InvalidSwelogConfig,
     },
     swelog_config::SwelogConfig,
 };
@@ -51,9 +52,11 @@ pub fn read_config_file(config_file_path: &Path) -> Result<SwelogConfig> {
             format!("failed to read config file at {}", stderr_path_link(config_file_path))
         })?;
 
-    let config: SwelogConfig = serde_json::from_str(&config_file_contents)
-        .into_diagnostic()
-        .wrap_err("failed to parse config")?;
+    let config: SwelogConfig =
+        serde_json::from_str(&config_file_contents).map_err(|parse_error| InvalidSwelogConfig {
+            config_file_path: config_file_path.to_path_buf(),
+            parse_error,
+        })?;
 
     if config
         .obsidian_vault_path

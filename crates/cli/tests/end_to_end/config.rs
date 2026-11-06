@@ -2,6 +2,7 @@ use std::fs;
 
 use config::swelog_config::SwelogConfig;
 use predicates::str::contains;
+use serde_json::Value;
 
 use crate::support::sandbox::{
     DEFAULT_WORK_FILE_CONTENT,
@@ -139,6 +140,32 @@ fn commands_fail_when_the_config_file_is_missing() {
         .failure()
         .stderr(contains("config not found at"))
         .stderr(contains("run `swelog init` to create a config file"));
+}
+
+#[test]
+fn commands_fail_when_the_config_file_has_an_unknown_field() {
+    let sandbox = SwelogSandbox::new();
+
+    let mut config_json =
+        serde_json::to_value(sandbox.default_config()).expect("config should serialize");
+
+    config_json
+        .as_object_mut()
+        .expect("config should be a JSON object")
+        .insert(String::from("fake-swelog-config-key"), Value::Bool(true));
+
+    fs::write(sandbox.config_file_path(), config_json.to_string())
+        .expect("config file should be written");
+
+    sandbox
+        .swelog()
+        .arg("config")
+        .assert()
+        .failure()
+        .stderr(contains("invalid swelog config at"))
+        .stderr(contains("unknown field `fake-swelog-config-key`"))
+        .stderr(contains("expected one of `obsidianVaultPath`"))
+        .stderr(contains("https://swelog.rudrapatel.net/getting-started/configuration/"));
 }
 
 #[test]

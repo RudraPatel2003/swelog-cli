@@ -3,6 +3,7 @@ pub mod config_file;
 pub mod context_file;
 pub mod errors;
 pub mod init;
+pub mod integrations_config;
 pub mod overwrite;
 pub mod print;
 pub mod setup;

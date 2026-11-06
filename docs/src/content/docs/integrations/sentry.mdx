@@ -14,7 +14,11 @@ See [Configuration](/getting-started/configuration/) for more information.
 
 ```json
 {
-  "sentryOrganization": "acme"
+  "integrations": {
+    "sentry": {
+      "organization": "acme"
+    }
+  }
 }
 ```
 
@@ -102,7 +106,7 @@ ones that need attention first, followed by the resolved issues:
 
 ## Switching accounts or organizations
 
-Update `sentryOrganization` when needed, clear the stored token, and fetch
+Update `integrations.sentry.organization` when needed, clear the stored token, and fetch
 again:
 
 ```sh

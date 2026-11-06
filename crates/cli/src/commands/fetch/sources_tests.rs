@@ -1,8 +1,17 @@
+use config::integrations_config::{
+    IntegrationsConfig,
+    LinearConfig,
+    SentryConfig,
+};
+
 use super::*;
 
 fn get_config_with_linear_username(linear_username: Option<&str>) -> SwelogConfig {
+    let linear_config =
+        linear_username.map(|username| LinearConfig { username: username.to_string() });
+
     SwelogConfig {
-        linear_username: linear_username.map(str::to_string),
+        integrations: IntegrationsConfig { linear: linear_config, ..IntegrationsConfig::default() },
         ..SwelogConfig::get_default_config()
     }
 }
@@ -46,7 +55,7 @@ fn get_fetch_source_availability_excludes_linear_without_a_username() {
     assert_eq!(
         availability,
         FetchSourceAvailability::MissingConfiguration {
-            reason: "linearUsername is not configured"
+            reason: "integrations.linear.username is not configured"
         }
     );
 }
@@ -64,7 +73,7 @@ fn get_fetch_source_availability_excludes_linear_when_the_username_is_blank() {
     assert_eq!(
         availability,
         FetchSourceAvailability::MissingConfiguration {
-            reason: "linearUsername is not configured"
+            reason: "integrations.linear.username is not configured"
         }
     );
 }
@@ -105,8 +114,11 @@ fn get_fetch_source_availability_ignores_the_linear_username_for_google_calendar
 }
 
 fn get_config_with_sentry_organization(sentry_organization: Option<&str>) -> SwelogConfig {
+    let sentry_config = sentry_organization
+        .map(|organization| SentryConfig { organization: organization.to_string() });
+
     SwelogConfig {
-        sentry_organization: sentry_organization.map(str::to_string),
+        integrations: IntegrationsConfig { sentry: sentry_config, ..IntegrationsConfig::default() },
         ..SwelogConfig::get_default_config()
     }
 }
@@ -137,7 +149,7 @@ fn get_fetch_source_availability_excludes_sentry_without_an_organization() {
     assert_eq!(
         availability,
         FetchSourceAvailability::MissingConfiguration {
-            reason: "sentryOrganization is not configured"
+            reason: "integrations.sentry.organization is not configured"
         }
     );
 }
@@ -155,7 +167,7 @@ fn get_fetch_source_availability_excludes_sentry_when_the_organization_is_blank(
     assert_eq!(
         availability,
         FetchSourceAvailability::MissingConfiguration {
-            reason: "sentryOrganization is not configured"
+            reason: "integrations.sentry.organization is not configured"
         }
     );
 }

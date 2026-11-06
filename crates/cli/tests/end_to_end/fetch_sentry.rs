@@ -1,4 +1,7 @@
-use config::swelog_config::SwelogConfig;
+use config::{
+    integrations_config::IntegrationsConfig,
+    swelog_config::SwelogConfig,
+};
 use credentials::credential::Credential;
 use httpmock::MockServer;
 use predicates::str::contains;
@@ -13,9 +16,9 @@ use crate::support::{
     },
     sentry::{
         SENTRY_AUTH_TOKEN,
-        SENTRY_ORGANIZATION,
         SENTRY_SECTION,
         SENTRY_SECTION_WITH_RESOLVED_ISSUES,
+        get_sentry_config,
         mock_sentry_rejecting_the_token,
         mock_sentry_with_current_issues,
         mock_sentry_with_current_issues_and_resolutions_on,
@@ -86,7 +89,10 @@ fn get_sandbox_configured_for_sentry() -> SwelogSandbox {
     let sandbox = SwelogSandbox::new();
 
     sandbox.write_config(&SwelogConfig {
-        sentry_organization: Some(String::from(SENTRY_ORGANIZATION)),
+        integrations: IntegrationsConfig {
+            sentry: Some(get_sentry_config()),
+            ..IntegrationsConfig::default()
+        },
         ..sandbox.default_config()
     });
 
@@ -376,7 +382,7 @@ fn fetch_sentry_fails_when_the_organization_is_not_configured() {
         .assert()
         .failure()
         .stderr(contains("Sentry organization is not configured"))
-        .stderr(contains("sentryOrganization"));
+        .stderr(contains("integrations.sentry.organization"));
 
     assert!(
         sentry_mocks

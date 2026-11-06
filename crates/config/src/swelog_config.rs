@@ -4,6 +4,9 @@ use serde::{
     Deserialize,
     Serialize,
 };
+use serde_with::skip_serializing_none;
+
+use crate::integrations_config::IntegrationsConfig;
 
 const DEFAULT_OBSIDIAN_VAULT_PATH: &str = "";
 
@@ -36,8 +39,9 @@ impl LanguageModelProvider {
     }
 }
 
+#[skip_serializing_none]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SwelogConfig {
     pub obsidian_vault_path: PathBuf,
     pub swelog_folder_name: String,
@@ -45,17 +49,14 @@ pub struct SwelogConfig {
     pub daily_log_folder_name: String,
     pub weekly_log_folder_name: String,
 
-    #[serde(default, rename = "llm", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "llm")]
     pub language_model_provider: Option<LanguageModelProvider>,
 
-    #[serde(default, rename = "llmModel", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "llmModel")]
     pub language_model: Option<String>,
 
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub linear_username: Option<String>,
-
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub sentry_organization: Option<String>,
+    #[serde(default, skip_serializing_if = "IntegrationsConfig::is_empty")]
+    pub integrations: IntegrationsConfig,
 }
 
 impl SwelogConfig {
@@ -69,24 +70,7 @@ impl SwelogConfig {
             weekly_log_folder_name: String::from(DEFAULT_WEEKLY_LOG_FOLDER_NAME),
             language_model_provider: None,
             language_model: None,
-            linear_username: None,
-            sentry_organization: None,
+            integrations: IntegrationsConfig::default(),
         }
-    }
-
-    #[must_use]
-    pub fn get_linear_username(&self) -> Option<&str> {
-        self.linear_username
-            .as_deref()
-            .map(str::trim)
-            .filter(|linear_username| !linear_username.is_empty())
-    }
-
-    #[must_use]
-    pub fn get_sentry_organization(&self) -> Option<&str> {
-        self.sentry_organization
-            .as_deref()
-            .map(str::trim)
-            .filter(|sentry_organization| !sentry_organization.is_empty())
     }
 }

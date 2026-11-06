@@ -5,6 +5,8 @@ use thiserror::Error;
 #[error("Sentry organization is not configured")]
 #[diagnostic(
     code(swelog::sentry::missing_organization),
-    help("set sentryOrganization in your swelog config before running `swelog fetch sentry`")
+    help(
+        "set integrations.sentry.organization in your swelog config before running `swelog fetch sentry`"
+    )
 )]
 pub struct MissingSentryOrganization;

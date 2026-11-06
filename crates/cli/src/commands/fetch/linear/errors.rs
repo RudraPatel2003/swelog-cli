@@ -5,6 +5,8 @@ use thiserror::Error;
 #[error("Linear username is not configured")]
 #[diagnostic(
     code(swelog::linear::missing_username),
-    help("set linearUsername in your swelog config before running `swelog fetch linear`")
+    help(
+        "set integrations.linear.username in your swelog config before running `swelog fetch linear`"
+    )
 )]
 pub struct MissingLinearUsername;

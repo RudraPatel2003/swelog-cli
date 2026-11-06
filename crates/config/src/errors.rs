@@ -35,6 +35,21 @@ pub struct ConfigNotFound {
 }
 
 #[derive(Debug, Diagnostic, Error)]
+#[error("invalid swelog config at {}", stderr_path_link(.config_file_path))]
+#[diagnostic(
+    code(swelog::config::invalid_swelog_config),
+    help(
+        "fix the field named above in your config file and run the command again. See https://swelog.rudrapatel.net/getting-started/configuration/ for every supported field"
+    )
+)]
+pub struct InvalidSwelogConfig {
+    pub config_file_path: PathBuf,
+
+    #[source]
+    pub parse_error: serde_json::Error,
+}
+
+#[derive(Debug, Diagnostic, Error)]
 #[error("swelog setup files already exist at {}", stderr_path_link(.swelog_path))]
 #[diagnostic(
     code(swelog::config::swelog_files_already_exist),

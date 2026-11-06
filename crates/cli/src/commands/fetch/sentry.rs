@@ -55,13 +55,14 @@ impl SentryArgs {
 
 pub fn describe_missing_sentry_configuration(swelog_config: &SwelogConfig) -> Option<&'static str> {
     if swelog_config
+        .integrations
         .get_sentry_organization()
         .is_some()
     {
         return None;
     }
 
-    Some("sentryOrganization is not configured")
+    Some("integrations.sentry.organization is not configured")
 }
 
 pub async fn fetch_sentry_issues(
@@ -83,6 +84,7 @@ pub async fn collect_sentry_issues(
     fetch_window: FetchWindow,
 ) -> Result<FetchOutcome> {
     let sentry_organization = swelog_config
+        .integrations
         .get_sentry_organization()
         .ok_or(MissingSentryOrganization)?;
 

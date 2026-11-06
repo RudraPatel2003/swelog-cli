@@ -1,3 +1,4 @@
+use config::integrations_config::SentryConfig;
 use httpmock::{
     Method::GET,
     Mock,
@@ -10,6 +11,10 @@ use crate::support::sandbox::parse_date;
 pub const SENTRY_AUTH_TOKEN: &str = "sntrys_end_to_end";
 
 pub const SENTRY_ORGANIZATION: &str = "example";
+
+pub fn get_sentry_config() -> SentryConfig {
+    SentryConfig { organization: String::from(SENTRY_ORGANIZATION) }
+}
 
 const ISSUES_PATH: &str = "/organizations/example/issues/";
 

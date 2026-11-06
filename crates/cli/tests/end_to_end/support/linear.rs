@@ -1,3 +1,4 @@
+use config::integrations_config::LinearConfig;
 use credentials::credential::Credential;
 use httpmock::{
     Method::POST,
@@ -9,6 +10,10 @@ use serde_json::json;
 use crate::support::sandbox::SwelogSandbox;
 
 pub const LINEAR_USERNAME: &str = "rudra";
+
+pub fn get_linear_config() -> LinearConfig {
+    LinearConfig { username: String::from(LINEAR_USERNAME) }
+}
 
 pub const LINEAR_ACCESS_TOKEN: &str = "lin_oauth_end_to_end";
 

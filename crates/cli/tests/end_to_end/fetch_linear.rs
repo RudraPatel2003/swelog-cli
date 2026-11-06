@@ -1,4 +1,7 @@
-use config::swelog_config::SwelogConfig;
+use config::{
+    integrations_config::IntegrationsConfig,
+    swelog_config::SwelogConfig,
+};
 use httpmock::MockServer;
 use predicates::str::contains;
 
@@ -6,7 +9,7 @@ use crate::support::{
     linear::{
         LINEAR_SECTION_FOR_ACTIVE_ISSUES,
         LINEAR_SECTION_FOR_THE_DAY,
-        LINEAR_USERNAME,
+        get_linear_config,
         linear_mcp_url,
         mock_linear_mcp,
         store_linear_authorization,
@@ -44,7 +47,10 @@ fn get_sandbox_configured_for_linear() -> SwelogSandbox {
     let sandbox = SwelogSandbox::new();
 
     sandbox.write_config(&SwelogConfig {
-        linear_username: Some(String::from(LINEAR_USERNAME)),
+        integrations: IntegrationsConfig {
+            linear: Some(get_linear_config()),
+            ..IntegrationsConfig::default()
+        },
         ..sandbox.default_config()
     });
 

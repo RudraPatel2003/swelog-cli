@@ -115,7 +115,7 @@ fn write_default_config_omits_optional_fields() {
 
     assert!(!file_contents.contains("llmModel"));
 
-    assert!(!file_contents.contains("linearUsername"));
+    assert!(!file_contents.contains("integrations"));
 
     drop(temporary_directory);
 }

@@ -51,13 +51,14 @@ impl LinearArgs {
 
 pub fn describe_missing_linear_configuration(swelog_config: &SwelogConfig) -> Option<&'static str> {
     if swelog_config
+        .integrations
         .get_linear_username()
         .is_some()
     {
         return None;
     }
 
-    Some("linearUsername is not configured")
+    Some("integrations.linear.username is not configured")
 }
 
 pub async fn fetch_linear_issues(
@@ -79,6 +80,7 @@ pub async fn collect_linear_issues(
     fetch_window: FetchWindow,
 ) -> Result<FetchOutcome> {
     let linear_username = swelog_config
+        .integrations
         .get_linear_username()
         .ok_or(MissingLinearUsername)?;
 
