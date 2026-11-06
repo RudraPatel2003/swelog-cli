@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use base_url::base_url::BaseUrl;
+use http_api::user_agent::SWELOG_USER_AGENT;
 use miette::{
     IntoDiagnostic,
     Result,
@@ -17,8 +18,6 @@ use crate::errors::FailedToFetchLatestVersion;
 pub const DEFAULT_NPM_REGISTRY_BASE_URL: &str = "https://registry.npmjs.org/";
 
 const LATEST_VERSION_ENDPOINT_PATH: &str = "swelog-cli/latest";
-
-const SWELOG_USER_AGENT: &str = "RudraPatel2003/swelog-cli";
 
 const VERSION_CHECK_REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 

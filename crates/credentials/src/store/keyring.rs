@@ -34,10 +34,21 @@ pub fn clear_keyring_credential(credential: Credential) -> Result<bool> {
 }
 
 fn keyring_entry(credential: Credential) -> Result<Entry> {
-    Entry::new(KEYRING_SERVICE, credential.storage_key())
-        .map_err(|error| keyring_unavailable(credential, &error))
+    Entry::new(
+        KEYRING_SERVICE,
+        credential
+            .spec()
+            .storage_key,
+    )
+    .map_err(|error| keyring_unavailable(credential, &error))
 }
 
 fn keyring_unavailable(credential: Credential, error: &KeyringError) -> miette::Report {
-    KeyringUnavailable { label: credential.label(), message: error.to_string() }.into()
+    KeyringUnavailable {
+        label: credential
+            .spec()
+            .label,
+        message: error.to_string(),
+    }
+    .into()
 }

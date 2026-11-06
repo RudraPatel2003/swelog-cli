@@ -46,6 +46,27 @@ fn get_activity_window_crosses_a_year_boundary() {
 }
 
 #[test]
+fn activity_window_contains_its_start_but_not_its_end() {
+    let activity_date = get_mock_date(2026, 8, 17);
+
+    let activity_window = get_activity_window(activity_date, &Utc).expect("window should be built");
+
+    let start_of_date = Utc
+        .with_ymd_and_hms(2026, 8, 17, 0, 0, 0)
+        .single()
+        .expect("test instant should be valid");
+
+    let start_of_following_date = Utc
+        .with_ymd_and_hms(2026, 8, 18, 0, 0, 0)
+        .single()
+        .expect("test instant should be valid");
+
+    assert!(activity_window.contains(start_of_date));
+
+    assert!(!activity_window.contains(start_of_following_date));
+}
+
+#[test]
 fn get_activity_window_fails_past_the_last_representable_date() {
     get_activity_window(NaiveDate::MAX, &Utc).expect_err("the following day should not exist");
 }

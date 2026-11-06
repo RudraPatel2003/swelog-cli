@@ -19,7 +19,7 @@ fn get_issues_endpoint_path_is_scoped_to_the_organization() {
 
 #[test]
 fn get_issues_query_parameters_asks_for_the_unresolved_issues_assigned_to_the_user() {
-    let query_parameters = get_issues_query_parameters(None, None);
+    let query_parameters = get_issues_query_parameters(IssueStatus::Unresolved, None, None);
 
     assert_eq!(
         query_parameters,
@@ -33,10 +33,18 @@ fn get_issues_query_parameters_asks_for_the_unresolved_issues_assigned_to_the_us
 }
 
 #[test]
+fn get_issues_query_parameters_asks_for_the_resolved_issues_assigned_to_the_user() {
+    let query_parameters = get_issues_query_parameters(IssueStatus::Resolved, None, None);
+
+    assert!(query_parameters.contains(&("query", "assigned:me is:resolved".to_string())));
+}
+
+#[test]
 fn get_issues_query_parameters_bounds_the_search_to_the_activity_window() {
     let activity_window = get_mock_activity_window();
 
-    let query_parameters = get_issues_query_parameters(Some(&activity_window), None);
+    let query_parameters =
+        get_issues_query_parameters(IssueStatus::Unresolved, Some(&activity_window), None);
 
     assert!(query_parameters.contains(&("start", "2026-07-04T00:00:00".to_string())));
 
@@ -45,7 +53,8 @@ fn get_issues_query_parameters_bounds_the_search_to_the_activity_window() {
 
 #[test]
 fn get_issues_query_parameters_continues_from_the_cursor() {
-    let query_parameters = get_issues_query_parameters(None, Some("1420837533:0:0"));
+    let query_parameters =
+        get_issues_query_parameters(IssueStatus::Unresolved, None, Some("1420837533:0:0"));
 
     assert!(query_parameters.contains(&("cursor", "1420837533:0:0".to_string())));
 }
@@ -99,6 +108,7 @@ fn parse_issues_response_text_extracts_issues() {
         parse_issues_response_text(response_body).expect("Sentry issues response should parse");
 
     let expected_first_issue = SentryIssue {
+        id: "1".to_string(),
         short_id: "PUMP-STATION-1".to_string(),
         title: "This is an example Python exception".to_string(),
         permalink: "https://sentry.io/the-interstellar-jurisdiction/pump-station/issues/1/"
@@ -107,6 +117,7 @@ fn parse_issues_response_text_extracts_issues() {
     };
 
     let expected_second_issue = SentryIssue {
+        id: "2".to_string(),
         short_id: "PUMP-STATION-2".to_string(),
         title: "ConnectionError: database unreachable".to_string(),
         permalink: "https://sentry.io/the-interstellar-jurisdiction/pump-station/issues/2/"
@@ -129,6 +140,7 @@ fn parse_issues_response_text_maps_an_unknown_substatus_to_other() {
     let response_body = r#"
             [
               {
+                "id": "3",
                 "shortId": "PUMP-STATION-3",
                 "title": "Something new",
                 "permalink": "https://sentry.io/issues/3/",
@@ -153,6 +165,7 @@ fn parse_issues_response_text_accepts_a_missing_substatus() {
     let response_body = r#"
             [
               {
+                "id": "3",
                 "shortId": "PUMP-STATION-3",
                 "title": "Something new",
                 "permalink": "https://sentry.io/issues/3/",

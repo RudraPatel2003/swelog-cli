@@ -35,6 +35,11 @@ impl ActivityWindow {
             .format(SENTRY_FILTER_DATETIME_FORMAT)
             .to_string()
     }
+
+    #[must_use]
+    pub fn contains(&self, instant: DateTime<Utc>) -> bool {
+        (self.start..self.end).contains(&instant)
+    }
 }
 
 pub fn get_activity_window(date: NaiveDate, timezone: &impl TimeZone) -> Result<ActivityWindow> {

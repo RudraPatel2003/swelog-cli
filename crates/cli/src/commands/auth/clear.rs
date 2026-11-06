@@ -19,7 +19,7 @@ impl ClearArgs {
     pub fn run(self, environment: &Environment) -> Result<()> {
         let credentials = self
             .credential
-            .map_or_else(|| Credential::ALL_CREDENTIALS.to_vec(), |credential| vec![credential]);
+            .map_or_else(|| Credential::all().to_vec(), |credential| vec![credential]);
 
         for credential in credentials {
             let was_credential_cleared = environment
@@ -27,9 +27,19 @@ impl ClearArgs {
                 .clear(credential)?;
 
             if was_credential_cleared {
-                println!("Removed the stored {}.", credential.label());
+                println!(
+                    "Removed the stored {}.",
+                    credential
+                        .spec()
+                        .label
+                );
             } else {
-                println!("No {} was stored.", credential.label());
+                println!(
+                    "No {} was stored.",
+                    credential
+                        .spec()
+                        .label
+                );
             }
         }
 

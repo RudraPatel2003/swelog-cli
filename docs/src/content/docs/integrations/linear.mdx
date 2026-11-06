@@ -11,7 +11,11 @@ Set the exact Linear assignee name in `swelog.json`. See [Configuration](/gettin
 
 ```json
 {
-  "linearUsername": "rudrapatel"
+  "integrations": {
+    "linear": {
+      "username": "rudrapatel"
+    }
+  }
 }
 ```
 
@@ -79,7 +83,7 @@ The `--date` flag will not fetch archived issues.
 
 ## Switching accounts or organizations
 
-Update `linearUsername` when needed, clear the stored authorization, and fetch
+Update `integrations.linear.username` when needed, clear the stored authorization, and fetch
 again:
 
 ```sh

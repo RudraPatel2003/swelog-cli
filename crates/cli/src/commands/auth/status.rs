@@ -31,10 +31,12 @@ impl StatusArgs {
 
         println!();
 
-        for credential in Credential::ALL_CREDENTIALS {
+        for &credential in Credential::all() {
             println!(
                 "{:LABEL_WIDTH$}{}",
-                credential.label(),
+                credential
+                    .spec()
+                    .label,
                 describe_credential_status(&environment.credential_store, credential)?
             );
         }
@@ -51,7 +53,9 @@ fn describe_credential_status(
     credential_store: &CredentialStore,
     credential: Credential,
 ) -> Result<String> {
-    if let Some(environment_variable) = credential.environment_variable()
+    if let Some(environment_variable) = credential
+        .spec()
+        .environment_variable()
         && read_credential_from_environment(credential).is_some()
     {
         return Ok(highlight_stdout_yellow(format!("set by ${environment_variable}")));

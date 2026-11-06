@@ -3,4 +3,3 @@ mod day_window;
 mod errors;
 mod meetings;
 pub mod oauth;
-mod response;

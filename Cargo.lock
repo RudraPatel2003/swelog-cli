@@ -379,7 +379,7 @@ checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 
 [[package]]
 name = "base_url"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "miette",
  "thiserror 2.0.21",
@@ -557,9 +557,10 @@ checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
 name = "cli"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "assert_cmd",
+ "async-trait",
  "base_url",
  "chrono",
  "clap",
@@ -632,13 +633,14 @@ dependencies = [
 
 [[package]]
 name = "config"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "dirs",
  "highlight",
  "miette",
  "serde",
  "serde_json",
+ "serde_with",
  "tempfile",
  "thiserror 2.0.21",
 ]
@@ -680,7 +682,7 @@ dependencies = [
 
 [[package]]
 name = "credentials"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "clap",
  "highlight",
@@ -710,7 +712,7 @@ dependencies = [
 
 [[package]]
 name = "daily_log"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "chrono",
  "config",
@@ -723,8 +725,42 @@ dependencies = [
 ]
 
 [[package]]
+name = "darling"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed17f5901b6630b993ca003def43f2f8ef4014fc13b047b57aad617ff32bc2ec"
+dependencies = [
+ "darling_core",
+ "darling_macro",
+]
+
+[[package]]
+name = "darling_core"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6837e2cf7485aaae18f86181d2f0e9a7ed297a025e220aeabf63fdebd3a2ddff"
+dependencies = [
+ "ident_case",
+ "proc-macro2",
+ "quote",
+ "strsim",
+ "syn 3.0.3",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ac7135c3ef02b2f7833bbeb1be5ba7f966dcde8a87c6b87f65a778d71a02785"
+dependencies = [
+ "darling_core",
+ "quote",
+ "syn 3.0.3",
+]
+
+[[package]]
 name = "dates"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "chrono",
  "miette",
@@ -1154,26 +1190,26 @@ checksum = "e629b9b98ef3dd8afe6ca2bd0f89306cec16d43d907889945bc5d6687f2f13c7"
 
 [[package]]
 name = "github"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "base_url",
  "chrono",
  "futures",
+ "http_api",
  "miette",
- "reqwest 0.13.5",
  "serde",
  "serde_json",
- "thiserror 2.0.21",
 ]
 
 [[package]]
 name = "google_calendar"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "base_url",
  "chrono",
  "credentials",
  "dates",
+ "http_api",
  "miette",
  "oauth",
  "oauth2",
@@ -1266,7 +1302,7 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "highlight"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "owo-colors",
  "supports-hyperlinks",
@@ -1322,6 +1358,17 @@ dependencies = [
  "http",
  "http-body",
  "pin-project-lite",
+]
+
+[[package]]
+name = "http_api"
+version = "0.31.0"
+dependencies = [
+ "base_url",
+ "miette",
+ "reqwest 0.13.5",
+ "serde",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -1561,6 +1608,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d3067d79b975e8844ca9eb072e16b31c3c1c36928edf9c6789548c524d0d954"
 
 [[package]]
+name = "ident_case"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
+
+[[package]]
 name = "idna"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1753,7 +1806,7 @@ dependencies = [
 
 [[package]]
 name = "linear"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1785,7 +1838,7 @@ checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
 name = "llm"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "async-trait",
  "base_url",
@@ -1824,7 +1877,7 @@ checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
 
 [[package]]
 name = "markdown"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "config",
  "dprint-plugin-markdown",
@@ -2035,7 +2088,7 @@ dependencies = [
 
 [[package]]
 name = "oauth"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "miette",
  "tokio",
@@ -2950,11 +3003,13 @@ checksum = "8a7852d02fc848982e0c167ef163aaff9cd91dc640ba85e263cb1ce46fae51cd"
 
 [[package]]
 name = "sentry"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "base_url",
  "chrono",
  "dates",
+ "futures",
+ "http_api",
  "miette",
  "reqwest 0.13.5",
  "serde",
@@ -3060,6 +3115,28 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_with"
+version = "3.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df9adc193c780ef8f159aee8b61e2d5801aaa555e6eb0947fe45530ec506296f"
+dependencies = [
+ "serde_core",
+ "serde_with_macros",
+]
+
+[[package]]
+name = "serde_with_macros"
+version = "3.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e17bbc68e28663bbbb90df47e058aa7eda4fb445b89fe70457bb94fbccf6e49"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn 3.0.3",
 ]
 
 [[package]]
@@ -3189,7 +3266,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "summary"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3402,7 +3479,7 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "chrono",
 ]
@@ -3636,7 +3713,7 @@ dependencies = [
 
 [[package]]
 name = "undo"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "config",
  "highlight",
@@ -3691,11 +3768,12 @@ checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
 name = "updates"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "base_url",
  "chrono",
  "highlight",
+ "http_api",
  "miette",
  "reqwest 0.13.5",
  "semver",
@@ -4321,7 +4399,7 @@ checksum = "1ffae5123b2d3fc086436f8834ae3ab053a283cfac8fe0a0b8eaae044768a4c4"
 
 [[package]]
 name = "xtask"
-version = "0.30.0"
+version = "0.31.0"
 dependencies = [
  "miette",
  "semver",

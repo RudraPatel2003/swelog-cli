@@ -1,16 +1,20 @@
-use crate::commands::fetch::sources::FetchSource;
+use crate::commands::fetch::integration::Integration;
 
-pub fn format_running_notice(fetch_sources: &[FetchSource]) -> String {
+pub fn format_running_notice(integrations: &[&dyn Integration]) -> String {
     format!(
         "Running the fetch commands you have configured: {}.",
-        format_fetch_source_labels(fetch_sources)
+        format_integration_labels(integrations)
     )
 }
 
-pub fn format_fetch_source_labels(fetch_sources: &[FetchSource]) -> String {
-    fetch_sources
+pub fn format_integration_labels(integrations: &[&dyn Integration]) -> String {
+    integrations
         .iter()
-        .map(|fetch_source| fetch_source.label())
+        .map(|integration| {
+            integration
+                .spec()
+                .label
+        })
         .collect::<Vec<_>>()
         .join(", ")
 }

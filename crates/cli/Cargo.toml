@@ -1,6 +1,6 @@
 [package]
 name = "cli"
-version = "0.30.0"
+version = "0.31.0"
 authors = { workspace = true }
 edition = { workspace = true }
 description = { workspace = true }
@@ -19,6 +19,7 @@ name = "swelog"
 path = "src/main.rs"
 
 [dependencies]
+async-trait = { workspace = true }
 base_url = { path = "../base_url" }
 chrono = { workspace = true }
 clap = { workspace = true, features = ["derive"] }

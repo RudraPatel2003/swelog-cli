@@ -1,6 +1,6 @@
 [package]
 name = "config"
-version = "0.30.0"
+version = "0.31.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -21,6 +21,7 @@ highlight = { path = "../highlight" }
 miette = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+serde_with = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]

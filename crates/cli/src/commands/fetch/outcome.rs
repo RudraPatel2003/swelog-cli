@@ -11,9 +11,9 @@ use miette::Result;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum WorkFileChange {
-    UpsertSection { section_title: &'static str, content: String },
+    UpsertSection { content: String },
 
-    RemoveSection { section_title: &'static str },
+    RemoveSection,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -24,9 +24,10 @@ pub struct FetchOutcome {
 
 pub fn record_fetch_outcome(
     swelog_config: &SwelogConfig,
+    section_title: &str,
     fetch_outcome: FetchOutcome,
 ) -> Result<()> {
-    apply_work_file_change(swelog_config, fetch_outcome.work_file_change)?;
+    apply_work_file_change(swelog_config, section_title, fetch_outcome.work_file_change)?;
 
     let swelog_paths = SwelogPaths::new(swelog_config);
 
@@ -39,14 +40,15 @@ pub fn record_fetch_outcome(
 
 fn apply_work_file_change(
     swelog_config: &SwelogConfig,
+    section_title: &str,
     work_file_change: WorkFileChange,
 ) -> Result<()> {
     match work_file_change {
-        WorkFileChange::UpsertSection { section_title, content } => {
+        WorkFileChange::UpsertSection { content } => {
             upsert_work_file_section_from_config(swelog_config, section_title, &content)
         }
 
-        WorkFileChange::RemoveSection { section_title } => {
+        WorkFileChange::RemoveSection => {
             remove_work_file_section_from_config(swelog_config, section_title)
         }
     }

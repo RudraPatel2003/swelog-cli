@@ -17,10 +17,13 @@ use crate::{
     },
     client::SentryClient,
     errors::RepeatedSentryPaginationCursor,
+    issue_activity::was_resolved_during,
     issues::structs::SentryIssue,
 };
 
 const UNRESOLVED_AND_ASSIGNED_TO_ME_QUERY: &str = "assigned:me is:unresolved";
+
+const RESOLVED_AND_ASSIGNED_TO_ME_QUERY: &str = "assigned:me is:resolved";
 
 const ALL_ACCESSIBLE_PROJECTS: &str = "-1";
 
@@ -30,6 +33,22 @@ const PAGE_SIZE: &str = "100";
 /// Leaves the hourly event counts out of every issue.
 const COLLAPSED_FIELDS: &str = "stats";
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum IssueStatus {
+    Unresolved,
+    Resolved,
+}
+
+impl IssueStatus {
+    const fn get_assigned_to_me_query(self) -> &'static str {
+        match self {
+            Self::Unresolved => UNRESOLVED_AND_ASSIGNED_TO_ME_QUERY,
+
+            Self::Resolved => RESOLVED_AND_ASSIGNED_TO_ME_QUERY,
+        }
+    }
+}
+
 impl SentryClient {
     pub async fn get_assigned_issues_on_date(
         &self,
@@ -38,8 +57,12 @@ impl SentryClient {
     ) -> Result<Vec<SentryIssue>> {
         let activity_window = get_activity_window(*date, &Local)?;
 
-        self.fetch_all_assigned_issues(organization, Some(&activity_window))
-            .await
+        self.fetch_all_assigned_issues(
+            organization,
+            IssueStatus::Unresolved,
+            Some(&activity_window),
+        )
+        .await
     }
 
     /// Sentry searches the last 90 days of activity when no window is given.
@@ -47,13 +70,47 @@ impl SentryClient {
         &self,
         organization: &str,
     ) -> Result<Vec<SentryIssue>> {
-        self.fetch_all_assigned_issues(organization, None)
+        self.fetch_all_assigned_issues(organization, IssueStatus::Unresolved, None)
             .await
+    }
+
+    /// A date window would only match issues that received events on the date,
+    /// so the resolved issues are searched without one and kept when their
+    /// activity shows a resolution on the date
+    pub async fn get_assigned_issues_resolved_on_date(
+        &self,
+        organization: &str,
+        date: &NaiveDate,
+    ) -> Result<Vec<SentryIssue>> {
+        let resolution_window = get_activity_window(*date, &Local)?;
+
+        let resolved_issues = self
+            .fetch_all_assigned_issues(organization, IssueStatus::Resolved, None)
+            .await?;
+
+        let resolved_issue_ids = resolved_issues
+            .iter()
+            .map(|issue| issue.id.clone())
+            .collect();
+
+        let issue_activities = self
+            .get_issue_activities(organization, resolved_issue_ids)
+            .await?;
+
+        let issues_resolved_on_date = resolved_issues
+            .into_iter()
+            .zip(issue_activities)
+            .filter(|(_, issue_activity)| was_resolved_during(issue_activity, &resolution_window))
+            .map(|(issue, _)| issue)
+            .collect();
+
+        Ok(issues_resolved_on_date)
     }
 
     async fn fetch_all_assigned_issues(
         &self,
         organization: &str,
+        issue_status: IssueStatus,
         activity_window: Option<&ActivityWindow>,
     ) -> Result<Vec<SentryIssue>> {
         let endpoint_path = get_issues_endpoint_path(organization);
@@ -63,7 +120,8 @@ impl SentryClient {
         let mut cursor: Option<String> = None;
 
         loop {
-            let query_parameters = get_issues_query_parameters(activity_window, cursor.as_deref());
+            let query_parameters =
+                get_issues_query_parameters(issue_status, activity_window, cursor.as_deref());
 
             let page = self
                 .get_json_page(&endpoint_path, &query_parameters)
@@ -87,11 +145,17 @@ fn get_issues_endpoint_path(organization: &str) -> String {
 }
 
 fn get_issues_query_parameters(
+    issue_status: IssueStatus,
     activity_window: Option<&ActivityWindow>,
     cursor: Option<&str>,
 ) -> Vec<(&'static str, String)> {
     let mut query_parameters = vec![
-        ("query", UNRESOLVED_AND_ASSIGNED_TO_ME_QUERY.to_string()),
+        (
+            "query",
+            issue_status
+                .get_assigned_to_me_query()
+                .to_string(),
+        ),
         ("project", ALL_ACCESSIBLE_PROJECTS.to_string()),
         ("limit", PAGE_SIZE.to_string()),
         ("collapse", COLLAPSED_FIELDS.to_string()),

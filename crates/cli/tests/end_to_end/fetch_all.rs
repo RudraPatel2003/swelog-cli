@@ -1,4 +1,7 @@
-use config::swelog_config::SwelogConfig;
+use config::{
+    integrations_config::IntegrationsConfig,
+    swelog_config::SwelogConfig,
+};
 use httpmock::MockServer;
 use predicates::str::contains;
 
@@ -9,7 +12,7 @@ use crate::support::{
     },
     linear::{
         LINEAR_SECTION_FOR_THE_DAY,
-        LINEAR_USERNAME,
+        get_linear_config,
         linear_mcp_url,
         mock_linear_mcp,
         store_linear_authorization,
@@ -22,8 +25,8 @@ use crate::support::{
     },
     sentry::{
         SENTRY_AUTH_TOKEN,
-        SENTRY_ORGANIZATION,
         SENTRY_SECTION,
+        get_sentry_config,
         mock_sentry_with_issues_on,
     },
 };
@@ -66,8 +69,10 @@ fn fetch_all_runs_every_configured_source_and_records_each_section() {
     let sandbox = SwelogSandbox::new();
 
     sandbox.write_config(&SwelogConfig {
-        linear_username: Some(String::from(LINEAR_USERNAME)),
-        sentry_organization: Some(String::from(SENTRY_ORGANIZATION)),
+        integrations: IntegrationsConfig {
+            linear: Some(get_linear_config()),
+            sentry: Some(get_sentry_config()),
+        },
         ..sandbox.default_config()
     });
 
@@ -171,7 +176,9 @@ fn fetch_status_reports_missing_sentry_configuration_once_authorized() {
         .args(["fetch", "status"])
         .assert()
         .success()
-        .stdout(contains("Sentry              not included, sentryOrganization is not configured"));
+        .stdout(contains(
+            "Sentry              not included, integrations.sentry.organization is not configured",
+        ));
 }
 
 #[test]
@@ -179,7 +186,10 @@ fn fetch_status_includes_linear_once_authorized_and_configured() {
     let sandbox = SwelogSandbox::new();
 
     sandbox.write_config(&SwelogConfig {
-        linear_username: Some(String::from(LINEAR_USERNAME)),
+        integrations: IntegrationsConfig {
+            linear: Some(get_linear_config()),
+            ..IntegrationsConfig::default()
+        },
         ..sandbox.default_config()
     });
 
@@ -204,5 +214,7 @@ fn fetch_status_reports_missing_linear_configuration_once_authorized() {
         .args(["fetch", "status"])
         .assert()
         .success()
-        .stdout(contains("Linear              not included, linearUsername is not configured"));
+        .stdout(contains(
+            "Linear              not included, integrations.linear.username is not configured",
+        ));
 }

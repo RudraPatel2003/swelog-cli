@@ -5,13 +5,12 @@ use chrono::{
     Local,
     NaiveDate,
 };
-use miette::{
-    IntoDiagnostic,
-    Result,
-    WrapErr,
+use http_api::{
+    api_service::ApiService,
+    client::ApiClient,
 };
+use miette::Result;
 use reqwest::{
-    Client,
     Response,
     StatusCode,
 };
@@ -26,13 +25,9 @@ use crate::{
         DayWindow,
         get_day_window,
     },
-    errors::{
-        FailedToSendGoogleCalendarRequest,
-        UnsupportedGoogleCalendarResponse,
-    },
+    errors::UnsupportedGoogleCalendarResponse,
     meetings::collect_meetings,
     oauth::GoogleAuthorization,
-    response::read_successful_response_body,
 };
 
 pub const DEFAULT_GOOGLE_CALENDAR_API_BASE_URL: &str = "https://www.googleapis.com/";
@@ -44,16 +39,26 @@ const PAGE_SIZE: &str = "250";
 // Only fetch what is needed
 const EVENT_FIELDS: &str = "nextPageToken,items(summary,status,start(dateTime),end(dateTime),attendees(self,responseStatus))";
 
+const GOOGLE_CALENDAR_API_SERVICE: ApiService = ApiService {
+    label: "Google Calendar",
+    credential_name: "authorization",
+    credential_command_name: "google-calendar",
+    authorization_hint: "check that the Google Calendar API is enabled for the swelog OAuth client",
+    accept_header: None,
+};
+
 pub struct GoogleCalendarClient {
-    http_client: Client,
-    api_base_url: BaseUrl,
+    api_client: ApiClient,
     authorization: GoogleAuthorization,
 }
 
 impl GoogleCalendarClient {
     #[must_use]
     pub fn new(api_base_url: BaseUrl, authorization: GoogleAuthorization) -> Self {
-        Self { http_client: Client::new(), api_base_url, authorization }
+        Self {
+            api_client: ApiClient::new(api_base_url, GOOGLE_CALENDAR_API_SERVICE),
+            authorization,
+        }
     }
 
     pub async fn get_primary_calendar_meetings_on_date(
@@ -138,7 +143,10 @@ impl GoogleCalendarClient {
                 continue;
             }
 
-            return read_successful_response_body(response).await;
+            return self
+                .api_client
+                .read_successful_response_body(response)
+                .await;
         }
     }
 
@@ -148,18 +156,15 @@ impl GoogleCalendarClient {
         page_token: Option<&str>,
         access_token: &str,
     ) -> Result<Response> {
-        let events_url = self
-            .api_base_url
-            .join(PRIMARY_CALENDAR_EVENTS_ENDPOINT_PATH)?;
+        let query_parameters = get_event_page_query_parameters(day_window, page_token);
 
-        self.http_client
-            .get(events_url)
-            .query(&get_event_page_query_parameters(day_window, page_token))
-            .bearer_auth(access_token)
-            .send()
+        self.api_client
+            .send_get_request(
+                PRIMARY_CALENDAR_EVENTS_ENDPOINT_PATH,
+                &query_parameters,
+                access_token,
+            )
             .await
-            .into_diagnostic()
-            .wrap_err_with(|| FailedToSendGoogleCalendarRequest)
     }
 }
 

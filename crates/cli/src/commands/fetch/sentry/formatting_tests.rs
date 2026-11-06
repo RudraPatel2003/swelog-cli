@@ -8,11 +8,16 @@ fn get_mock_issue(
     substatus: Option<SentryIssueSubstatus>,
 ) -> SentryIssue {
     SentryIssue {
+        id: short_id.to_string(),
         short_id: short_id.to_string(),
         title: title.to_string(),
         permalink: format!("https://acme.sentry.io/issues/{short_id}/"),
         substatus,
     }
+}
+
+fn get_unresolved_activity(issues: Vec<SentryIssue>) -> SentryActivity {
+    SentryActivity { unresolved: issues, resolved: Vec::new() }
 }
 
 const SUBSTATUSES_GROUPED_AND_ORDERED: &str = r"### Escalating
@@ -32,7 +37,7 @@ const SUBSTATUSES_GROUPED_AND_ORDERED: &str = r"### Escalating
 - [BACKEND-2](https://acme.sentry.io/issues/BACKEND-2/) Ongoing issue";
 
 #[test]
-fn format_sentry_issues_groups_and_orders_substatuses() {
+fn format_sentry_activity_groups_and_orders_substatuses() {
     let regressed_issue =
         get_mock_issue("BACKEND-1", "Regressed issue", Some(SentryIssueSubstatus::Regressed));
 
@@ -46,7 +51,7 @@ fn format_sentry_issues_groups_and_orders_substatuses() {
 
     let issues = vec![regressed_issue, ongoing_issue, escalating_issue, new_issue];
 
-    let markdown = format_sentry_issues(&issues);
+    let markdown = format_sentry_activity(&get_unresolved_activity(issues));
 
     assert_eq!(markdown, SUBSTATUSES_GROUPED_AND_ORDERED);
 }
@@ -57,33 +62,33 @@ const ISSUES_SHARING_A_SUBSTATUS: &str = r"### Ongoing
 - [BACKEND-2](https://acme.sentry.io/issues/BACKEND-2/) Second";
 
 #[test]
-fn format_sentry_issues_groups_issues_sharing_a_substatus() {
+fn format_sentry_activity_groups_issues_sharing_a_substatus() {
     let first_issue = get_mock_issue("BACKEND-1", "First", Some(SentryIssueSubstatus::Ongoing));
 
     let second_issue = get_mock_issue("BACKEND-2", "Second", Some(SentryIssueSubstatus::Ongoing));
 
     let issues = vec![first_issue, second_issue];
 
-    let markdown = format_sentry_issues(&issues);
+    let markdown = format_sentry_activity(&get_unresolved_activity(issues));
 
     assert_eq!(markdown, ISSUES_SHARING_A_SUBSTATUS);
 }
 
 #[test]
-fn format_sentry_issues_keeps_the_order_within_a_substatus() {
+fn format_sentry_activity_keeps_the_order_within_a_substatus() {
     let first_issue = get_mock_issue("BACKEND-2", "Second", Some(SentryIssueSubstatus::Ongoing));
 
     let second_issue = get_mock_issue("BACKEND-1", "First", Some(SentryIssueSubstatus::Ongoing));
 
     let issues = vec![first_issue, second_issue];
 
-    let markdown = format_sentry_issues(&issues);
+    let markdown = format_sentry_activity(&get_unresolved_activity(issues));
 
     assert!(markdown.contains("Second\n- [BACKEND-1]"));
 }
 
 #[test]
-fn format_sentry_issues_collapses_whitespace_and_escapes_link_text() {
+fn format_sentry_activity_collapses_whitespace_and_escapes_link_text() {
     let mock_issue = get_mock_issue(
         "BACKEND-1",
         "TypeError: [object]\nis undefined",
@@ -92,20 +97,20 @@ fn format_sentry_issues_collapses_whitespace_and_escapes_link_text() {
 
     let issues = vec![mock_issue];
 
-    let markdown = format_sentry_issues(&issues);
+    let markdown = format_sentry_activity(&get_unresolved_activity(issues));
 
     assert!(markdown.contains("TypeError: \\[object\\] is undefined"));
 }
 
 #[test]
-fn format_sentry_issues_labels_an_unknown_or_missing_substatus_as_other() {
+fn format_sentry_activity_labels_an_unknown_or_missing_substatus_as_other() {
     let unknown_issue = get_mock_issue("BACKEND-1", "Mystery", Some(SentryIssueSubstatus::Other));
 
     let missing_issue = get_mock_issue("BACKEND-2", "Blank", None);
 
     let issues = vec![unknown_issue, missing_issue];
 
-    let markdown = format_sentry_issues(&issues);
+    let markdown = format_sentry_activity(&get_unresolved_activity(issues));
 
     assert_eq!(
         markdown
@@ -116,16 +121,73 @@ fn format_sentry_issues_labels_an_unknown_or_missing_substatus_as_other() {
 }
 
 #[test]
-fn format_sentry_issues_is_already_formatted_markdown() {
+fn format_sentry_activity_is_already_formatted_markdown() {
     let escalating_issue =
         get_mock_issue("BACKEND-1", "Escalating issue", Some(SentryIssueSubstatus::Escalating));
 
     let ongoing_issue =
         get_mock_issue("BACKEND-2", "Ongoing issue", Some(SentryIssueSubstatus::Ongoing));
 
-    let issues = vec![escalating_issue, ongoing_issue];
+    let resolved_issue = get_mock_issue("BACKEND-3", "Resolved issue", None);
 
-    let markdown = format!("{}\n", format_sentry_issues(&issues));
+    let sentry_activity = SentryActivity {
+        unresolved: vec![escalating_issue, ongoing_issue],
+        resolved: vec![resolved_issue],
+    };
+
+    let markdown = format!("{}\n", format_sentry_activity(&sentry_activity));
 
     assert_eq!(format_markdown(&markdown), markdown);
+}
+
+const RESOLVED_AFTER_UNRESOLVED: &str = r"### Escalating
+
+- [BACKEND-1](https://acme.sentry.io/issues/BACKEND-1/) Escalating issue
+
+### Resolved
+
+- [BACKEND-2](https://acme.sentry.io/issues/BACKEND-2/) First fix
+- [BACKEND-3](https://acme.sentry.io/issues/BACKEND-3/) Second fix";
+
+#[test]
+fn format_sentry_activity_lists_resolved_issues_after_the_unresolved_ones() {
+    let escalating_issue =
+        get_mock_issue("BACKEND-1", "Escalating issue", Some(SentryIssueSubstatus::Escalating));
+
+    let first_resolved_issue = get_mock_issue("BACKEND-2", "First fix", None);
+
+    let second_resolved_issue = get_mock_issue("BACKEND-3", "Second fix", None);
+
+    let sentry_activity = SentryActivity {
+        unresolved: vec![escalating_issue],
+        resolved: vec![first_resolved_issue, second_resolved_issue],
+    };
+
+    let markdown = format_sentry_activity(&sentry_activity);
+
+    assert_eq!(markdown, RESOLVED_AFTER_UNRESOLVED);
+}
+
+#[test]
+fn format_sentry_activity_lists_only_resolved_issues() {
+    let resolved_issue = get_mock_issue("BACKEND-1", "Fixed issue", None);
+
+    let sentry_activity = SentryActivity { unresolved: Vec::new(), resolved: vec![resolved_issue] };
+
+    let markdown = format_sentry_activity(&sentry_activity);
+
+    assert_eq!(
+        markdown,
+        "### Resolved\n\n- [BACKEND-1](https://acme.sentry.io/issues/BACKEND-1/) Fixed issue"
+    );
+}
+
+#[test]
+fn format_sentry_activity_leaves_out_the_resolved_group_without_resolved_issues() {
+    let ongoing_issue =
+        get_mock_issue("BACKEND-1", "Ongoing issue", Some(SentryIssueSubstatus::Ongoing));
+
+    let markdown = format_sentry_activity(&get_unresolved_activity(vec![ongoing_issue]));
+
+    assert!(!markdown.contains("### Resolved"));
 }

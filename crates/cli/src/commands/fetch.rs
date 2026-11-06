@@ -1,22 +1,26 @@
 mod all;
 mod github;
 mod google_calendar;
+mod integration;
+mod integration_args;
+mod integrations;
 mod linear;
 mod outcome;
 mod sentry;
-mod sources;
 mod status;
+mod window;
 
 use all::AllArgs;
 use clap::{
     Args,
     Subcommand,
 };
-use github::GithubArgs;
-use google_calendar::GoogleCalendarArgs;
-use linear::LinearArgs;
+use github::GithubIntegration;
+use google_calendar::GoogleCalendarIntegration;
+use integration_args::IntegrationArgs;
+use linear::LinearIntegration;
 use miette::Result;
-use sentry::SentryArgs;
+use sentry::SentryIntegration;
 use status::StatusArgs;
 
 use crate::environment::Environment;
@@ -33,16 +37,16 @@ enum FetchCommands {
     All(AllArgs),
 
     /// Fetch the PRs you opened, merged, closed, and reviewed on a date in GitHub
-    Github(GithubArgs),
+    Github(IntegrationArgs),
 
     /// Fetch the Linear issues assigned to your configured Linear username
-    Linear(LinearArgs),
+    Linear(IntegrationArgs),
 
     /// Fetch the meetings on your Google Calendar for a date
-    GoogleCalendar(GoogleCalendarArgs),
+    GoogleCalendar(IntegrationArgs),
 
-    /// Fetch the unresolved Sentry issues assigned to you
-    Sentry(SentryArgs),
+    /// Fetch the Sentry issues assigned to you
+    Sentry(IntegrationArgs),
 
     /// Show which fetch commands `swelog fetch all` will run
     Status(StatusArgs),
@@ -57,27 +61,27 @@ impl FetchArgs {
                     .await
             }
 
-            FetchCommands::Github(github_args) => {
-                github_args
-                    .run(environment)
+            FetchCommands::Github(integration_args) => {
+                integration_args
+                    .run(&GithubIntegration, environment)
                     .await
             }
 
-            FetchCommands::Linear(linear_args) => {
-                linear_args
-                    .run(environment)
+            FetchCommands::Linear(integration_args) => {
+                integration_args
+                    .run(&LinearIntegration, environment)
                     .await
             }
 
-            FetchCommands::GoogleCalendar(google_calendar_args) => {
-                google_calendar_args
-                    .run(environment)
+            FetchCommands::GoogleCalendar(integration_args) => {
+                integration_args
+                    .run(&GoogleCalendarIntegration, environment)
                     .await
             }
 
-            FetchCommands::Sentry(sentry_args) => {
-                sentry_args
-                    .run(environment)
+            FetchCommands::Sentry(integration_args) => {
+                integration_args
+                    .run(&SentryIntegration, environment)
                     .await
             }
 

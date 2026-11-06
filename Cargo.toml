@@ -60,6 +60,7 @@ rpassword = "7.5.4"
 semver = "1.0.28"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
+serde_with = { version = "3.24.0", default-features = false, features = ["macros"] }
 supports-hyperlinks = "3.2.0"
 tempfile = "3.27.0"
 thiserror = "2.0.21"
