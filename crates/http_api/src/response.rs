@@ -37,8 +37,11 @@ fn get_successful_response_text(
     status_code: StatusCode,
     response_text: String,
 ) -> Result<String> {
-    if matches!(status_code, StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN) {
-        let api_authorization_failed_error = ApiAuthorizationFailed::new(api_service, status_code);
+    if let Some(credential) = &api_service.credential
+        && matches!(status_code, StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN)
+    {
+        let api_authorization_failed_error =
+            ApiAuthorizationFailed::new(api_service.label, credential, status_code);
 
         return Err(api_authorization_failed_error.into());
     }

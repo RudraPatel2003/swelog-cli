@@ -2,7 +2,7 @@ use miette::Diagnostic;
 use reqwest::StatusCode;
 use thiserror::Error;
 
-use crate::api_service::ApiService;
+use crate::api_service::CredentialDescription;
 
 #[derive(Debug, Diagnostic, Error)]
 #[error("Failed to send {service_label} request")]
@@ -41,12 +41,16 @@ pub struct ApiAuthorizationFailed {
 
 impl ApiAuthorizationFailed {
     #[must_use]
-    pub const fn new(api_service: &ApiService, status_code: StatusCode) -> Self {
+    pub const fn new(
+        service_label: &'static str,
+        credential: &CredentialDescription,
+        status_code: StatusCode,
+    ) -> Self {
         Self {
-            service_label: api_service.label,
-            credential_name: api_service.credential_name,
-            credential_command_name: api_service.credential_command_name,
-            authorization_hint: api_service.authorization_hint,
+            service_label,
+            credential_name: credential.name,
+            credential_command_name: credential.command_name,
+            authorization_hint: credential.authorization_hint,
             status_code,
         }
     }

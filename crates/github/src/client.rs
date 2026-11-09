@@ -1,6 +1,10 @@
 use base_url::base_url::BaseUrl;
 use http_api::{
-    api_service::ApiService,
+    api_service::{
+        ApiService,
+        CredentialDescription,
+    },
+    authentication::Authentication,
     client::ApiClient,
 };
 use miette::Result;
@@ -10,10 +14,12 @@ pub const DEFAULT_GITHUB_API_BASE_URL: &str = "https://api.github.com/";
 
 const GITHUB_API_SERVICE: ApiService = ApiService {
     label: "GitHub",
-    credential_name: "token",
-    credential_command_name: "github",
-    authorization_hint: "check that your token has the `repo` scope",
-    accept_header: Some("application/vnd.github.v3+json"),
+    credential: Some(CredentialDescription {
+        name: "token",
+        command_name: "github",
+        authorization_hint: "check that your token has the `repo` scope",
+    }),
+    default_headers: &[("accept", "application/vnd.github.v3+json")],
 };
 
 pub struct GitHubClient {
@@ -34,7 +40,11 @@ impl GitHubClient {
     ) -> Result<String> {
         let response = self
             .api_client
-            .send_get_request(endpoint_path, query_parameters, &self.token)
+            .send_get_request(
+                endpoint_path,
+                query_parameters,
+                Authentication::BearerToken(&self.token),
+            )
             .await?;
 
         self.api_client
