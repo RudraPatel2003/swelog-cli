@@ -6,7 +6,11 @@ use chrono::{
     NaiveDate,
 };
 use http_api::{
-    api_service::ApiService,
+    api_service::{
+        ApiService,
+        CredentialDescription,
+    },
+    authentication::Authentication,
     client::ApiClient,
 };
 use miette::Result;
@@ -41,10 +45,12 @@ const EVENT_FIELDS: &str = "nextPageToken,items(summary,status,start(dateTime),e
 
 const GOOGLE_CALENDAR_API_SERVICE: ApiService = ApiService {
     label: "Google Calendar",
-    credential_name: "authorization",
-    credential_command_name: "google-calendar",
-    authorization_hint: "check that the Google Calendar API is enabled for the swelog OAuth client",
-    accept_header: None,
+    credential: Some(CredentialDescription {
+        name: "authorization",
+        command_name: "google-calendar",
+        authorization_hint: "check that the Google Calendar API is enabled for the swelog OAuth client",
+    }),
+    default_headers: &[],
 };
 
 pub struct GoogleCalendarClient {
@@ -162,7 +168,7 @@ impl GoogleCalendarClient {
             .send_get_request(
                 PRIMARY_CALENDAR_EVENTS_ENDPOINT_PATH,
                 &query_parameters,
-                access_token,
+                Authentication::BearerToken(access_token),
             )
             .await
     }

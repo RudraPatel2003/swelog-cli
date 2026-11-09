@@ -3,19 +3,19 @@ mod structs;
 
 use async_trait::async_trait;
 use base_url::base_url::BaseUrl;
-use errors::{
-    OpenAiAuthorizationFailed,
-    OpenAiRequestFailed,
-    OpenAiResponseMissingText,
+use errors::OpenAiResponseMissingText;
+use http_api::{
+    api_service::{
+        ApiService,
+        CredentialDescription,
+    },
+    authentication::Authentication,
+    client::ApiClient,
 };
 use miette::{
     IntoDiagnostic,
     Result,
     WrapErr,
-};
-use reqwest::{
-    Client,
-    StatusCode,
 };
 use structs::{
     OpenAiResponse,
@@ -28,9 +28,18 @@ pub const DEFAULT_OPEN_AI_BASE_URL: &str = "https://api.openai.com/";
 
 const RESPONSES_ENDPOINT_PATH: &str = "v1/responses";
 
+const OPEN_AI_API_SERVICE: ApiService = ApiService {
+    label: "OpenAI",
+    credential: Some(CredentialDescription {
+        name: "API key",
+        command_name: "open-ai",
+        authorization_hint: "check that the key is active in the OpenAI dashboard",
+    }),
+    default_headers: &[],
+};
+
 pub struct OpenAiLanguageModel {
-    client: Client,
-    base_url: BaseUrl,
+    api_client: ApiClient,
     model: String,
     api_key: String,
 }
@@ -38,7 +47,7 @@ pub struct OpenAiLanguageModel {
 impl OpenAiLanguageModel {
     #[must_use]
     pub fn new(base_url: BaseUrl, model: String, api_key: String) -> Self {
-        Self { client: Client::new(), base_url, model, api_key }
+        Self { api_client: ApiClient::new(base_url, OPEN_AI_API_SERVICE), model, api_key }
     }
 }
 
@@ -48,40 +57,19 @@ impl LanguageModel for OpenAiLanguageModel {
         let request =
             OpenAiResponseRequest { model: self.model.clone(), input: String::from(prompt) };
 
-        let endpoint_url = self
-            .base_url
-            .join(RESPONSES_ENDPOINT_PATH)?;
-
         let response = self
-            .client
-            .post(endpoint_url)
-            .bearer_auth(self.api_key.clone())
-            .json(&request)
-            .send()
-            .await
-            .into_diagnostic()
-            .wrap_err_with(|| format!("failed to send OpenAI request for model {}", self.model))?;
+            .api_client
+            .send_post_request(
+                RESPONSES_ENDPOINT_PATH,
+                &request,
+                Authentication::BearerToken(&self.api_key),
+            )
+            .await?;
 
-        let status = response.status();
-
-        if matches!(status, StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN) {
-            let open_ai_authorization_failed_error = OpenAiAuthorizationFailed { status };
-
-            return Err(open_ai_authorization_failed_error.into());
-        }
-
-        if !status.is_success() {
-            let open_ai_request_failed_error =
-                OpenAiRequestFailed { model: self.model.clone(), status };
-
-            return Err(open_ai_request_failed_error.into());
-        }
-
-        let response_body = response
-            .text()
-            .await
-            .into_diagnostic()
-            .wrap_err("failed to read OpenAI response body")?;
+        let response_body = self
+            .api_client
+            .read_successful_response_body(response)
+            .await?;
 
         parse_open_ai_response_text(&response_body, &self.model)
     }

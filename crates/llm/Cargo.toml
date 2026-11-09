@@ -1,6 +1,6 @@
 [package]
 name = "llm"
-version = "0.31.0"
+version = "0.32.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -22,9 +22,9 @@ chrono = { workspace = true }
 config = { path = "../config" }
 credentials = { path = "../credentials" }
 dates = { path = "../dates" }
+http_api = { path = "../http_api" }
 miette = { workspace = true }
 ollama-rs = { workspace = true }
-reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

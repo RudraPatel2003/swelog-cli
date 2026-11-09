@@ -3,19 +3,19 @@ mod structs;
 
 use async_trait::async_trait;
 use base_url::base_url::BaseUrl;
-use errors::{
-    AnthropicAuthorizationFailed,
-    AnthropicRequestFailed,
-    AnthropicResponseMissingText,
+use errors::AnthropicResponseMissingText;
+use http_api::{
+    api_service::{
+        ApiService,
+        CredentialDescription,
+    },
+    authentication::Authentication,
+    client::ApiClient,
 };
 use miette::{
     IntoDiagnostic,
     Result,
     WrapErr,
-};
-use reqwest::{
-    Client,
-    StatusCode,
 };
 use structs::{
     AnthropicMessagesRequest,
@@ -40,9 +40,18 @@ const USER_ROLE: &str = "user";
 // The Messages API requires max_tokens on every request and has no default.
 const MAX_RESPONSE_TOKENS: u32 = 8192;
 
+const ANTHROPIC_API_SERVICE: ApiService = ApiService {
+    label: "Anthropic",
+    credential: Some(CredentialDescription {
+        name: "API key",
+        command_name: "anthropic",
+        authorization_hint: "check that the key is active in the Anthropic Console",
+    }),
+    default_headers: &[(ANTHROPIC_VERSION_HEADER, ANTHROPIC_VERSION)],
+};
+
 pub struct AnthropicLanguageModel {
-    client: Client,
-    base_url: BaseUrl,
+    api_client: ApiClient,
     model: String,
     api_key: String,
 }
@@ -50,7 +59,7 @@ pub struct AnthropicLanguageModel {
 impl AnthropicLanguageModel {
     #[must_use]
     pub fn new(base_url: BaseUrl, model: String, api_key: String) -> Self {
-        Self { client: Client::new(), base_url, model, api_key }
+        Self { api_client: ApiClient::new(base_url, ANTHROPIC_API_SERVICE), model, api_key }
     }
 }
 
@@ -66,47 +75,20 @@ impl LanguageModel for AnthropicLanguageModel {
             }],
         };
 
-        let endpoint_url = self
-            .base_url
-            .join(MESSAGES_ENDPOINT_PATH)?;
+        let authentication = Authentication::ApiKeyHeader {
+            header_name: ANTHROPIC_API_KEY_HEADER,
+            api_key: &self.api_key,
+        };
 
         let response = self
-            .client
-            .post(endpoint_url)
-            .header(
-                ANTHROPIC_API_KEY_HEADER,
-                self.api_key
-                    .as_str(),
-            )
-            .header(ANTHROPIC_VERSION_HEADER, ANTHROPIC_VERSION)
-            .json(&request)
-            .send()
-            .await
-            .into_diagnostic()
-            .wrap_err_with(|| {
-                format!("failed to send Anthropic request for model {}", self.model)
-            })?;
+            .api_client
+            .send_post_request(MESSAGES_ENDPOINT_PATH, &request, authentication)
+            .await?;
 
-        let status = response.status();
-
-        if matches!(status, StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN) {
-            let anthropic_authorization_failed_error = AnthropicAuthorizationFailed { status };
-
-            return Err(anthropic_authorization_failed_error.into());
-        }
-
-        if !status.is_success() {
-            let anthropic_request_failed_error =
-                AnthropicRequestFailed { model: self.model.clone(), status };
-
-            return Err(anthropic_request_failed_error.into());
-        }
-
-        let response_body = response
-            .text()
-            .await
-            .into_diagnostic()
-            .wrap_err("failed to read Anthropic response body")?;
+        let response_body = self
+            .api_client
+            .read_successful_response_body(response)
+            .await?;
 
         parse_anthropic_response_text(&response_body, &self.model)
     }

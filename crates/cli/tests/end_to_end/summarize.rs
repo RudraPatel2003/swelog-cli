@@ -10,6 +10,7 @@ use crate::support::{
         ANTHROPIC_API_KEY,
         ANTHROPIC_MODEL,
         mock_anthropic_messages,
+        mock_anthropic_rejecting_the_api_key,
     },
     sandbox::{
         ACTIVITY_DATE,
@@ -298,6 +299,31 @@ fn summarize_fails_fast_without_an_api_key_when_there_is_no_terminal() {
         .stderr(contains("Anthropic API key is not available"));
 
     assert_eq!(messages.calls(), 0);
+
+    assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
+}
+
+#[test]
+fn summarize_asks_to_replace_an_api_key_that_anthropic_rejects() {
+    let sandbox = get_sandbox_configured_for_anthropic();
+
+    sandbox.write_work_file(WRITTEN_WORK_FILE_CONTENT);
+
+    let anthropic = MockServer::start();
+
+    let rejection = mock_anthropic_rejecting_the_api_key(&anthropic);
+
+    sandbox
+        .swelog()
+        .env("ANTHROPIC_API_KEY", ANTHROPIC_API_KEY)
+        .env("SWELOG_ANTHROPIC_API_URL", anthropic.base_url())
+        .args(["summarize", "day", "--date", ACTIVITY_DATE])
+        .assert()
+        .failure()
+        .stderr(contains("Anthropic rejected your API key with status 401"))
+        .stderr(contains("swelog auth clear anthropic"));
+
+    rejection.assert();
 
     assert_eq!(sandbox.read_work_file(), WRITTEN_WORK_FILE_CONTENT);
 }

@@ -1,6 +1,10 @@
 use base_url::base_url::BaseUrl;
 use http_api::{
-    api_service::ApiService,
+    api_service::{
+        ApiService,
+        CredentialDescription,
+    },
+    authentication::Authentication,
     client::ApiClient,
 };
 use miette::Result;
@@ -15,10 +19,12 @@ pub const DEFAULT_SENTRY_API_BASE_URL: &str = "https://sentry.io/api/0/";
 
 const SENTRY_API_SERVICE: ApiService = ApiService {
     label: "Sentry",
-    credential_name: "auth token",
-    credential_command_name: "sentry",
-    authorization_hint: "check that your token has the `event:read` scope",
-    accept_header: None,
+    credential: Some(CredentialDescription {
+        name: "auth token",
+        command_name: "sentry",
+        authorization_hint: "check that your token has the `event:read` scope",
+    }),
+    default_headers: &[],
 };
 
 pub struct SentryClient {
@@ -39,7 +45,11 @@ impl SentryClient {
     ) -> Result<ResponsePage> {
         let response = self
             .api_client
-            .send_get_request(endpoint_path, query_parameters, &self.token)
+            .send_get_request(
+                endpoint_path,
+                query_parameters,
+                Authentication::BearerToken(&self.token),
+            )
             .await?;
 
         let next_cursor = read_next_cursor(&response);

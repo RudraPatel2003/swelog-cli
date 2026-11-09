@@ -1,14 +1,19 @@
 use miette::Diagnostic;
 
 use super::*;
+use crate::api_service::CredentialDescription;
 
-const MOCK_API_SERVICE: ApiService = ApiService {
-    label: "Mock Service",
-    credential_name: "token",
-    credential_command_name: "mock-service",
+const MOCK_CREDENTIAL: CredentialDescription = CredentialDescription {
+    name: "token",
+    command_name: "mock-service",
     authorization_hint: "check that your token has the `read` scope",
-    accept_header: None,
 };
+
+const MOCK_API_SERVICE: ApiService =
+    ApiService { label: "Mock Service", credential: Some(MOCK_CREDENTIAL), default_headers: &[] };
+
+const MOCK_PUBLIC_API_SERVICE: ApiService =
+    ApiService { label: "Mock Public Service", credential: None, default_headers: &[] };
 
 const RESPONSE_TEXT: &str = r#"{ "message": "response" }"#;
 
@@ -54,8 +59,11 @@ fn forbidden_response_asks_to_replace_the_credential() {
 
 #[test]
 fn authorization_failure_help_names_the_clear_command_and_the_hint() {
-    let authorization_failed_error =
-        ApiAuthorizationFailed::new(&MOCK_API_SERVICE, StatusCode::UNAUTHORIZED);
+    let authorization_failed_error = ApiAuthorizationFailed::new(
+        MOCK_API_SERVICE.label,
+        &MOCK_CREDENTIAL,
+        StatusCode::UNAUTHORIZED,
+    );
 
     let help = authorization_failed_error
         .help()
@@ -80,4 +88,20 @@ fn unsuccessful_response_keeps_the_status_and_text() {
     assert_eq!(unsuccessful_response_error.status_code, StatusCode::INTERNAL_SERVER_ERROR);
 
     assert_eq!(unsuccessful_response_error.response_text, RESPONSE_TEXT);
+}
+
+#[test]
+fn unauthorized_response_from_a_public_service_is_unsuccessful() {
+    let error = get_successful_response_text(
+        &MOCK_PUBLIC_API_SERVICE,
+        StatusCode::UNAUTHORIZED,
+        RESPONSE_TEXT.to_string(),
+    )
+    .expect_err("unauthorized response should fail");
+
+    let unsuccessful_response_error = error
+        .downcast_ref::<UnsuccessfulApiResponse>()
+        .expect("error should be an unsuccessful response, not an authorization failure");
+
+    assert_eq!(unsuccessful_response_error.status_code, StatusCode::UNAUTHORIZED);
 }

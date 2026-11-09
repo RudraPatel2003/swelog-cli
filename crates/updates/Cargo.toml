@@ -1,6 +1,6 @@
 [package]
 name = "updates"
-version = "0.31.0"
+version = "0.32.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -21,7 +21,6 @@ chrono = { workspace = true }
 highlight = { path = "../highlight" }
 http_api = { path = "../http_api" }
 miette = { workspace = true }
-reqwest = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
